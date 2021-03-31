@@ -243,6 +243,9 @@ export default {
 }
 </style>
 <style lang="scss">
+.signBox {
+    height: 40px;
+}
 .signImgBox {
     img {
         height: 30px;

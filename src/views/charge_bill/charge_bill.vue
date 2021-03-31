@@ -37,17 +37,17 @@
                     <el-table-column prop="chargeBillConfigName" label="名称"></el-table-column>
                     <el-table-column label="航空公司" align="center">
                         <template slot-scope="scope">
-                            <img :src="getSingSrc(scope.row,'hkgs')" alt="">
+                            <img class="signBox" :src="getSingSrc(scope.row,'hkgs')" alt="">
                         </template>
                     </el-table-column>
                     <el-table-column label="操作人员" align="center">
                         <template slot-scope="scope">
-                            <img :src="getSingSrc(scope.row,'czry')" alt="">
+                            <img class="signBox" :src="getSingSrc(scope.row,'czry')" alt="">
                         </template>
                     </el-table-column>
                     <el-table-column label="机组人员" align="center">
                         <template slot-scope="scope">
-                            <img :src="getSingSrc(scope.row,'jzry')" alt="">
+                            <img class="signBox" :src="getSingSrc(scope.row,'jzry')" alt="">
                         </template>
                     </el-table-column>
                     <el-table-column label="收费记录" width="120" align="center">

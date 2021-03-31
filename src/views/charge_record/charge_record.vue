@@ -280,8 +280,3 @@ export default {
     },
 }
 </script>
-<style>
-.signBox {
-    height: 40px;
-}
-</style>
