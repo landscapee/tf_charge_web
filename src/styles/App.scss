@@ -1,0 +1,98 @@
+/*svg图标样式*/
+.svg-icon {
+    width:.18rem;
+    height:.18rem;
+    vertical-align: -0.15em;
+    fill: currentColor;
+    overflow: hidden;
+}
+
+
+
+
+@font-face {
+	font-family: 'sansN';
+	src:url("./assets/font/Normal.ttf"); 
+}
+@font-face {
+	font-family: 'sansB';
+	src:url("./assets/font/SourceHanSansCN-Bold.ttf"); 
+}
+
+@font-face {
+	font-family: 'sansR';
+	src:url("./assets/font/Regular.ttf");
+}
+
+@font-face {//数字英文
+	font-family: 'Arial';
+	src: url("./assets/font/Regular.ttf");
+}
+
+//数字字体
+@font-face {
+	font-family: 'orbiL';
+	src: url("./assets/font/orbitron-Light.ttf");
+}
+
+@font-face {
+	font-family: 'orbiR';
+	src:url("./assets/font/orbitron-Regular.ttf"); 
+}
+
+@font-face {
+	font-family: 'orbiB';
+	src:url("./assets/font/orbitron-Bold.ttf"); 
+}
+
+@font-face {//重点数字
+	font-family: 'siB';
+	src:url("./assets/font/siyuanBold.ttf"); 
+}
+
+
+//阿里普惠体
+// ./assets/font/webfontLight.ttf
+// ./assets/font/webfontMedium.ttf
+// ./assets/font/webfontBold.ttf
+// ./assets/font/webfontRegular.ttf
+
+//SourceHanSans字体
+// ./assets/font/SourceHanSansCN-Bold.ttf
+// ./assets/font/SourceHanSansCN-Medium.ttf
+// ./assets/font/SourceHanSansCN-Bold.ttf
+// ./assets/font/SourceHanSansCN-Regular.ttf
+//	./assets/font/SourceHanSansCN-Normal.ttf
+
+
+
+
+.sansB{font-family:'sansB'!important;}
+.sansN{font-family:'sansN'!important;}
+.sansR{font-family:'sansR'!important;}
+
+.orbiR{font-family:'orbiR'!important;}
+.orbiL{font-family:'orbiL'!important;}
+.orbiB{font-family:'orbiB'!important;}
+
+
+.Arial{font-family:'Arial'!important;}
+
+html * {font-family:'sansN'!important;}
+
+
+.border0{border:none!important;}
+
+.flexSC{display: flex;justify-content: center;align-items: center;}
+.flexSS{display: flex;justify-content: flex-start;align-items: center;}
+
+.flexSA{display: flex;justify-content: space-around;align-items: center;}
+.flexSB{display: flex;justify-content: space-between;align-items: center;}
+
+.flexDC{display: flex;flex-direction: column;}
+.flexDCC{display: flex;flex-direction: column;justify-content: center;align-items: center;}
+
+.flexDA{display: flex;flex-direction: column;justify-content: space-around;}
+
+
+.pointer{cursor: pointer;}

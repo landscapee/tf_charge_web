@@ -1,0 +1,590 @@
+<template>
+    <div id="index">
+        <glob-head />
+        <div class="content">
+            <div class="leftBox">
+                <div class="userMsgBox">
+                    <img src="/static/img/userImg.png" alt="">
+                    <div>{{userData.name}}</div>
+                    <div>{{userData.deptName}}</div>
+                </div>
+                <ul>
+                    <li v-for="(nav,idx) in navLists" :key="idx" :class="{active:flagNav.path==nav.path}" @click="navHandle(nav,idx)" v-show="nav.show">
+                        <i :class="nav.icon" class="iconfont"></i>
+                        <span>{{nav.name}}</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="rightBox">
+                <router-view :power="power" :flagNav="flagNav" />
+            </div>
+        </div>
+
+    </div>
+</template>
+
+<script>
+export default {
+    data() {
+        return {
+            userData: {},
+            flagNav: {},
+            navLists: [
+                {
+                    name: '收费项配置',
+                    icon: 'el-icon-setting',
+                    path: 'charge_config',
+                    show: false,
+                },
+                {
+                    name: '附加信息项配置',
+                    icon: 'el-icon-setting',
+                    path: 'additional_information_config',
+                    show: false,
+                },
+                {
+                    name: '签字单配置',
+                    icon: 'el-icon-setting',
+                    path: 'sign_config',
+                    show: false,
+                },
+
+                {
+                    name: '服务记录单配置',
+                    icon: 'el-icon-setting',
+                    path: 'service_config',
+                    show: false,
+                },
+
+                {
+                    name: '收费单配置',
+                    icon: 'el-icon-setting',
+                    path: 'charge_bill_config',
+                    show: false,
+                },
+                {
+                    name: '数据源配置',
+                    icon: 'el-icon-setting',
+                    path: 'charge_data_source',
+                    show: false,
+                },
+
+                {
+                    name: '补充信息配置',
+                    icon: 'el-icon-setting',
+                    path: 'supplement_info_config',
+                    show: false,
+                },
+                {
+                    name: '数据字典',
+                    icon: 'el-icon-setting',
+                    path: 'data_dictionary',
+                    show: false,
+                },
+                {
+                    name: '收费记录',
+                    icon: 'el-icon-c-scale-to-original',
+                    path: 'charge_record',
+                    show: false,
+                },
+                {
+                    name: '收费单',
+                    icon: 'el-icon-c-scale-to-original',
+                    path: 'charge_bill',
+                    show: false,
+                },
+                // {
+                //     name: '收费数据审批',
+                //     icon: 'el-icon-c-scale-to-original',
+                //     path: 'examine',
+                //     show: false,
+                // },
+                { name: '收费单据', icon: 'el-icon-s-custom', path: 'bill', show: false },
+            ],
+            power: {
+                select: false,
+                add: false,
+                update: false,
+                delete: false,
+            },
+        }
+    },
+    computed: {},
+    components: {
+        'glob-head': () => import(/*webpackChunkName:"glob-head"*/ '../components/com-glob-head'),
+    },
+    created() {
+        this.userData = JSON.parse(sessionStorage.userData)
+        this.getSetButtonShow()
+    },
+    methods: {
+        navHandle(nav) {
+            this.flagNav = nav
+            this.$router.push(nav.path)
+        },
+        getSetButtonShow() {
+            //设置按钮权限
+            let menus = this.userData.menus || []
+
+            menus.map((list) => {
+                let obj = _.find(this.navLists, { path: list.code })
+                if (obj) {
+                    obj.show = true
+                    obj.name = list.name
+                }
+                if (list.code == 'select') {
+                    this.power.select = true
+                }
+                if (list.code == 'add') {
+                    this.power.add = true
+                }
+                if (list.code == 'update') {
+                    this.power.update = true
+                }
+                if (list.code == 'delete') {
+                    this.power.delete = true
+                }
+            })
+
+            let newNav = this.navLists.filter((nav) => {
+                return nav.show
+            })
+            if (newNav.length > 0) {
+                let nav = _.find(newNav, { path: this.$route.name })
+                if (nav) {
+                    this.navHandle(nav)
+                } else {
+                    this.navHandle(newNav[0])
+                }
+            }
+        },
+    },
+}
+</script>
+
+<style lang="scss" scoped>
+#index {
+    height: 100%;
+    width: 100%;
+    .content {
+        height: calc(100% - 40px);
+        display: flex;
+    }
+    .leftBox {
+        width: 220px;
+        background-image: url('/static/img/left-bg.png');
+        background-size: 100% 100%;
+        .userMsgBox {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 0;
+            img {
+                height: 50p;
+                width: 50px;
+                margin-bottom: 10px;
+            }
+            div {
+                line-height: 20px;
+                color: #fff;
+            }
+        }
+        ul {
+            li {
+                height: 50px;
+                display: flex;
+                align-items: center;
+                color: #fff;
+                cursor: pointer;
+                i {
+                    margin: 0 10px 0 40px;
+                }
+            }
+            li.active {
+                background: linear-gradient(
+                    270deg,
+                    rgba(73, 90, 255, 1) 1%,
+                    rgba(10, 207, 254, 1) 100%
+                );
+            }
+        }
+    }
+    .rightBox {
+        width: calc(100% - 220px);
+        background: #eee;
+        position: relative;
+        overflow: hidden;
+    }
+    .msg_box {
+        width: 400px;
+        position: absolute;
+        bottom: 10px;
+        right: 20px;
+        z-index: 20;
+        display: flex;
+        flex-direction: column;
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-radius: 4px;
+            position: relative;
+            margin-bottom: 10px;
+            background-color: #faecd8;
+            color: #e6a23c;
+            box-shadow: 0px 0px 10px #333333;
+            p {
+                line-height: 20px;
+            }
+        }
+    }
+}
+</style>
+<style lang="scss">
+.signImgBox {
+    img {
+        height: 30px;
+    }
+}
+.el-form-item {
+    margin-bottom: 15px !important;
+}
+.el-date-editor .el-range-separator {
+    width: 30px;
+}
+// .el-range-editor{width:250px!important;}
+// .el-button--text{color:#333;padding: 0;}
+.el-cascader__tags {
+    display: flex;
+    flex-wrap: nowrap;
+}
+.el-cascader__tags span:nth-child(1) {
+    max-width: 110px;
+}
+
+// .el-select__tags > span {
+//     display: flex !important;
+// }
+// .el-select__tags > span span:nth-child(1) {
+//     display: flex;
+//     align-items: center;
+//     span {
+//         max-width: 100px;
+//         overflow: hidden;
+//         text-overflow: ellipsis;
+//         white-space: nowrap;
+//         display: inline-block;
+//     }
+// }
+
+.el-cascader {
+    .el-input__inner {
+        height: 40px !important;
+    }
+}
+
+.rightBoxContent {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    .topBox {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        height: 50px;
+        padding: 0 20px;
+        align-items: center;
+        border-bottom: 1px solid rgba(210, 210, 210, 1);
+        background: #fff;
+        .navBox {
+            display: flex;
+            height: 100%;
+            align-items: center;
+            li {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                justify-content: space-between;
+                margin-right: 20px;
+                cursor: pointer;
+                .top {
+                    height: 5px;
+                }
+                .mid.one {
+                    font-size: 16px;
+                    font-weight: 600;
+                }
+                .bottom {
+                    height: 5px;
+                    width: 100%;
+                    background: transparent;
+                    border-radius: 5px;
+                }
+            }
+            li.active {
+                .mid {
+                    font-size: 16px;
+                    font-weight: 600;
+                }
+                .bottom {
+                    background: linear-gradient(
+                        270deg,
+                        rgba(73, 90, 255, 1) 1%,
+                        rgba(10, 207, 254, 1) 100%
+                    );
+                }
+            }
+        }
+    }
+    .searchBox {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 10px 0;
+        .leftBox {
+            display: flex;
+            & > div {
+                margin-right: 10px;
+            }
+            .el-select {
+                width: 100px;
+            }
+        }
+        .rightBox {
+            display: flex;
+            & > div {
+                margin-right: 10px;
+            }
+            .el-select {
+                width: 100px;
+            }
+        }
+    }
+    #tableBox {
+        height: calc(100% - 100px);
+        padding: 10px;
+    }
+    .tableBox {
+        background: #fff;
+        height: 100%;
+    }
+}
+
+.rightBox {
+    table {
+        width: 100%;
+        thead {
+            tr {
+                height: 40px;
+                th {
+                    background-color: #3a3f43 !important;
+                    color: #fff;
+                    height: 40px;
+                    padding: 0 !important;
+                    // .cell{text-align: center;}
+                }
+            }
+        }
+        tbody {
+            tr {
+                height: 50px;
+                td {
+                    height: 50px;
+                    padding: 4px 0 !important;
+                }
+                // td{text-align: center;}
+                .cell > i {
+                    margin: 0 5px;
+                    cursor: pointer;
+                    font-size: 18px;
+                }
+                .stateBoxBox {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+            }
+            tr:nth-child(even) {
+                background: #eee;
+            }
+            tr:hover {
+                td {
+                    background-color: #a0cbf6 !important;
+                }
+            }
+        }
+    }
+}
+.optBox {
+    .el-button {
+        padding: 0;
+    }
+}
+.paginationBox {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+}
+.stateBox {
+    padding: 0 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #fff;
+}
+.stateE {
+    background: #ccc;
+}
+.stateD {
+    background: #3988ff;
+}
+.stateC {
+    background: #1bd69b;
+}
+.stateB {
+    background: #ff7172;
+}
+.stateA {
+    background: #e6a23c;
+}
+.recordD {
+    background: #3988ff;
+}
+.recordC {
+    background: rgba(197, 127, 240, 1);
+}
+.recordB {
+    background: rgba(221, 189, 75, 1);
+}
+.recordA {
+    background: rgba(27, 214, 155, 1);
+}
+.stateDefault {
+    background: #fff;
+    color: #333;
+    border: 1px solid #333;
+}
+
+.rowDrawer {
+    .el-drawer {
+        overflow: auto;
+    }
+    .title {
+        height: 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        .left {
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .stateBox {
+            font-size: 14px;
+            font-weight: 400;
+            margin-left: 5px;
+        }
+        // .el-button--text{color:#333;padding: 0;}
+    }
+    .content {
+        border-top: 1px solid #ccc;
+        padding: 20px 20px 20px 0;
+    }
+    .reportContent {
+        border-top: 1px dashed #ccc;
+        padding: 20px;
+        & > div {
+            text-align: right;
+            color: #999;
+            line-height: 24px;
+        }
+    }
+    .el-form-item {
+        margin-bottom: 15px;
+    }
+    .el-form-item__label {
+        font-weight: 600;
+        color: #333;
+        line-height: 24px;
+    }
+    .el-form-item__content {
+        line-height: 24px;
+    }
+    .buttonBox {
+        display: flex;
+        justify-content: flex-end;
+    }
+    .fileBox {
+        span {
+            color: #3988ff;
+            cursor: pointer;
+        }
+    }
+}
+.fileImg {
+    .el-dialog__body {
+        padding: 0 !important;
+    }
+}
+
+#addTask {
+    .el-dialog {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        margin: 0 !important;
+    }
+    .el-dialog__header {
+        padding: 0;
+    }
+    .head {
+        height: 50px;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 20px;
+        align-items: center;
+        color: #fff;
+        background: rgba(57, 136, 255, 1);
+        div {
+            width: 18px;
+        }
+        span {
+            font-size: 18px;
+        }
+        i {
+            cursor: pointer;
+        }
+    }
+    // label{color:#000;}
+    // .el-dialog__body{padding: 0 50px 0 0;height: calc(100% - 120px);}
+    // .content{height: 100%;display: flex;flex-wrap: wrap;padding: 30px 20px 0;
+    //     .addForm{width: 100%;display: flex;flex-wrap: wrap;}
+    //     .el-form-item{display: flex;}
+    //     .el-form-item__content{flex: 1;margin: 0!important;}
+    //     .el-select{width: 100%;}
+    //     textarea{height:200px;}
+    //     .addFileBtn{height: 40px;width: 40px;border-radius: 4px;border:1px dashed rgba(57, 136, 255, 1);background: rgba(57, 136, 255, .3);color:rgba(57, 136, 255, 1);}
+    // }
+    // .changepass{padding: 30px 60px 0!important;}
+
+    // .fenge{
+    //     width: 100%;border-bottom: 1px dashed #000;margin: 10px 0;
+    // }
+    // .footer{
+    //     button{margin: 0 10px;}
+    // }
+
+    // .resiveBox{height: 200px;background: #fff;width: 100%;margin-top: 20px;border:1px solid #DCDFE6;padding:10px ;overflow: auto;
+    //     .titleBox{display: flex;justify-content: space-between;align-items: center;}
+    //     .contentBox{display: flex;flex-wrap: wrap;
+    //         .checkBox{height: 40px;border: 1px solid rgba(57, 136, 255, 1);border-radius:4px ;padding: 0 10px;background: rgba(57, 136, 255,.2);margin: 5px;
+    //             i{margin-left: 5px;color:rgba(57, 136, 255, 1);cursor: pointer;}
+    //         }
+    //     }
+    // }
+}
+</style>
