@@ -177,6 +177,7 @@ export default {
                 this.supplementInfos = this.details.chargeBill.flightSupplementInfos || []
                 let signs = []
                 this.details.chargeBill &&
+                    this.details.chargeBill.chargeBillSigns &&
                     this.details.chargeBill.chargeBillSigns.map((list) => {
                         if (list.signId) {
                             signs.push({
@@ -229,11 +230,12 @@ export default {
                 }
                 return true
             }
+            console.log(this.sysEdition)
 
             Signature.init({
                 //初始化属性
                 //keysn:'0741170010110516',
-                keysn: '0003',
+                keysn: this.sysEdition == 'tianfu' ? 'maintenance' : '0003',
                 delCallBack: this.delSign,
                 moveable: false,
                 showNoPW: true,
@@ -243,7 +245,9 @@ export default {
                 imgtag: 0, //签章类型：0：无; 1:公章; 2:私章; 3:法人章; 4:法人签名; 5:手写签名
                 certType: 'server', //设置证书在签章服务器
                 sealType: 'server', //设置印章从签章服务器取
-                serverUrl: 'http://173.101.1.134:8089/iSignatureHTML5',
+                serverUrl: this.sysEdition
+                    ? 'http://10.33.144.57:8089/iSignatureHTML5'
+                    : 'http://173.101.1.134:8089/iSignatureHTML5',
                 documentid: 'KG2016093001333', //设置文档ID
                 documentname: '测试文档KG2016093001', //设置文档名称
                 pw_timeout: 's1800', //s：秒；h:小时；d:天
@@ -320,7 +324,7 @@ export default {
             })
             this.$axios
                 .post(
-                    `/charge-bill-sign/saveAll?userId=${this.queryData.userId}&userLoginName=${this.queryData.userLoginName}`,
+                    `/charge-bill-sign/saveAll?chargeBillId=${this.queryData.chargeBillId}&userId=${this.queryData.userId}&userLoginName=${this.queryData.userLoginName}`,
                     arrs
                 )
                 .then((res) => {

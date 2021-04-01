@@ -49,11 +49,10 @@
                                 <pre>
                                     {{scope.row.params?JSON.parse(scope.row.params):''}}
                                 </pre>
-                                <el-button slot="reference" type="primary" size="mini" v-if="getShowParameter(scope.row.params)">查看</el-button>
+                                <el-button slot="reference" type="primary" size="mini" v-show="getShowParameter(scope.row.params)">查看</el-button>
                             </el-popover>
                         </template>
                     </el-table-column>
-
                     <el-table-column prop="createrName" label="创建人"></el-table-column>
                     <el-table-column label="创建时间" width="180">
                         <template slot-scope="scope">

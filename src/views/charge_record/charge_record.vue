@@ -41,7 +41,7 @@
                         </template>
                     </el-table-column>
                     <el-table-column type="selection" width="55" align="center"></el-table-column>
-                    <el-table-column prop="chargeBill.flightNo" label="航班号"></el-table-column>
+                    <el-table-column prop="flightNo" label="航班号"></el-table-column>
                     <!-- <el-table-column prop="chargeDataSource.name" label="数据源">
                         <template slot-scope="scope">
                             {{scope.row.chargeDataSource?(scope.row.chargeDataSource.name||scope.row.chargeDataSource.code):''}}
@@ -61,17 +61,31 @@
 
                     <el-table-column label="航空公司" align="center">
                         <template slot-scope="scope">
-                            <img class="signBox" :src="getSingSrc(scope.row.chargeBill,'hkgs')" alt="">
+                            <img class="signBox" :src="getSingSrc(scope.row.chargeBillSigns,'hkgs')" alt="">
                         </template>
                     </el-table-column>
                     <el-table-column label="操作人员" align="center">
                         <template slot-scope="scope">
-                            <img class="signBox" :src="getSingSrc(scope.row.chargeBill,'czry')" alt="">
+                            <img class="signBox" :src="getSingSrc(scope.row.chargeBillSigns,'czry')" alt="">
                         </template>
                     </el-table-column>
                     <el-table-column label="机组人员" align="center">
                         <template slot-scope="scope">
-                            <img class="signBox" :src="getSingSrc(scope.row.chargeBill,'jzry')" alt="">
+                            <img class="signBox" :src="getSingSrc(scope.row.chargeBillSigns,'jzry')" alt="">
+                        </template>
+                    </el-table-column>
+
+                    <el-table-column label="补充记录" width="120" align="center">
+                        <template slot-scope="scope">
+                            <el-popover placement="right" width="400" trigger="hover" popper-class="rightBox">
+                                <el-table :data="scope.row.flightSupplementInfos" border stripe>
+                                    <el-table-column prop="supplementTitle" label="名称"></el-table-column>
+                                    <el-table-column prop="valueCode" label="数据"></el-table-column>
+                                    <el-table-column prop="supplementUnit" label="单位"></el-table-column>
+                                    <el-table-column prop="valueTitle" label="描述"></el-table-column>
+                                </el-table>
+                                <el-button slot="reference" type="primary" size="mini" v-show="scope.row.flightSupplementInfos&&scope.row.flightSupplementInfos.length>0">查看</el-button>
+                            </el-popover>
                         </template>
                     </el-table-column>
 
@@ -270,9 +284,9 @@ export default {
         listSelectionChange(val) {
             this.selections = val
         },
-        getSingSrc(row, type) {
-            if (row) {
-                let obj = _.find(row.chargeBillSigns, { type: type })
+        getSingSrc(chargeBillSigns, type) {
+            if (chargeBillSigns && chargeBillSigns.length > 0) {
+                let obj = _.find(chargeBillSigns, { type: type })
                 return obj ? obj.content : ''
             }
             return ''

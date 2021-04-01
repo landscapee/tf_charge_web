@@ -7,7 +7,7 @@
         </div>
         <el-form label-position="right" label-width="90px" ref="listData">
             <el-form-item label="航班号">
-                <el-input v-model="listData.chargeBill.flightNo" placeholder="航班号" :disabled="!!listData.id"></el-input>
+                <el-input v-model="listData.flightNo" placeholder="航班号" :disabled="!!listData.id"></el-input>
             </el-form-item>
             <el-form-item label="收费项">
                 <el-input v-model="listData.chargeDataSource.chargeConfig.name" placeholder="收费项" :disabled="!!listData.id"></el-input>

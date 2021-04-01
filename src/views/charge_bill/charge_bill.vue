@@ -66,7 +66,7 @@
                                         </template>
                                     </el-table-column>
                                 </el-table>
-                                <el-button slot="reference" type="primary" size="mini">查看</el-button>
+                                <el-button slot="reference" type="primary" size="mini" v-show="scope.row.chargeRecords&&scope.row.chargeRecords.length>0">查看</el-button>
                             </el-popover>
                         </template>
                     </el-table-column>
@@ -76,11 +76,10 @@
                                 <el-table :data="scope.row.flightSupplementInfos" border stripe>
                                     <el-table-column prop="supplementTitle" label="名称"></el-table-column>
                                     <el-table-column prop="valueCode" label="数据"></el-table-column>
-
                                     <el-table-column prop="supplementUnit" label="单位"></el-table-column>
                                     <el-table-column prop="valueTitle" label="描述"></el-table-column>
                                 </el-table>
-                                <el-button slot="reference" type="primary" size="mini" v-if="scope.row.flightSupplementInfos&&scope.row.flightSupplementInfos.length>0">查看</el-button>
+                                <el-button slot="reference" type="primary" size="mini" v-show="scope.row.flightSupplementInfos&&scope.row.flightSupplementInfos.length>0">查看</el-button>
                             </el-popover>
                         </template>
                     </el-table-column>
