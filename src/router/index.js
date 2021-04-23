@@ -19,16 +19,17 @@ const charge_data_source = () => import(/*webpackChunkName:"charge_data_source"*
 const service_config = () => import(/*webpackChunkName:"service_config"*/ '../views/service_config/service_config')
 //收费单配置
 const charge_bill_config = () => import(/*webpackChunkName:"charge_bill_config"*/ '../views/charge_bill_config/charge_bill_config')
-//收费记录
-const charge_record = () => import(/*webpackChunkName:"charge_record"*/ '../views/charge_record/charge_record')
-//收费单
-const charge_bill = () => import(/*webpackChunkName:"charge_bill"*/ '../views/charge_bill/charge_bill')
 //H5详情
 const charge_h5 = () => import(/*webpackChunkName:"charge_h5"*/ '../views/charge_h5/charge_h5')
 //补充信息配置
 const supplement_info_config = () => import(/*webpackChunkName:"supplement_info_config"*/ '../views/supplement_info_config/supplement_info_config')
 //数据字典
 const data_dictionary = () => import(/*webpackChunkName:"data_dictionary"*/ '../views/data_dictionary/data_dictionary')
+
+//收费记录
+const charge_record = () => import(/*webpackChunkName:"charge_record"*/ '../views/charge_record/charge_record')
+//收费单
+const charge_bill = () => import(/*webpackChunkName:"charge_bill"*/ '../views/charge_bill/charge_bill')
 
 // 收费项配置: charge_config
 // 数据源配置:charge_data_source
@@ -42,7 +43,7 @@ const data_dictionary = () => import(/*webpackChunkName:"data_dictionary"*/ '../
 var routes = [
   { path: '/', name: 'login', component:login},
   { path: '/charge_h5', name: 'charge_h5', component: charge_h5 },
-  { path: '/charge_record_iframe', name: 'charge_record_iframe', component:charge_record},
+  { path: '/charge_bill_iframe', name: 'charge_bill_iframe', component:charge_bill},
   { path: '/index', name: 'index', component:index,children:[
     { path: '/charge_config', name: 'charge_config', component:charge_config},
     { path: '/charge_data_source', name: 'charge_data_source', component:charge_data_source},

@@ -2,35 +2,23 @@
     <div></div>
 </template>
 <script>
-export default{
-	data(){
-        return{
-            
-        }
-
+export default {
+    data() {
+        return {}
     },
-    props:['src','hasCode'],
-    watch:{
-        
+    props: ['src', 'hasCode'],
+    watch: {},
+    beforeMount() {},
+    mounted() {
+        // if (!!!window[this.hasCode]) {
+        const s = document.createElement('script')
+        s.type = 'text/javascript'
+        s.src = this.src
+        document.body.appendChild(s)
+        // }
     },
-    beforeMount(){
-        
-    },
-	mounted () {
-        if(!!!window[this.hasCode]){
-            const s = document.createElement('script');
-            s.type = 'text/javascript';
-            s.src = this.src;
-            document.body.appendChild(s);
-        }
-        
-    },
-	methods:{
-        
-    }
-	
+    methods: {},
 }
 </script>
 <style lang="scss" scoped>
-
 </style>

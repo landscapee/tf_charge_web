@@ -20,7 +20,7 @@
                     <el-option label="已删除" :value="true"></el-option>
                 </el-select>
                 <div>
-                    <el-input placeholder="请输入内容" v-model="searchStr" clearable @blur="handleLists" @keyup.enter.native="handleLists">
+                    <el-input placeholder="请输入内容" v-model="searchStr" clearable @keyup.enter.native="handleLists">
                         <i slot="prefix" class="el-input__icon el-icon-search"></i>
                     </el-input>
                 </div>
@@ -28,7 +28,7 @@
             <div class="rightBox">
                 <!-- <el-button type="primary">导出excel</el-button>
                 <el-button type="primary">发送财务</el-button> -->
-                <el-button type="primary" @click="approvalSelect">发送审批</el-button>
+                <el-button type="primary" @click="approvalSelect" v-show="powerData.charge_approval">发送审批</el-button>
                 <el-button type="primary" @click="handleLists">刷新</el-button>
             </div>
         </div>
@@ -42,39 +42,41 @@
                     </el-table-column>
                     <el-table-column type="selection" width="55" align="center"></el-table-column>
                     <el-table-column prop="flightNo" label="航班号"></el-table-column>
-                    <!-- <el-table-column prop="chargeDataSource.name" label="数据源">
-                        <template slot-scope="scope">
-                            {{scope.row.chargeDataSource?(scope.row.chargeDataSource.name||scope.row.chargeDataSource.code):''}}
-                        </template>
-                    </el-table-column> -->
+                    <el-table-column prop="deviceCode" label="设备号"></el-table-column>
                     <el-table-column label="收费项">
                         <template slot-scope="scope">
                             {{scope.row.chargeDataSource&&scope.row.chargeDataSource.chargeConfig?scope.row.chargeDataSource.chargeConfig.name:''}}
                         </template>
                     </el-table-column>
-                    <el-table-column prop="chargeData" label="收费数据"></el-table-column>
-                    <el-table-column label="单位">
+                    <el-table-column prop="chargeData" label="收费数据" width="80"></el-table-column>
+                    <el-table-column label="单位" width="80">
                         <template slot-scope="scope">
                             {{getName(scope.row.chargeDataSource&&scope.row.chargeDataSource.chargeConfig?scope.row.chargeDataSource.chargeConfig.unit:'',unitLists,'name')}}
                         </template>
                     </el-table-column>
 
-                    <el-table-column label="航空公司" align="center">
+                    <el-table-column label="航空公司" align="center" class-name="signBox">
                         <template slot-scope="scope">
-                            <img class="signBox" :src="getSingSrc(scope.row.chargeBillSigns,'hkgs')" alt="">
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="操作人员" align="center">
-                        <template slot-scope="scope">
-                            <img class="signBox" :src="getSingSrc(scope.row.chargeBillSigns,'czry')" alt="">
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="机组人员" align="center">
-                        <template slot-scope="scope">
-                            <img class="signBox" :src="getSingSrc(scope.row.chargeBillSigns,'jzry')" alt="">
-                        </template>
-                    </el-table-column>
+                            <div v-for="(item,idx) in getSingList(scope.row,'hkgs')" :key="idx" class="signDiv">
+                                <img :src="item.content" alt="">
+                            </div>
 
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作人员" align="center" class-name="signBox">
+                        <template slot-scope="scope">
+                            <div v-for="(item,idx) in getSingList(scope.row,'czry')" :key="idx" class="signDiv">
+                                <img class="signBox" :src="item.content" alt="">
+                            </div>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="机组人员" align="center" class-name="signBox">
+                        <template slot-scope="scope">
+                            <div v-for="(item,idx) in getSingList(scope.row,'jzry')" :key="idx" class="signDiv">
+                                <img :src="item.content" alt="">
+                            </div>
+                        </template>
+                    </el-table-column>
                     <el-table-column label="补充记录" width="120" align="center">
                         <template slot-scope="scope">
                             <el-popover placement="right" width="400" trigger="hover" popper-class="rightBox">
@@ -96,11 +98,11 @@
                             {{getTimeByFormat(scope.row.endTime,'YY-MM-DD hh:mm:ss')}}
                         </template>
                     </el-table-column>
-                    <el-table-column label="操作" width="150" align="center" v-if="!searchDel" class-name="optBox">
+                    <el-table-column label="操作" width="150" align="center" v-if="!searchDel&&(power.charge_edit||power.charge_delete||powerData.charge_approval)" class-name="optBox">
                         <template slot-scope="scope">
-                            <el-button type="text" title="审批" @click="approval([scope.row])" :disabled="scope.row.approvalStatus=='PASS'">审批</el-button>
-                            <el-button type="text" title="编辑" @click="edit('edit',scope.row)">编辑</el-button>
-                            <el-button type="text" title="删除" @click="del(scope.row)">删除</el-button>
+                            <el-button type="text" title="审批" @click="approval([scope.row])" :disabled="scope.row.approvalStatus=='PASS'" v-show="powerData.charge_approval">审批</el-button>
+                            <el-button type="text" title="编辑" @click="edit('edit',scope.row)" v-show="powerData.charge_edit">编辑</el-button>
+                            <el-button type="text" title="删除" @click="del(scope.row)" v-show="powerData.charge_delete">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -109,7 +111,7 @@
                 </div>
             </div>
         </div>
-        <edit-list ref="ref_editList" @update="update"></edit-list>
+        shanch
     </div>
 
 </template>
@@ -117,7 +119,10 @@
 <script>
 import EditList from './components/editList'
 export default {
-    props: ['power', 'flagNav'],
+    props: {
+        power: Object,
+        flagNav: Object,
+    },
     data() {
         return {
             searchTime: '',
@@ -134,6 +139,12 @@ export default {
             maxHeight: 1000,
             unitLists: [],
             selections: [],
+            powerData: {
+                charge_add: false,
+                charge_edit: false,
+                charge_delete: false,
+                charge_approval: false,
+            },
         }
     },
     components: {
@@ -153,11 +164,17 @@ export default {
             this.getUnitLists()
         }
         this.maxHeight = $('.tableBox').height() - 72
+        if (this.power) {
+            this.powerData = _.cloneDeep(this.power)
+        }
     },
     methods: {
         inIframeInit(data) {
-            sessionStorage.setItem('token', data.token)
-            this.getUnitLists()
+            if (data.token) {
+                sessionStorage.setItem('token', data.token)
+                this.getUserData(data.token)
+                this.getUnitLists()
+            }
         },
         handleLists() {
             this.lists = []
@@ -191,6 +208,22 @@ export default {
                     this.lists = res.data.records
                     this.total = res.data.total
                 })
+        },
+        getUserData(token) {
+            this.$axios({
+                method: 'post',
+                url: '/sso/login/userInfo',
+                dataType: 'text',
+                data: token,
+                async: true,
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8',
+                },
+            }).then((res) => {
+                this.userData = res.data
+                sessionStorage.setItem('userData', JSON.stringify(_.omit(res.data, 'token')))
+                this.getSetButtonShow()
+            })
         },
         update() {
             this.getLists(this.submitData)
@@ -290,6 +323,29 @@ export default {
                 return obj ? obj.content : ''
             }
             return ''
+        },
+        getSingList(row, type) {
+            let lists = _.filter(row.chargeBillSigns, { type: type })
+            return lists
+        },
+        getSetButtonShow() {
+            //设置按钮权限
+            let menus = this.userData.menus || []
+            menus.map((list) => {
+                if (list.code == 'charge_approval') {
+                    console.log(111)
+                    this.powerData.charge_approval = true
+                }
+                if (list.code == 'charge_add') {
+                    this.powerData.charge_add = true
+                }
+                if (list.code == 'charge_edit') {
+                    this.powerData.charge_edit = true
+                }
+                if (list.code == 'charge_delete') {
+                    this.powerData.charge_delete = true
+                }
+            })
         },
     },
 }

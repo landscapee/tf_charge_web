@@ -1,3 +1,4 @@
+import 'babel-polyfill';
 import Vue from 'vue';
 import App from './src/App.vue';
 import router from './src/router'
@@ -10,7 +11,6 @@ import './src/styles/elementReset.scss';
 import axios from "axios";
 import IconSvg from './src/components/Icon-svg';// svg组件
 import { RTCInit,getTimeByFormat } from './src/lib/common';
-import socket from './worker/lib/socket';
 
 Vue.component('icon-svg', IconSvg);
 Vue.use(ElementUI);
@@ -20,7 +20,7 @@ Vue.prototype.getTimeByFormat = getTimeByFormat//时间转换格式
 
 Vue.prototype.sysEdition = window.webConfig.sysEdition//系统版本
 Vue.prototype.coder = window.webConfig.coder//是否加密
-let interfaceType = window.webConfig.interfaceType
+var interfaceType = window.webConfig?window.webConfig.interfaceType:''
 
 RTCInit();// RTC初始化，获取主机ip地址remoteAddress
 
@@ -40,112 +40,27 @@ if(sessionStorage.userData){//刷新或者丢失用户信息，使用token获取
     store.commit('setUserMsg',JSON.parse(sessionStorage.userData))
 }
 
-
-
 let hasIfm = self!=top//是否被镶嵌
-let getDataSocket;
 let timer = null;
-router.beforeEach((to,from,next)=>{
+router.beforeEach(function(to,from,next){
     
     if(to.name=="login"){//登陆页清空信息
-        loginFlag=0
         clearInterval(timer)
         sessionStorage.clear()
-        // if(getDataSocket){
-        //     getDataSocket.socket_close()
-        // }
-        let token = to.query.token
-        
-        if(token){
-            axios({
-                method:"post",
-                url:'/sso/login/userInfo',
-                dataType:"text",
-                data:token,
-                async:true,
-                headers:{
-                  'Content-Type':'application/json;charset=utf-8',
-                }
-            })
-            .then(res=>{
-                if(res&&res.responseCode=='1000'){
-                    store.commit("setUserMsg",res.data)
-                    sessionStorage.setItem("token",res.data.token)
-                    sessionStorage.setItem("userData",JSON.stringify(_.omit(res.data,'token')))
-                    next({'name': 'index'})
-                }
-            })
-        }else{
-            next()
-        }
+         next()
        
     } else {
-         next()
-        // if(hasIfm){
-        //     next()
-        // }else{
-        //     if(sessionStorage.token){
-        //         axios({
-        //             method:"post",
-        //             url:'/sso/login/authorizeToken',
-        //             dataType:"text",
-        //             data:sessionStorage.token,
-        //             async:false,
-        //             headers:{
-        //                 'Content-Type':'application/json;charset=utf-8'
-        //             }
-        //         })
-        //         .then(res=>{
-        //             if(res&&res.responseCode=='1000'){
-        //                 next()
-        //             }
-        //         })
-        //     }else{
-        //         next({'name': 'login', 'query': {'redirect': to.fullPath}})
-                
-        //     }
-        // }
+        next()
         
     }
     
 })
 
-// router.afterEach(()=>{
-//     if(sessionStorage.token&&loginFlag==0){
-//         loginFlag = 1
-        
-        
-    
-//         // socketInit_bvc({ //bvc长链接，统计人员在线
-//         //     token:sessionStorage.token,
-//         //     remoteAddress:sessionStorage.remoteAddress,
-//         //     origin
-//         // })
-
-//         // timer = setInterval(() => {//每小时更新一次token
-//         //     axios({
-//         //         method:"post",
-//         //         url:'/sso/login/renew',
-//         //         dataType:"text",
-//         //         data:sessionStorage.token,
-//         //         async:false,
-//         //         headers:{
-//         //             'Content-Type':'application/json;charset=utf-8'
-//         //         }
-//         //     })
-//         //     .then(res=>{
-//         //         let newToken = 'Bearer '+res.data
-//         //         sessionStorage.setItem("token",newToken)
-//         //     })
-//         // }, 1000*60*60);
-//     }
-// })
-
 
 
 
 axios.interceptors.request.use(
-    config => {
+    function(config){
         let token = sessionStorage.token
         
         let noToken = false
@@ -169,30 +84,27 @@ axios.interceptors.request.use(
         
         
         config.headers['Accept'] = 'application/json';
-        // if(!token&&!noToken){
-        //     config['cancelToken'] = new axios.CancelToken((c) => {
-        //         Vue.prototype.$alert('用户已过期，请重新登录！', '提示', {
-        //             type: 'warning',
-        //             center: true
-        //         }).then(() => {
-        //             router.replace("/")
-        //         })
-        //         c()
-        //     });
-        // }
         
 		return config;
     },
-    err => {
+    function(err){
         return Promise.reject(err);
     }
 );
 
 axios.interceptors.response.use(
-    response=>{
-        
+    function(response){
+        console.log(response)
+
+        let alertClassName = ""
+        if (response.config.url.indexOf("/charge-bill-sign/saveAll")>=0 || response.config.url.indexOf("//flight/findFlightAndChargeRecordByFlightId")>=0) {
+            alertClassName = "h5Alert"
+        }
+
+
+
+
         if (response.data.date||response.data.time) {
-            
             store.commit('setServerTime',new Date(response.data.date||response.data.time))
         }
         
@@ -208,20 +120,22 @@ axios.interceptors.response.use(
                 if(response.data.responseCode==10003||response.data.responseCode==30008){//token过期
                     Vue.prototype.$alert('用户已过期，请重新登录！', '提示', {
                         type: 'warning',
-                        center: true
-                    }).then(() => {
+                        center: true,
+                        customClass: alertClassName
+                    }).then(function(){
                         router.replace("/")
                     })
                 }else{
                     Vue.prototype.$alert(response.data.responseMessage||response.data.message||response.data.msg||response.config.url+'接口错误', '提示', {
                         type: 'error',
-                        center: true
+                        center: true,
+                        customClass: alertClassName
                     })
                 }
             }
         }
     }, 
-    err => {
+    function(err){
         if(hasIfm){
             return false
         }
@@ -240,8 +154,5 @@ new Vue({
     components: {App},
     router,
     store,
-    template: '<App />',
-    created () {
-        
-    }
+    template: '<App />'
 })

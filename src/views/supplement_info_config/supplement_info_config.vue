@@ -8,7 +8,7 @@
                     <div></div>
                 </li>
             </ul>
-            <el-button type="primary" icon="el-icon-plus" size="mini" @click="edit('add')">新增</el-button>
+            <el-button type="primary" icon="el-icon-plus" size="mini" @click="edit('add')" v-show="power.charge_add">新增</el-button>
         </div>
         <div class="searchBox">
             <div class="leftBox">
@@ -20,7 +20,7 @@
                     <el-option label="已删除" :value="true"></el-option>
                 </el-select>
                 <div>
-                    <el-input placeholder="请输入内容" v-model="searchStr" clearable @blur="handleLists" @keyup.enter.native="handleLists">
+                    <el-input placeholder="请输入内容" v-model="searchStr" clearable @keyup.enter.native="handleLists">
                         <i slot="prefix" class="el-input__icon el-icon-search"></i>
                     </el-input>
                 </div>
@@ -60,10 +60,10 @@
                         </template>
                     </el-table-column>
 
-                    <el-table-column label="操作" width="100" align="center" v-if="!searchDel" class-name="optBox">
+                    <el-table-column label="操作" width="100" align="center" v-if="!searchDel&&(power.charge_edit||power.charge_delete)" class-name="optBox">
                         <template slot-scope="scope">
-                            <el-button type="text" title="编辑" @click="edit('edit',scope.row)">编辑</el-button>
-                            <el-button type="text" title="删除" @click="del(scope.row)">删除</el-button>
+                            <el-button type="text" title="编辑" @click="edit('edit',scope.row)" v-show="power.charge_delete">编辑</el-button>
+                            <el-button type="text" title="删除" @click="del(scope.row)" v-show="power.charge_delete">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -72,7 +72,7 @@
                 </div>
             </div>
         </div>
-        <edit-list ref="ref_editList" @update="update"></edit-list>
+        <edit-list ref="ref_editList" @update="update" :unitLists="unitLists"></edit-list>
     </div>
 
 </template>
@@ -95,12 +95,14 @@ export default {
             },
             total: 0,
             maxHeight: 1000,
+            unitLists: [],
         }
     },
     components: {
         'edit-list': EditList,
     },
     created() {
+        this.getUnitLists()
         this.handleLists()
     },
     mounted() {
@@ -183,6 +185,17 @@ export default {
                 show = true
             }
             return show
+        },
+        getUnitLists() {
+            this.$axios
+                .get('/data-dictionary/findDataDictionaryByCode', {
+                    params: {
+                        code: 'unit',
+                    },
+                })
+                .then((res) => {
+                    this.unitLists = res.data
+                })
         },
     },
 }

@@ -14,7 +14,8 @@ module.exports = {
     "globals": {
         "_": true,
       "jsPlumb": true,
-        "Signature":true
+        "Signature":true,
+        "androidJS":true
     },
       /**
        * 每个规则有【3】个错误级别。

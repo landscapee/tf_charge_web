@@ -56,6 +56,11 @@
                 <el-form-item label="参数值" v-if="parameterData.type===0||parameterData.type==1">
                     <el-input v-model="parameterData.value" placeholder="参数名称"></el-input>
                 </el-form-item>
+                <el-form-item label="计量单位" required v-if="parameterData.type===0">
+                    <el-select v-model="parameterData.unit" placeholder="请选择">
+                        <el-option v-for="(item,idx) in unitLists" :key="idx" :label="item.name" :value="item.code"></el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="选项" v-if="parameterData.type==3||parameterData.type==2">
                     <el-table :data="parameterData.selects" border stripe style="width: 100%">
                         <el-table-column label="code">
@@ -107,6 +112,7 @@
 
 <script>
 export default {
+    props: ['unitLists'],
     data() {
         return {
             listShow: false,

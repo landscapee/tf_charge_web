@@ -29,33 +29,14 @@
                 </tr>
             </table>
         </div>
-        <div class="chargeMsg">
-            <div class="title">收费数据</div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>收费项目</th>
-                        <th>收费数据</th>
-                        <th>计量单位</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="item in chargeRecords" :key="item.id">
-                        <td>{{item.chargeDataSource&&item.chargeDataSource.chargeConfig?item.chargeDataSource.chargeConfig.name:''}}</td>
-                        <td>{{item.chargeData}}</td>
-                        <td>{{item.chargeDataSource&&item.chargeDataSource.chargeConfig?item.chargeDataSource.chargeConfig.unit:''}}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="chargeMsg">
+        <div class="chargeMsg" v-show="supplementInfos.length>0">
             <div class="title">补充信息</div>
             <table>
                 <thead>
                     <tr>
                         <th>名称</th>
-                        <th>数据</th>
-                        <th>单位</th>
+                        <th style="width:80px">数据</th>
+                        <th style="width:80px">单位</th>
                         <th>描述</th>
                     </tr>
                 </thead>
@@ -69,37 +50,51 @@
                 </tbody>
             </table>
         </div>
-        <div>
-            <div class="title">签名项</div>
-            <ul>
-                <!--  -->
-                <li class='list_in' style='position:relative' v-for="(item,idx) in chargeBillSigns" :key="idx">
-                    <div class="label">{{item.name}}签字</div>
-                    <div class="value" v-if="!item.signatureId" @click="elSignFn(idx,'posElSignFn'+idx)">点击签字</div>
-                    <div style='position:relative'>
-                        <div class='list_sign' style="width:100%;position:absolute;left:0px;top:0px;">
-                            <div :pos="'posElSignFn'+idx" :id="'posElSignFn'+idx"></div>
+        <div class="chargeMsg" v-show="chargeBillRecordSigns.length>0">
+            <div class="title">{{chargeBill.chargeBillConfigName}}</div>
+            <table v-for="(item,idx) in chargeBillRecordSigns" :key="idx">
+                <thead>
+                    <tr>
+                        <th>收费项目</th>
+                        <th style="width:80px">收费数据</th>
+                        <th style="width:80px">计量单位</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in item.chargeRecordList" :key="item.id">
+                        <td>{{item.chargeDataSource&&item.chargeDataSource.chargeConfig?item.chargeDataSource.chargeConfig.name:''}}</td>
+                        <td>{{item.chargeData}}</td>
+                        <td>{{item.chargeDataSource&&item.chargeDataSource.chargeConfig?item.chargeDataSource.chargeConfig.unit:''}}</td>
+                    </tr>
+                    <tr v-for="(item,index) in dataDictionaryList" :key="index" class="list_in">
+                        <div class="label">{{item.name}}签字:</div>
+                        <div class="value" :id="'sign'+idx+index" @click="elSignFn(idx,index,'posElSignFn'+idx+index)">点击签字</div>
+                        <div style='position:relative'>
+                            <div class='list_sign' style="width:100%;position:absolute;top:-20px;left:0">
+                                <div :pos="'posElSignFn'+idx+index" :id="'posElSignFn'+idx+index"></div>
+                            </div>
                         </div>
-                    </div>
-                </li>
-                <li></li>
-            </ul>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         <div>
-            <button @click="saveSign">保存</button>
+            <button @click="saveSign">提交签名</button>
         </div>
-        <!-- <remote-script src="/static/kinggrid/core/kinggrid.min.js" hasCode="Signature" />
-        <remote-script src="/static/kinggrid/core/kinggrid.plus.min.js" hasCode="Signature" />
-        <remote-script src="/static/kinggrid/dialog/artDialog/dialog-min.js" hasCode="Signature" />
-        <remote-script src="/static/kinggrid/signature.min.js" hasCode="Signature" />
-        <remote-script src="/static/kinggrid/password.min.js" hasCode="Signature" />
-        <remote-script src="/static/kinggrid/signature.mobile.min.js" hasCode="Signature" />
-        <remote-script src="/static/kinggrid/signature_pad.min.js" hasCode="Signature" />
-        <remote-script src="/static/kinggrid/html2canvas.min.js" hasCode="Signature" /> -->
+
+        <remote-script src="/static/kinggrid/core/kinggrid.min.js" type="1" @load="loadJS"></remote-script>
+        <remote-script :src="src2" v-if="!!src2" type="2" @load="loadJS"></remote-script>
+        <remote-script :src="src3" v-if="!!src3" type="3" @load="loadJS"></remote-script>
+        <remote-script :src="src4" v-if="!!src4" type="4" @load="loadJS"></remote-script>
+        <remote-script :src="src5" v-if="!!src5" type="5" @load="loadJS"></remote-script>
+        <remote-script :src="src6" v-if="!!src6" type="6" @load="loadJS"></remote-script>
+        <remote-script :src="src7" v-if="!!src7" type="7" @load="loadJS"></remote-script>
+        <remote-script :src="src8" v-if="!!src8" type="8" @load="loadJS"></remote-script>
+
     </div>
 </template>
-
 <script>
+import '../../components//importJs.js'
 export default {
     data() {
         return {
@@ -107,45 +102,57 @@ export default {
             isElSign: true,
             elSignImageData: {},
             handSignImageData: {},
-
             signObj: {},
             signatureId: '',
             signatureData: '',
             signatureImg: '',
+            chargeBillSigns: {},
 
-            chargeBillSigns: [],
-            chargeRecords: [],
             supplementInfos: [],
-
             queryData: {},
+
+            chargeBill: {},
+            chargeBillRecordSigns: [],
+            dataDictionaryList: [],
+
+            src2: '',
+            src3: '',
+            src4: '',
+            src5: '',
+            src6: '',
+            src7: '',
+            src8: '',
+            jsType: [],
         }
     },
-    // components: {
-    //     'remote-script': () =>
-    //         import(/*webpackChunkName:"glob-head"*/ '../../components/remote-script'),
-    // },
+
     created() {},
     mounted() {
-        // if (top != self) {
-        //     window.addEventListener(
-        //         'message',
-        //         (event) => {
-        //             this.inIframeInit(event.data)
-        //         },
-        //         false
-        //     )
-        // }
-        // if(this.$route.query.flightId)
-        //15645232
-        //fbf8cb10-5730-4b0a-bb2f-80efe69c
-
-        //9b68e4e2-03c9-4214-8600-c5441058
-        //15637614
-
-        this.inIframeInit(this.$route.query)
-        this.resetSignature()
+        let timer = setInterval(() => {
+            if (this.jsType.indexOf('3') >= 0) {
+                clearInterval(timer)
+                this.inIframeInit(this.$route.query)
+                this.resetSignature()
+            }
+        }, 100)
     },
     methods: {
+        loadJS(data) {
+            if (data == 1) {
+                this.src2 = '/static/kinggrid/core/kinggrid.plus.min.js'
+            }
+            if (data == 2) {
+                this.src3 = '/static/kinggrid/signature.min.js'
+            }
+            if (data == 3) {
+                this.src4 = '/static/kinggrid/password.min.js'
+                this.src5 = '/static/kinggrid/signature.mobile.min.js'
+                this.src6 = '/static/kinggrid/signature_pad.min.js'
+                this.src7 = '/static/kinggrid/html2canvas.min.js'
+                this.src8 = '/static/kinggrid/dialog/artDialog/dialog-min.js'
+            }
+            this.jsType.push(data)
+        },
         inIframeInit(data) {
             this.queryData = data
             // sessionStorage.setItem('token', data.token)
@@ -163,48 +170,70 @@ export default {
                     IgnoreToken: 'IgnoreToken',
                 },
             }).then((res) => {
-                console.log(res.data.chargeBill)
                 if (res.code != 200) {
                     return false
                 }
                 this.details = res.data
-                this.chargeBillSigns = _.cloneDeep(
+                this.chargeBill = res.data.chargeBill
+                this.supplementInfos = this.details.chargeBill.flightSupplementInfos || []
+                this.chargeBillRecordSigns = this.details.chargeBill.chargeBillRecordSigns || []
+                this.dataDictionaryList =
                     (this.details.chargeBill.chargeBillConfig &&
                         this.details.chargeBill.chargeBillConfig.dataDictionaryList) ||
-                        []
-                )
-                this.chargeRecords = this.details.chargeBill.chargeRecords || []
-                this.supplementInfos = this.details.chargeBill.flightSupplementInfos || []
+                    []
                 let signs = []
-                this.details.chargeBill &&
-                    this.details.chargeBill.chargeBillSigns &&
-                    this.details.chargeBill.chargeBillSigns.map((list) => {
-                        if (list.signId) {
-                            signs.push({
-                                signatureid: list.signId,
-                                signatureData: list.data,
-                            })
-                        }
-                        let obj = _.find(this.chargeBillSigns, { code: list.type })
-                        if (obj) {
-                            this.$set(obj, 'signatureId', list.signId)
-                            this.$set(obj, 'signatureData', list.data)
-                            this.$set(obj, 'sid', list.id)
+                this.chargeBillRecordSigns.forEach((list, index) => {
+                    this.chargeBillSigns[index] = {}
+                    this.dataDictionaryList.forEach((dictionary, idx) => {
+                        let sign = _.find(list.chargeBillSignList, { type: dictionary.code })
+                        if (sign) {
+                            this.chargeBillSigns[index][idx] = sign
+                            if (sign.signId && sign.data) {
+                                signs.push({
+                                    signatureid: sign.signId,
+                                    signatureData: sign.data,
+                                })
+                            }
+                        } else {
+                            this.chargeBillSigns[index][idx] = {
+                                type: dictionary.code,
+                            }
                         }
                     })
+                })
+                this.$nextTick(() => {
+                    this.showSign()
+                })
                 Signature.loadSignatures(signs)
             })
         },
+        showSign() {
+            _.forIn(this.chargeBillSigns, (chargeBillSign, idx) => {
+                _.forIn(chargeBillSign, (list, index) => {
+                    if (list.signId) {
+                        $('#sign' + idx + index).hide()
+                    } else {
+                        $('#sign' + idx + index).show()
+                    }
+                })
+            })
+        },
         delSign(signatureid, signatureData) {
-            console.log(signatureData)
             for (var key in Signature.list) {
                 if (
                     signatureid == key &&
                     Signature.list[signatureid].keysn == signatureData.keysn
                 ) {
-                    let obj = _.find(this.chargeBillSigns, { signatureId: key })
-                    this.$set(obj, 'signatureId', '')
-                    this.$set(obj, 'signatureData', '')
+                    _.forIn(this.chargeBillSigns, (chargeBillSign) => {
+                        _.forIn(chargeBillSign, (list) => {
+                            if (list.signId == key) {
+                                this.$set(list, 'signId', '')
+                                this.$set(list, 'data', '')
+                                this.$set(list, 'content', '')
+                                this.showSign()
+                            }
+                        })
+                    })
                     var signatureCreator = Signature.create()
                     signatureCreator.removeSignature(signatureData.documentid, signatureid)
                     break
@@ -213,25 +242,6 @@ export default {
             return true
         },
         resetSignature() {
-            let that = this
-            function delCB(signatureid, signatureData) {
-                for (var key in Signature.list) {
-                    if (
-                        signatureid == key &&
-                        Signature.list[signatureid].keysn == signatureData.keysn
-                    ) {
-                        let obj = _.find(that.chargeBillSigns, { signatureId: key })
-                        that.$set(obj, 'signatureId', '')
-                        that.$set(obj, 'signatureData', '')
-                        var signatureCreator = Signature.create()
-                        signatureCreator.removeSignature(signatureData.documentid, signatureid)
-                        break
-                    }
-                }
-                return true
-            }
-            console.log(this.sysEdition)
-
             Signature.init({
                 //初始化属性
                 //keysn:'0741170010110516',
@@ -245,36 +255,38 @@ export default {
                 imgtag: 0, //签章类型：0：无; 1:公章; 2:私章; 3:法人章; 4:法人签名; 5:手写签名
                 certType: 'server', //设置证书在签章服务器
                 sealType: 'server', //设置印章从签章服务器取
-                serverUrl: this.sysEdition
-                    ? 'http://10.33.144.57:8089/iSignatureHTML5'
-                    : 'http://173.101.1.134:8089/iSignatureHTML5',
+                serverUrl:
+                    this.sysEdition == 'tianfu'
+                        ? 'http://10.33.144.57:8089/iSignatureHTML5'
+                        : 'http://173.101.1.134:8089/iSignatureHTML5',
                 documentid: 'KG2016093001333', //设置文档ID
                 documentname: '测试文档KG2016093001', //设置文档名称
                 pw_timeout: 's1800', //s：秒；h:小时；d:天
                 scaleImage: 1, //签章图片的缩放比例
             })
 
-            var invalidSignatureArray = Signature.verify() //返回无效签章
-            if (invalidSignatureArray.length > 0) {
-                for (var i = 0; i < invalidSignatureArray.length; i++) {
-                    var signature = invalidSignatureArray[i]
-                    console.log(signature.modifiedItems) //获取篡改的保护项
-                }
-            }
+            // var invalidSignatureArray = Signature.verify() //返回无效签章
+            // if (invalidSignatureArray.length > 0) {
+            //     for (var i = 0; i < invalidSignatureArray.length; i++) {
+            //         var signature = invalidSignatureArray[i]
+            //         console.log(signature.modifiedItems) //获取篡改的保护项
+            //     }
+            // }
         },
-        elSignFn(idx, ele) {
+        elSignFn(idx, index, ele) {
             var signatureCreator = Signature.create()
             var that = this
 
+            let dataDictionary = this.dataDictionaryList[index]
             signatureCreator.handWriteDlg(
                 {
                     image_height: '1',
                     image_width: '1.34',
                     onBegin: function () {
-                        console.log('onbegin')
+                        // console.log('onbegin')
                     },
                     onEnd: function () {
-                        console.log('onEnd')
+                        // console.log('onEnd')
                     },
                 },
                 function (param) {
@@ -284,22 +296,26 @@ export default {
                         position: ele, // 设置盖章定位dom的ID，必须设置
                         okCall: function (fn) {
                             // 点击确定后的回调方法，this为签章对象 ,签章数据撤销时，将回调此方法，需要实现签章数据持久化（保存数据到后台数据库）,保存成功后必须回调fn(true/false)渲染签章到页面上
-                            that.signObj[this.getSignatureid()] = this.getSignatureData()
+
                             fn(true)
                             that.$set(
-                                that.chargeBillSigns[idx],
-                                'signatureId',
+                                that.chargeBillSigns[idx][index],
+                                'signId',
                                 this.getSignatureid()
                             )
                             that.$set(
-                                that.chargeBillSigns[idx],
-                                'signatureData',
+                                that.chargeBillSigns[idx][index],
+                                'data',
                                 this.getSignatureData()
                             )
+                            that.$set(that.chargeBillSigns[idx][index], 'type', dataDictionary.code)
+
+                            that.showSign()
+                            // that.signObj[this.getSignatureid()] = this.getSignatureData()
                         },
                         cancelCall: function () {
                             // 点击取消后的回调方法
-                            console.log('取消！')
+                            // console.log('取消！')
                         },
                     })
                 }
@@ -307,32 +323,43 @@ export default {
         },
         saveSign() {
             let arrs = []
-            this.chargeBillSigns.map((list) => {
-                let src = ''
-                if (list.signatureId) {
-                    src = document.querySelector('#kg-img-' + list.signatureId).src
-                }
-                let data = {
-                    chargeBillId: this.details.chargeBill.id,
-                    signId: list.signatureId,
-                    content: src,
-                    type: list.code,
-                    data: list.signatureData,
-                    id: list.sid,
-                }
-                arrs.push(data)
+            console.log(this.chargeBillSigns)
+            _.forIn(this.chargeBillSigns, (chargeBillSign, key) => {
+                _.forIn(chargeBillSign, (list, key) => {
+                    let src = ''
+                    if (list.signId) {
+                        src = document.querySelector('#kg-img-' + list.signId).src
+                    }
+                    let data = {
+                        chargeBillId: this.details.chargeBill.id,
+                        signId: list.signId,
+                        content: src,
+                        type: list.type,
+                        data: list.data,
+                        id: list.id,
+                    }
+                    arrs.push(data)
+                })
             })
+
+            if (arrs.legnth == 0) {
+                this.$alert('当前无签名项！', '提示', {
+                    type: 'error',
+                    center: true,
+                    customClass: 'h5Alert',
+                })
+                return false
+            }
             this.$axios
-                .post(
-                    `/charge-bill-sign/saveAll?chargeBillId=${this.queryData.chargeBillId}&userId=${this.queryData.userId}&userLoginName=${this.queryData.userLoginName}`,
-                    arrs
-                )
+                .post(`/charge-bill-sign/saveAll?chargeBillId=${this.queryData.chargeBillId}`, arrs)
                 .then((res) => {
-                    console.log(res)
                     this.$alert(res.msg, '提示', {
                         type: 'success',
                         center: true,
                         customClass: 'h5Alert',
+                        callback: () => {
+                            androidJS.androidBack()
+                        },
                     })
                 })
         },
@@ -342,6 +369,9 @@ export default {
 
 
 <style lang="scss">
+#nameid {
+    width: 400px;
+}
 .h5Alert {
     width: 1200px;
     * {
@@ -359,16 +389,13 @@ export default {
     .el-button {
         padding: 20px 40px;
     }
+    .el-message-box__status {
+        font-size: 100px !important;
+    }
 }
 </style>
 
-
 <style lang="scss" scoped>
-// @import '../../../static/kinggrid/dialog/artDialog/ui-dialog.css';
-// <link rel="stylesheet" href="./static/kinggrid/dialog/artDialog/ui-dialog.css"><!-- 弹出框css -->
-// <link rel="stylesheet" href="./static/kinggrid/core/kinggrid.plus.css"><!-- 核心css -->
-// <link rel="stylesheet" href="./static/kinggrid/core/kinggrid.plus.mobile.css"><!-- 手机端css -->
-
 .chargeDetails {
     height: 100%;
     padding: 40px;
@@ -386,8 +413,9 @@ export default {
     table {
         width: 100%;
         tr {
-            height: 140px;
-            td {
+            td,
+            th {
+                padding: 30px 0;
                 font-size: 70px;
                 color: #333;
             }
@@ -400,24 +428,40 @@ export default {
             }
         }
     }
+    .chargeMsg {
+        tr {
+            border-bottom: 1px solid #ccc;
+        }
+        .list_in {
+            border: none;
+        }
+    }
     .flightMsg {
         margin-bottom: 60px;
     }
     .list_in {
         display: flex;
+        height: 200px;
+        width: 100%;
+        align-items: center;
     }
     .list_in .label {
-        // color: #3280e7;
+        color: #3280e7;
         font-size: 70px;
         height: 200px;
         line-height: 200px;
         margin-right: 40px;
+        white-space: nowrap;
     }
     .list_in .value {
         font-size: 70px;
         color: red;
         height: 200px;
         line-height: 200px;
+        white-space: nowrap;
+    }
+    .list_sign {
+        height: 200px;
     }
     button {
         width: 100%;

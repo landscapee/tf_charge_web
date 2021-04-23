@@ -1,26 +1,27 @@
 <template>
-    <div id="index">
-        <glob-head />
-        <div class="content">
-            <div class="leftBox">
+    <el-container id="index">
+        <el-header style="padding:0;" height="48px">
+            <glob-head />
+        </el-header>
+        <el-container class="content">
+            <el-aside width="220px" class="leftBox">
                 <div class="userMsgBox">
                     <img src="/static/img/userImg.png" alt="">
                     <div>{{userData.name}}</div>
                     <div>{{userData.deptName}}</div>
                 </div>
                 <ul>
-                    <li v-for="(nav,idx) in navLists" :key="idx" :class="{active:flagNav.path==nav.path}" @click="navHandle(nav,idx)" v-show="nav.show">
+                    <el-row type="flex" tag="li" align="middle" v-for="(nav,idx) in navLists" :key="idx" :class="{active:flagNav.path==nav.path}" @click.native="navHandle(nav,idx)" v-show="nav.show">
                         <i :class="nav.icon" class="iconfont"></i>
                         <span>{{nav.name}}</span>
-                    </li>
+                    </el-row>
                 </ul>
-            </div>
-            <div class="rightBox">
+            </el-aside>
+            <el-main class="rightBox" style="padding:0;">
                 <router-view :power="power" :flagNav="flagNav" />
-            </div>
-        </div>
-
-    </div>
+            </el-main>
+        </el-container>
+    </el-container>
 </template>
 
 <script>
@@ -102,10 +103,10 @@ export default {
                 { name: '收费单据', icon: 'el-icon-s-custom', path: 'bill', show: false },
             ],
             power: {
-                select: false,
-                add: false,
-                update: false,
-                delete: false,
+                charge_add: false,
+                charge_edit: false,
+                charge_delete: false,
+                charge_approval: false,
             },
         }
     },
@@ -132,17 +133,17 @@ export default {
                     obj.show = true
                     obj.name = list.name
                 }
-                if (list.code == 'select') {
-                    this.power.select = true
+                if (list.code == 'charge_approval') {
+                    this.power.charge_approval = true
                 }
-                if (list.code == 'add') {
-                    this.power.add = true
+                if (list.code == 'charge_add') {
+                    this.power.charge_add = true
                 }
-                if (list.code == 'update') {
-                    this.power.update = true
+                if (list.code == 'charge_edit') {
+                    this.power.charge_edit = true
                 }
-                if (list.code == 'delete') {
-                    this.power.delete = true
+                if (list.code == 'charge_delete') {
+                    this.power.charge_delete = true
                 }
             })
 
@@ -168,7 +169,6 @@ export default {
     width: 100%;
     .content {
         height: calc(100% - 40px);
-        display: flex;
     }
     .leftBox {
         width: 220px;
@@ -193,8 +193,8 @@ export default {
         ul {
             li {
                 height: 50px;
-                display: flex;
-                align-items: center;
+                // display: flex;
+                // align-items: center;
                 color: #fff;
                 cursor: pointer;
                 i {
@@ -244,7 +244,19 @@ export default {
 </style>
 <style lang="scss">
 .signBox {
-    height: 40px;
+    .cell {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .signDiv {
+        display: flex;
+        align-items: center;
+        margin: 0 5px;
+        img {
+            height: 40px;
+        }
+    }
 }
 .signImgBox {
     img {
@@ -382,11 +394,10 @@ export default {
             tr {
                 height: 40px;
                 th {
-                    background-color: #3a3f43 !important;
+                    background-color: #3a3f43;
                     color: #fff;
                     height: 40px;
                     padding: 0 !important;
-                    // .cell{text-align: center;}
                 }
             }
         }
@@ -413,10 +424,27 @@ export default {
                 background: #eee;
             }
             tr:hover {
+                td:not(.el-table__expanded-cell) {
+                    background-color: #a0cbf6 !important;
+                }
+            }
+            .expandRow:hover {
                 td {
                     background-color: #a0cbf6 !important;
                 }
             }
+        }
+    }
+}
+.outtable {
+    th {
+        background: none !important;
+        color: #333 !important;
+    }
+    tr {
+        height: 40px !important;
+        td {
+            height: 40px !important;
         }
     }
 }
@@ -562,32 +590,46 @@ export default {
             cursor: pointer;
         }
     }
-    // label{color:#000;}
-    // .el-dialog__body{padding: 0 50px 0 0;height: calc(100% - 120px);}
-    // .content{height: 100%;display: flex;flex-wrap: wrap;padding: 30px 20px 0;
-    //     .addForm{width: 100%;display: flex;flex-wrap: wrap;}
-    //     .el-form-item{display: flex;}
-    //     .el-form-item__content{flex: 1;margin: 0!important;}
-    //     .el-select{width: 100%;}
-    //     textarea{height:200px;}
-    //     .addFileBtn{height: 40px;width: 40px;border-radius: 4px;border:1px dashed rgba(57, 136, 255, 1);background: rgba(57, 136, 255, .3);color:rgba(57, 136, 255, 1);}
-    // }
-    // .changepass{padding: 30px 60px 0!important;}
+}
+.bill_expand {
+    padding: 15px 20px;
 
-    // .fenge{
-    //     width: 100%;border-bottom: 1px dashed #000;margin: 10px 0;
-    // }
-    // .footer{
-    //     button{margin: 0 10px;}
-    // }
-
-    // .resiveBox{height: 200px;background: #fff;width: 100%;margin-top: 20px;border:1px solid #DCDFE6;padding:10px ;overflow: auto;
-    //     .titleBox{display: flex;justify-content: space-between;align-items: center;}
-    //     .contentBox{display: flex;flex-wrap: wrap;
-    //         .checkBox{height: 40px;border: 1px solid rgba(57, 136, 255, 1);border-radius:4px ;padding: 0 10px;background: rgba(57, 136, 255,.2);margin: 5px;
-    //             i{margin-left: 5px;color:rgba(57, 136, 255, 1);cursor: pointer;}
-    //         }
-    //     }
-    // }
+    .title {
+        height: 40px;
+        line-height: 40px;
+        color: #3988ff;
+        font-size: 18px;
+        text-align: center;
+    }
+    .bill_expand_Box {
+        width: 100%;
+        padding: 10px 0;
+    }
+    .bill_expand_Box1 {
+        width: 50%;
+        padding: 10px 0;
+    }
+}
+.indexTd {
+    .cell {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        div {
+            font-size: 12px;
+            height: 20px;
+            width: 20px;
+            line-height: 20px;
+            text-align: center;
+            background-color: red;
+            color: #fff;
+            border-radius: 4px;
+            margin-left: 5px;
+            transform: scale(0.8, 0.8);
+        }
+    }
+}
+.row-expand-cover td .el-table__expand-icon {
+    visibility: hidden;
 }
 </style>

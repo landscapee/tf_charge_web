@@ -65,7 +65,15 @@ module.exports = {
             {
                 test: /\.js$/,
                 loader: 'babel-loader',
-                include: [resolve('src'), resolve('worker'), resolve('static')]
+                // include:  [resolve('src'), resolve('worker'), resolve('static')],
+                options: {
+                    presets: [
+                        '@babel/preset-env'
+                    ],
+                    plugins: [
+                        '@babel/plugin-syntax-dynamic-import'
+                    ]
+                }
             },
             {
                 test: /\.svg$/,
