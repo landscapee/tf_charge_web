@@ -374,8 +374,6 @@ export default {
                 })
                 return false
             }
-            console.log(arrs)
-            return false
             this.$axios
                 .post(`/charge-bill-sign/saveAll?chargeBillId=${this.queryData.chargeBillId}`, arrs)
                 .then((res) => {
