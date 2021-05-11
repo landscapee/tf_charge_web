@@ -81,7 +81,7 @@
                                                 <div>{{getTimeByFormat(scope1.row.endTime,'YY-MM-DD hh:mm:ss')}}</div>
                                             </template>
                                         </el-table-column>
-                                        <el-table-column label="操作" width="150" align="center" v-if="!searchDel&&(power.charge_edit||power.charge_delete||powerData.charge_approval)" class-name="optBox">
+                                        <el-table-column label="操作" width="150" align="center" v-if="!searchDel&&(powerData.charge_edit||powerData.charge_delete||powerData.charge_approval)" class-name="optBox">
                                             <template slot-scope="scope1">
                                                 <el-button type="text" title="审批" @click="approval(scope1.row)" :disabled="scope1.row.approvalStatus=='PASS'" v-show="powerData.charge_approval">审批</el-button>
                                                 <el-button type="text" title="编辑" @click="edit('edit',scope1.row)" :disabled="scope1.row.approvalStatus=='PASS'" v-show="powerData.charge_edit">编辑</el-button>
@@ -95,11 +95,6 @@
                                     <el-table class="outtable" :data="scope.row.flightSupplementInfos" border stripe style="width: 100%" row-class-name="expandRow" cell-class-name="el-table__expanded-cell">
                                         <el-table-column prop="valueTitle" label="名称" align="center"></el-table-column>
                                         <el-table-column prop="valueCode" label="数据" align="center" width="120px"></el-table-column>
-                                        <el-table-column prop="supplementUnit" label="单位" align="center" width="120px">
-                                            <template slot-scope="scope1">
-                                                {{getName(scope1.row.supplementUnit,unitLists,'name')}}
-                                            </template>
-                                        </el-table-column>
                                     </el-table>
                                 </div>
 

@@ -41,7 +41,7 @@
                     <el-table-column prop="name" label="名称"></el-table-column>
                     <el-table-column label="收费项">
                         <template slot-scope="scope">
-                            {{getName(scope.row.chargeBillItemList,chargeLists,'chargeCode')}}
+                            {{getName(scope.row.chargeBillItemList,chargeLists,'chargeCode','unit')}}
                         </template>
                     </el-table-column>
                     <el-table-column label="签名项">
@@ -198,12 +198,12 @@ export default {
                 this.chargeLists = res.data
             })
         },
-        getName(items, lists, key) {
+        getName(items, lists, key, key1) {
             let arr = []
             if (items && items.length > 0) {
                 items.map((list) => {
                     let obj = _.find(lists, { code: list[key] })
-                    arr.push(obj.name)
+                    arr.push(obj.name + (key1 ? '(' + obj[key1] + ')' : ''))
                 })
             }
             return arr.join(',')

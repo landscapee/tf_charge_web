@@ -14,7 +14,7 @@
             </el-form-item>
             <el-form-item label="收费项" required>
                 <el-select v-model="listData.chargeBillItemList" filterable multiple clearable placeholder="请选择">
-                    <el-option v-for="item in chargeLists" :key="item.id" :label="item.name" :value="item.code"></el-option>
+                    <el-option v-for="item in chargeLists" :key="item.id" :label="item.name+'('+item.unit+')'" :value="item.code"></el-option>
                 </el-select>
             </el-form-item>
             <el-form-item label="签名项" required>

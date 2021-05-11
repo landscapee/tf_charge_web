@@ -41,7 +41,7 @@
                     <el-table-column prop="name" label="数据源名称"></el-table-column>
                     <el-table-column label="收费项">
                         <template slot-scope="scope">
-                            {{scope.row.chargeConfig?scope.row.chargeConfig.name:''}}
+                            {{scope.row.chargeConfig?scope.row.chargeConfig.name+'('+scope.row.chargeConfig.unit+')':''}}
                         </template>
                     </el-table-column>
                     <el-table-column label="类型">

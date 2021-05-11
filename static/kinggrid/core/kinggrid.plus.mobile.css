@@ -12,7 +12,7 @@
 .kg-ui-dialog .ui-dialog-footer button {
 	letter-spacing: 5px;
 	text-indent: 5px;
-	text-algn: center;
+	text-alignE: center;
 }
 
 .kg-ui-dialog .ui-dialog-footer button.ui-dialog-autofocus {
@@ -20,8 +20,9 @@
 	border-color: #ca2121;
 }
 
-.kg-ui-dialog .ui-dialog-footer button.ui-dialog-autofocus:hover, .ui-dialog-footer button.ui-dialog-autofocus:focus,
-	.ui-dialog-footer button.ui-dialog-autofocus:active {
+.kg-ui-dialog .ui-dialog-footer button.ui-dialog-autofocus:hover,
+.ui-dialog-footer button.ui-dialog-autofocus:focus,
+.ui-dialog-footer button.ui-dialog-autofocus:active {
 	color: #ffffff;
 	background-color: #C62929;
 	border-color: #d00a0a;
@@ -71,52 +72,57 @@
 @media screen and (max-width:700px) {
 	.kg-dialog-info {
 		width: 100%;
-		width: calc(100vw - 40px);
+		width: calc(100vw - 40px) !important;
 	}
+
 	.kg-dialog-info .kg-meta {
 		width: 100%;
-		font-size: calc(14px + 4 * ( 100vw - 600px) / 400);
+		font-size: calc(14px + 4 * (100vw - 600px) / 400);
 	}
-	
+
 	.kg-dialog-info .kg-content {
 		padding: 0px;
 	}
+
 	.kg-dialog-info .kg-meta {
 		padding: 0px;
 		margin: 0px;
 	}
+
 	.kg-dialog-info .kg-meta .kg-item {
 		padding: 2px 5px;
 		position: relative;
 	}
-	
+
 	.kg-dialog-info .kg-meta .kg-item .kg-label {
 		position: absolute;
 		top: 4px;
-		top: calc(4px + 4 * ( 100vw - 700px) / 400);
+		top: calc(4px + 4 * (100vw - 700px) / 400);
 		left: 0px;
 		width: 70px;
-		width:  calc((14px + 4 * ( 100vw - 600px) / 400 ) * 6)
+		width: calc((14px + 4 * (100vw - 600px) / 400) * 6)
 	}
+
 	.kg-dialog-info .kg-meta .kg-item .kg-value {
 		width: auto;
 		position: static;
 		margin-left: 70px;
-		margin-left: calc((14px + 4 * ( 100vw - 600px) / 400 ) * 6);
+		margin-left: calc((14px + 4 * (100vw - 600px) / 400) * 6);
 	}
-	
-	
+
+
 	.kg-dialog-info .kg-item.kg-nosign .kg-label {
 		display: none;
 		position: static;
 	}
+
 	.kg-dialog-info .kg-item.kg-nosign {
 		text-align: center;
 		margin: 0 auto;
 		padding: 0px;
 		position: static;
 	}
-	
+
 	.kg-dialog-info .kg-item.kg-nosign .kg-value {
 		border-bottom: 0px;
 		text-align: center;
@@ -124,33 +130,36 @@
 		margin: 0 auto;
 		padding: 0px;
 	}
-	
+
 }
+
 @media screen and (max-width:360px) {
 	.kg-dialog {
 		width: auto;
 	}
+
 	.kg-dialog-password {
 		width: 296px;
 		width: calc(100vw - 40px);
 		padding: 0px;
 	}
-	
+
 }
 
 @media screen and (max-width:320px) {
-	
+
 	.kg-dialog-info .kg-meta .kg-item {
 		position: static;
 	}
-	.kg-dialog-info .kg-meta .kg-item .kg-value{
+
+	.kg-dialog-info .kg-meta .kg-item .kg-value {
 		margin-left: 0px;
-		
+
 	}
+
 	.kg-dialog-info .kg-meta .kg-item .kg-label {
 		position: static;
-		display:none;
+		display: none;
 	}
-	
-}
 
+}

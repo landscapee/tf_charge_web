@@ -35,8 +35,7 @@
                 <thead>
                     <tr>
                         <th>名称</th>
-                        <th style="width:80px">数据</th>
-                        <th style="width:80px">单位</th>
+                        <th>数据</th>
                         <th>描述</th>
                     </tr>
                 </thead>
@@ -44,24 +43,23 @@
                     <tr v-for="item in supplementInfos" :key="item.id">
                         <td>{{item.supplementTitle}}</td>
                         <td>{{item.valueCode}}</td>
-                        <td>{{item.supplementUnit}}</td>
                         <td>{{item.valueTitle}}</td>
                     </tr>
                 </tbody>
             </table>
         </div>
-        <div class="chargeMsg" v-show="chargeBillRecordSigns.length>0">
+        <div class="chargeMsg" v-if="chargeBillRecordSigns.length>0">
             <div class="title">{{chargeBill.chargeBillConfigName}}</div>
-            <table v-for="(item,idx) in chargeBillRecordSigns" :key="idx">
+            <table v-for="(data,idx) in chargeBillRecordSigns" :key="idx">
                 <thead>
                     <tr>
-                        <th>收费项目</th>
-                        <th style="width:80px">收费数据</th>
-                        <th style="width:80px">计量单位</th>
+                        <th>收费</th>
+                        <th style="width:80px">数据</th>
+                        <th style="width:80px">单位</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="item in item.chargeRecordList" :key="item.id">
+                    <tr v-for="item in data.chargeRecordList" :key="item.id">
                         <td>{{item.chargeDataSource&&item.chargeDataSource.chargeConfig?item.chargeDataSource.chargeConfig.name:''}}</td>
                         <td>{{item.chargeData}}</td>
                         <td>{{item.chargeDataSource&&item.chargeDataSource.chargeConfig?item.chargeDataSource.chargeConfig.unit:''}}</td>
@@ -72,6 +70,21 @@
                         <div style='position:relative'>
                             <div class='list_sign' style="width:100%;position:absolute;top:-20px;left:0">
                                 <div :pos="'posElSignFn'+idx+index" :id="'posElSignFn'+idx+index"></div>
+                            </div>
+                        </div>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="chargeMsg" v-else>
+            <table>
+                <tbody>
+                    <tr v-for="(item,index) in dataDictionaryList" :key="index" class="list_in">
+                        <div class="label">{{item.name}}签字:</div>
+                        <div class="value" :id="'sign0'+index" @click="elSignFn(0,index,'posElSignFn0'+index)">点击签字</div>
+                        <div style='position:relative'>
+                            <div class='list_sign' style="width:100%;position:absolute;top:-20px;left:0">
+                                <div :pos="'posElSignFn0'+index" :id="'posElSignFn0'+index"></div>
                             </div>
                         </div>
                     </tr>
@@ -155,7 +168,7 @@ export default {
         },
         inIframeInit(data) {
             this.queryData = data
-            // sessionStorage.setItem('token', data.token)
+            sessionStorage.setItem('token', data.token)
             this.getData(data)
         },
         getData({ flightId, chargeBillId }) {
@@ -174,7 +187,9 @@ export default {
                     return false
                 }
                 this.details = res.data
+
                 this.chargeBill = res.data.chargeBill
+                $('title').text(this.chargeBill.chargeBillConfigName)
                 this.supplementInfos = this.details.chargeBill.flightSupplementInfos || []
                 this.chargeBillRecordSigns = this.details.chargeBill.chargeBillRecordSigns || []
                 this.dataDictionaryList =
@@ -182,25 +197,35 @@ export default {
                         this.details.chargeBill.chargeBillConfig.dataDictionaryList) ||
                     []
                 let signs = []
-                this.chargeBillRecordSigns.forEach((list, index) => {
-                    this.chargeBillSigns[index] = {}
+                if (this.chargeBillRecordSigns.length > 0) {
+                    this.chargeBillRecordSigns.forEach((list, index) => {
+                        this.chargeBillSigns[index] = {}
+                        this.dataDictionaryList.forEach((dictionary, idx) => {
+                            let sign = _.find(list.chargeBillSignList, { type: dictionary.code })
+                            if (sign) {
+                                this.chargeBillSigns[index][idx] = sign
+                                if (sign.signId && sign.data) {
+                                    signs.push({
+                                        signatureid: sign.signId,
+                                        signatureData: sign.data,
+                                    })
+                                }
+                            } else {
+                                this.chargeBillSigns[index][idx] = {
+                                    type: dictionary.code,
+                                }
+                            }
+                        })
+                    })
+                } else {
+                    this.chargeBillSigns[0] = {}
                     this.dataDictionaryList.forEach((dictionary, idx) => {
-                        let sign = _.find(list.chargeBillSignList, { type: dictionary.code })
-                        if (sign) {
-                            this.chargeBillSigns[index][idx] = sign
-                            if (sign.signId && sign.data) {
-                                signs.push({
-                                    signatureid: sign.signId,
-                                    signatureData: sign.data,
-                                })
-                            }
-                        } else {
-                            this.chargeBillSigns[index][idx] = {
-                                type: dictionary.code,
-                            }
+                        this.chargeBillSigns[0][idx] = {
+                            type: dictionary.code,
                         }
                     })
-                })
+                }
+
                 this.$nextTick(() => {
                     this.showSign()
                 })
@@ -245,7 +270,7 @@ export default {
             Signature.init({
                 //初始化属性
                 //keysn:'0741170010110516',
-                keysn: this.sysEdition == 'tianfu' ? 'maintenance' : '0003',
+                keysn: 'maintenance',
                 delCallBack: this.delSign,
                 moveable: false,
                 showNoPW: true,
@@ -257,7 +282,7 @@ export default {
                 sealType: 'server', //设置印章从签章服务器取
                 serverUrl:
                     this.sysEdition == 'tianfu'
-                        ? 'http://10.33.144.57:8089/iSignatureHTML5'
+                        ? 'http://10.42.66.33:8089/iSignatureHTML5'
                         : 'http://173.101.1.134:8089/iSignatureHTML5',
                 documentid: 'KG2016093001333', //设置文档ID
                 documentname: '测试文档KG2016093001', //设置文档名称
@@ -290,7 +315,6 @@ export default {
                     },
                 },
                 function (param) {
-                    // alert(param.imageData);
                     signatureCreator.runHW(param, {
                         protectedItems: [], // 设置定位页面DOM的id，自动查找ID，自动获取保护DOM的kg-desc属性作为保护项描述，value属性为保护数据。不设置，表示不保护数据，签章永远有效。
                         position: ele, // 设置盖章定位dom的ID，必须设置
@@ -350,6 +374,8 @@ export default {
                 })
                 return false
             }
+            console.log(arrs)
+            return false
             this.$axios
                 .post(`/charge-bill-sign/saveAll?chargeBillId=${this.queryData.chargeBillId}`, arrs)
                 .then((res) => {
@@ -358,7 +384,7 @@ export default {
                         center: true,
                         customClass: 'h5Alert',
                         callback: () => {
-                            androidJS.androidBack()
+                            window.androidBack()
                         },
                     })
                 })

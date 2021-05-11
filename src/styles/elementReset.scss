@@ -154,6 +154,10 @@
 
 }
 
+.el-table__expanded-cell[class*=cell] {
+    padding: 0;
+}
+
 .el-dialog,
 .ui-popup {
     display: flex;
@@ -165,6 +169,14 @@
     transform: translate(-50%, -50%);
     max-height: calc(100% - 30px);
     max-width: calc(100% - 30px);
+}
+
+// .ui-popup {
+//     width: 95%;
+// }
+
+.kg-label {
+    white-space: nowrap;
 }
 
 .el-dialog .el-dialog__body {
