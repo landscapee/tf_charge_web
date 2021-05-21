@@ -27,7 +27,7 @@
                 </el-form>
             </el-row>
         </div>
-        <el-dialog :visible.sync="changePasswordShow" class="nodeDialog" :show-close="false" center width="500px" :append-to-body="true" @close="changePasswordClose">
+        <el-dialog :visible.sync="changePasswordShow" class="nodeDialog" :show-close="false" center width="600px" :append-to-body="true" @close="changePasswordClose">
             <template slot="title">
                 <div class="blankDiv"></div>
                 <div class="el-dialog_header_step">密码修改</div>

@@ -103,7 +103,6 @@ export default {
     },
     created() {
         this.getUnitLists()
-        this.handleLists()
     },
     mounted() {
         this.maxHeight = $('.tableBox').height() - 72
@@ -195,6 +194,7 @@ export default {
                 })
                 .then((res) => {
                     this.unitLists = res.data
+                    this.handleLists()
                 })
         },
     },

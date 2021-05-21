@@ -7,13 +7,20 @@
     padding: 0;
 }
 
+.outtable:before {
+    height: 0;
+}
+
+.outtable:after {
+    width: 0;
+}
+
 .stepDialog {
     .el-dialog_header_step {
         height: 60px;
         line-height: 60px;
         color: #fff;
         font-size: 24px;
-        ;
         background-image: url('../assets/img/lay_title_bg.png');
         background-repeat: no-repeat;
         background-size: 100% 101%;
@@ -182,6 +189,7 @@
 .el-dialog .el-dialog__body {
     flex: 1;
     overflow: auto;
+    padding: 25px 25px 0;
 }
 
 .el-dialog.is-fullscreen {

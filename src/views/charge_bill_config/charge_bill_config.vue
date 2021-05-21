@@ -37,21 +37,35 @@
                             {{(submitData.current-1)*submitData.size+scope.$index+1}}
                         </template>
                     </el-table-column>
-                    <el-table-column prop="code" label="编码"></el-table-column>
+                    <el-table-column prop="code" label="编码" width="100"></el-table-column>
                     <el-table-column prop="name" label="名称"></el-table-column>
                     <el-table-column label="收费项">
                         <template slot-scope="scope">
                             {{getName(scope.row.chargeBillItemList,chargeLists,'chargeCode','unit')}}
                         </template>
                     </el-table-column>
-                    <el-table-column label="签名项">
+                    <el-table-column label="签名项" width="200">
                         <template slot-scope="scope">
                             {{getName(scope.row.chargeBillConfigSignList,singLists,'dataCode')}}
                         </template>
                     </el-table-column>
-                    <el-table-column prop="maxApprovalLevel" label="审批级别"></el-table-column>
-
-                    <el-table-column prop="createrName" label="创建人"></el-table-column>
+                    <el-table-column prop="maxApprovalLevel" label="审批级别" width="100"></el-table-column>
+                    <el-table-column label="预签名" width="100">
+                        <template slot-scope="scope">
+                            {{scope.row.preSign?'是':'否'}}
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="默认展开" width="100">
+                        <template slot-scope="scope">
+                            {{scope.row.expandDefault?'是':'否'}}
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="模板" width="100" align="center">
+                        <template slot-scope="scope">
+                            <el-button type="primary" size="mini" v-if="scope.row.file&&scope.row.file.id" @click="handlePreview(scope.row.file)">下载</el-button>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="createrName" label="创建人" width="120"></el-table-column>
                     <el-table-column label="创建时间" width="180">
                         <template slot-scope="scope">
                             {{getTimeByFormat(scope.row.createTime,'YY-MM-DD hh:mm:ss')}}
@@ -70,7 +84,7 @@
                 </div>
             </div>
         </div>
-        <edit-list ref="ref_editList" @update="update" :singLists="singLists" :chargeLists="chargeLists" :signTypeLists="signTypeLists"></edit-list>
+        <edit-list ref="ref_editList" @update="update" @handle-preview="handlePreview" :singLists="singLists" :chargeLists="chargeLists" :signTypeLists="signTypeLists"></edit-list>
     </div>
 
 </template>
@@ -106,10 +120,8 @@ export default {
     },
     created() {
         this.getALLCharge()
-        this.getSingLists()
     },
     mounted() {
-        this.handleLists()
         this.maxHeight = $('.tableBox').height() - 72
     },
     methods: {
@@ -191,11 +203,13 @@ export default {
                 })
                 .then((res) => {
                     this.singLists = res.data
+                    this.handleLists()
                 })
         },
         getALLCharge() {
             this.$axios.get('/charge-config/findAllChargeConfig').then((res) => {
                 this.chargeLists = res.data
+                this.getSingLists()
             })
         },
         getName(items, lists, key, key1) {
@@ -207,6 +221,15 @@ export default {
                 })
             }
             return arr.join(',')
+        },
+        handlePreview(file) {
+            var a = document.createElement('a')
+            a.download = file.name
+            a.href = this.$axios.defaults.baseURL + 'file/download/' + file.id
+            a.target = '_blank'
+            $('body').append(a) // 修复firefox中无法触发click
+            a.click()
+            $(a).remove()
         },
     },
 }

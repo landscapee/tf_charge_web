@@ -1,5 +1,5 @@
 <template>
-    <el-dialog :visible.sync="listShow" id="addTask" center width="400px" :show-close="false">
+    <el-dialog :visible.sync="listShow" id="addTask" center width="600px" :show-close="false" @close="closeDialog">
         <div slot="title" class="head">
             <div></div>
             <span>{{type=='add'?'新增':'编辑'}}</span>
@@ -7,14 +7,14 @@
         </div>
         <el-form label-position="right" label-width="100px" ref="listData">
             <el-form-item label="编码" required>
-                <el-input v-model="listData.code" placeholder="编码" :disabled="!!listData.id"></el-input>
+                <el-input v-model="listData.code" placeholder="编码" :disabled="!!listData.id||!listData.id&&fileList.length>0"></el-input>
             </el-form-item>
             <el-form-item label="名称" required>
                 <el-input v-model="listData.name" placeholder="名称"></el-input>
             </el-form-item>
             <el-form-item label="收费项" required>
                 <el-select v-model="listData.chargeBillItemList" filterable multiple clearable placeholder="请选择">
-                    <el-option v-for="item in chargeLists" :key="item.id" :label="item.name+'('+item.unit+')'" :value="item.code"></el-option>
+                    <el-option v-for="item in chargeLists" :key="item.id" :label="item.code+'-'+item.name+'('+item.unit+')'" :value="item.code"></el-option>
                 </el-select>
             </el-form-item>
             <el-form-item label="签名项" required>
@@ -29,6 +29,20 @@
             </el-form-item>
             <el-form-item label="审批级别" required>
                 <el-input type="number" v-model="listData.maxApprovalLevel" placeholder="审批级别"></el-input>
+            </el-form-item>
+            <el-form-item label="是否预签">
+                <el-radio v-model="listData.preSign" :label="true">是</el-radio>
+                <el-radio v-model="listData.preSign" :label="false">否</el-radio>
+            </el-form-item>
+            <el-form-item label="默认展开">
+                <el-radio v-model="listData.expandDefault" :label="true">是</el-radio>
+                <el-radio v-model="listData.expandDefault" :label="false">否</el-radio>
+            </el-form-item>
+            <el-form-item label="模板">
+                <el-upload class="upload-demo" :action="$axios.defaults.baseURL+'/file/fileUpload'" :on-preview="handlePreview" :on-remove="handleRemove" :before-remove="beforeRemove" :limit="1" :on-exceed="handleExceed" :file-list="fileList" :headers="getHeader()" :on-success="handleSuccess" :data='{chargeBillConfigCode :listData.code}' :disabled="!listData.code">
+                    <el-button size="small" type="primary">点击上传</el-button>
+                    <span v-show="type=='add'" style="color:red;margin-left:10px;" slot="tip" class="el-upload__tip">上传模板后，不能修改code，如需修改请删除模板</span>
+                </el-upload>
             </el-form-item>
         </el-form>
         <div slot="footer" class="footer">
@@ -46,6 +60,7 @@ export default {
             listShow: false,
             listData: {},
             type: '',
+            fileList: [],
         }
     },
     methods: {
@@ -53,6 +68,7 @@ export default {
             this.type = type
             this.listShow = true
             this.listData = {}
+            this.fileList = []
             if (data) {
                 let chargeBillConfigSignList = []
                 let chargeBillItemList = []
@@ -66,7 +82,7 @@ export default {
                     })
                 data.chargeBillConfigSignList = chargeBillConfigSignList
                 data.chargeBillItemList = chargeBillItemList
-
+                this.fileList = data.file ? [data.file] : []
                 this.listData = data
             }
         },
@@ -103,6 +119,9 @@ export default {
                 })
                 this.$emit('update')
             })
+        },
+        closeDialog() {
+            this.fileList = []
         },
         dataVerify() {
             if (!this.listData.code) {
@@ -144,6 +163,24 @@ export default {
                 return false
             }
             return true
+        },
+        getHeader() {
+            return { Authorization: sessionStorage.token }
+        },
+        handlePreview(file) {
+            this.$emit('handle-preview', file)
+        },
+        handleRemove() {
+            this.fileList = []
+        },
+        handleExceed(files, fileList) {
+            this.$message.warning(`只能同时存在一个模板，如需重新上传，请先删除先前模板。`)
+        },
+        beforeRemove(file, fileList) {
+            return this.$confirm(`确定移除 ${file.name}？`)
+        },
+        handleSuccess(res, file, fileList) {
+            this.fileList = [res.data]
         },
     },
 }

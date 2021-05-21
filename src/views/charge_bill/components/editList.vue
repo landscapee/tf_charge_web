@@ -2,18 +2,15 @@
     <el-dialog :visible.sync="listShow" id="addTask" center width="600px" :show-close="false">
         <div slot="title" class="head">
             <div></div>
-            <span>{{type=='add'?'新增':'编辑'}}</span>
+            <span>编辑</span>
             <i class="el-icon-circle-close" @click="listShow=false"></i>
         </div>
         <el-form label-position="right" label-width="90px" ref="listData">
-            <el-form-item label="编码" required>
-                <el-input v-model="listData.code" placeholder="编码" :disabled="!!listData.id"></el-input>
+            <el-form-item label="名称">
+                <el-input v-model="listData.valueTitle" placeholder="名称" :disabled="!!listData.id"></el-input>
             </el-form-item>
-            <el-form-item label="名称" required>
-                <el-input v-model="listData.name" placeholder="名称"></el-input>
-            </el-form-item>
-            <el-form-item label="pid">
-                <el-input v-model="listData.pid" placeholder="pid"></el-input>
+            <el-form-item label="数据">
+                <el-input v-model="listData.valueCode" placeholder="数据"></el-input>
             </el-form-item>
         </el-form>
         <div slot="footer" class="footer">
@@ -29,16 +26,15 @@ export default {
         return {
             listShow: false,
             listData: {},
-            type: '',
         }
     },
     methods: {
-        initData(type, data) {
-            this.type = type
+        initData(data) {
             this.listShow = true
             this.listData = {}
+            console.log(data)
             if (data) {
-                this.listData = data
+                this.listData = _.cloneDeep(data)
             }
         },
         save() {
@@ -46,8 +42,7 @@ export default {
             if (!verify) {
                 return false
             }
-            this.$axios.post('/data-dictionary/save', this.listData).then((res) => {
-                console.log(res)
+            this.$axios.post('/flight-supplement-info/save', this.listData).then((res) => {
                 this.listShow = false
                 this.$alert(res.msg, '提示', {
                     type: 'success',
@@ -57,15 +52,8 @@ export default {
             })
         },
         dataVerify() {
-            if (!this.listData.code) {
-                this.$alert('编码不能为空！', '提示', {
-                    type: 'error',
-                    center: true,
-                })
-                return false
-            }
-            if (!this.listData.name) {
-                this.$alert('名称不能为空！', '提示', {
+            if (!this.listData.chargeData && this.timeShow) {
+                this.$alert('收费数据不能为空！', '提示', {
                     type: 'error',
                     center: true,
                 })

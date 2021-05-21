@@ -1,5 +1,5 @@
 <template>
-    <el-dialog :visible.sync="listShow" id="addTask" center width="400px" :show-close="false">
+    <el-dialog :visible.sync="listShow" id="addTask" center width="600px" :show-close="false">
         <div slot="title" class="head">
             <div></div>
             <span>{{type=='add'?'新增':'编辑'}}</span>
@@ -14,7 +14,7 @@
             </el-form-item>
             <el-form-item label="收费项" required>
                 <el-select v-model="listData.chargeCode" filterable placeholder="请选择">
-                    <el-option v-for="item in chargeLists" :key="item.id" :label="item.name+'('+item.unit+')'" :value="item.code">
+                    <el-option v-for="item in chargeLists" :key="item.id" :label="item.code+'-'+item.name+'('+item.unit+')'" :value="item.code">
                     </el-option>
                 </el-select>
             </el-form-item>

@@ -76,7 +76,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="chargeMsg" v-else>
+        <div class="chargeMsg" v-else v-show="chargeBill.preSign">
             <table>
                 <tbody>
                     <tr v-for="(item,index) in dataDictionaryList" :key="index" class="list_in">

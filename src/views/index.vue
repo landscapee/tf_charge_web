@@ -107,6 +107,7 @@ export default {
                 charge_edit: false,
                 charge_delete: false,
                 charge_approval: false,
+                charge_download: false,
             },
         }
     },
@@ -144,6 +145,9 @@ export default {
                 }
                 if (list.code == 'charge_delete') {
                     this.power.charge_delete = true
+                }
+                if (list.code == 'charge_download') {
+                    this.power.charge_download = true
                 }
             })
 
@@ -431,6 +435,18 @@ export default {
             .expandRow:hover {
                 td {
                     background-color: #a0cbf6 !important;
+                }
+            }
+            .timeBorder {
+                td {
+                    border-top: 1px solid red;
+                    border-bottom: 1px solid red;
+                }
+                td:nth-child(1) {
+                    border-left: 1px solid red;
+                }
+                td:last-child {
+                    border-right: 1px solid red;
                 }
             }
         }

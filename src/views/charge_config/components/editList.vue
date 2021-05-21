@@ -1,5 +1,5 @@
 <template>
-    <el-dialog :visible.sync="listShow" id="addTask" center width="400px" :show-close="false">
+    <el-dialog :visible.sync="listShow" id="addTask" center width="600px" :show-close="false">
         <div slot="title" class="head">
             <div></div>
             <span>{{type=='add'?'新增':'编辑'}}</span>
