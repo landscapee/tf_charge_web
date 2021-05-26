@@ -608,7 +608,7 @@ export default {
     }
 }
 .bill_expand {
-    padding: 15px 20px;
+    padding: 0 5px 20px;
 
     .title {
         height: 40px;
@@ -619,11 +619,11 @@ export default {
     }
     .bill_expand_Box {
         width: 100%;
-        padding: 10px 0;
+        padding: 0;
     }
     .bill_expand_Box1 {
         width: 50%;
-        padding: 10px 0;
+        padding: 0;
     }
 }
 .indexTd {

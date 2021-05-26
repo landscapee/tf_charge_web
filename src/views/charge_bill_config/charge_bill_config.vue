@@ -66,7 +66,7 @@
                         </template>
                     </el-table-column>
                     <el-table-column prop="createrName" label="创建人" width="120"></el-table-column>
-                    <el-table-column label="创建时间" width="180">
+                    <el-table-column label="创建时间" width="200">
                         <template slot-scope="scope">
                             {{getTimeByFormat(scope.row.createTime,'YY-MM-DD hh:mm:ss')}}
                         </template>

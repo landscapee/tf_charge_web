@@ -92,7 +92,7 @@
                     </el-table-column>
 
                     <el-table-column prop="operatorName" label="操作人"></el-table-column>
-                    <el-table-column label="时间" width="180">
+                    <el-table-column label="时间" width="200">
                         <template slot-scope="scope">
                             {{getTimeByFormat(scope.row.startTime,'YY-MM-DD hh:mm:ss')}}<br />
                             {{getTimeByFormat(scope.row.endTime,'YY-MM-DD hh:mm:ss')}}

@@ -77,7 +77,7 @@
                                                 </div>
                                             </template>
                                         </el-table-column>
-                                        <el-table-column label="时间" width="180">
+                                        <el-table-column label="时间" width="200">
                                             <template slot-scope="scope1">
                                                 <div>{{scope1.row.startTime?getTimeByFormat(scope1.row.startTime,'YY-MM-DD hh:mm:ss'):''}}</div>
                                                 <div>{{getTimeByFormat(scope1.row.endTime,'YY-MM-DD hh:mm:ss')}}</div>
@@ -127,7 +127,7 @@
 
                     <el-table-column label="汇总" width="120" align="center">
                         <template slot-scope="scope">
-                            <el-popover placement="right" trigger="hover">
+                            <el-popover placement="right" trigger="hover" v-if="!scope.row.expandDefault">
                                 <table class="sumTable" border="1">
                                     <tr>
                                         <td style="padding:10px 20px">单位</td>
@@ -140,14 +140,17 @@
                                 </table>
                                 <el-button slot="reference" type="primary" size="mini" v-if="scope.row.sum&&JSON.stringify(scope.row.sum) != '{}'">查看</el-button>
                             </el-popover>
+                            <span v-else>
+                                {{getSumText(scope.row.sum)}}
+                            </span>
                         </template>
                     </el-table-column>
-                    <el-table-column label="计划时间" width="180">
+                    <el-table-column label="计划时间" width="200">
                         <template slot-scope="scope">
                             {{scope.row.flight?getTimeByFormat(scope.row.flight.scheduleTime,'YY-MM-DD hh:mm:ss'):''}}
                         </template>
                     </el-table-column>
-                    <el-table-column prop="createTime" label="创建时间" width="180"></el-table-column>
+                    <el-table-column prop="createTime" label="创建时间" width="200"></el-table-column>
                     <el-table-column label="操作" width="120" align="center" v-if="!searchDel&&powerData.charge_approval" class-name="optBox">
                         <template slot-scope="scope">
                             <el-button type="text" title="审批" @click="approval([scope.row],'arrs')" :disabled="getapprovaldisabled(scope.row)" v-show="powerData.charge_approval">审批</el-button>
@@ -239,11 +242,22 @@ export default {
                 row.chargeCode == 'LANQ' &&
                 endTime &&
                 startTime &&
-                (endTime - startTime > 6 * 24 * 3600000 || endTime - startTime < 10 * 600000)
+                (endTime - startTime > 6 * 60 * 60 * 1000 || endTime - startTime < 10 * 60 * 1000)
             ) {
                 name += ' timeBorder'
             }
             return name
+        },
+        getSumText(sum) {
+            let text = []
+            if (!sum && JSON.stringify(sum) != '{}') {
+                return ''
+            } else {
+                _.forIn(sum, (value, key) => {
+                    text.push(value + key)
+                })
+                return text.join(',')
+            }
         },
         getExpends() {
             var arrs = _.reduce(
@@ -445,7 +459,7 @@ export default {
                 this.getTimeByFormat(new Date(), 'YY-MM-DD hh:mm:ss')
             a.href =
                 this.$axios.defaults.baseURL +
-                'charge-bill/exportChargeBillToPdf?isServer=false&chargeBillId=' +
+                'charge-bill/exportChargeBillToPdf?isServer=true&chargeBillId=' +
                 row.id
             a.target = '_blank'
             $('body').append(a) // 修复firefox中无法触发click
