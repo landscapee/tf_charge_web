@@ -65,6 +65,7 @@ export default {
                 this.listData = _.cloneDeep(data)
                 let startTime = new Date(this.listData.startTime).getTime()
                 let endTime = new Date(this.listData.endTime).getTime()
+                console.log(this.listData)
                 if (
                     endTime &&
                     startTime &&

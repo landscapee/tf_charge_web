@@ -24,6 +24,7 @@
                 </div>
             </div>
             <div class="rightBox">
+                <el-button type="primary" @click="add">新增收费</el-button>
                 <el-button type="primary" @click="send">发送</el-button>
                 <el-button type="primary" @click="approvalSelect" v-show="powerData.charge_approval">批量审批</el-button>
                 <el-button type="primary" @click="handleLists">刷新</el-button>
@@ -164,6 +165,7 @@
             </div>
         </div>
         <edit-list ref="ref_editList" @update="update"></edit-list>
+        <add-list ref="ref_addList" @update="update"></add-list>
         <info-edit-list ref="ref_infoEditList" @update="update"></info-edit-list>
     </div>
 
@@ -171,6 +173,7 @@
 
 <script>
 import EditList from '../charge_record/components/editList'
+import AddList from './components/addList'
 import InfoEditList from './components/editList'
 export default {
     props: ['power', 'flagNav'],
@@ -204,6 +207,7 @@ export default {
     },
     components: {
         'edit-list': EditList,
+        'add-list': AddList,
         'info-edit-list': InfoEditList,
     },
     created() {},
@@ -504,6 +508,9 @@ export default {
                         })
                     })
             })
+        },
+        add() {
+            this.$refs.ref_addList.initData()
         },
         infoEdit(data) {
             this.$refs.ref_infoEditList.initData(_.cloneDeep(data))

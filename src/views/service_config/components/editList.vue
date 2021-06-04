@@ -48,7 +48,7 @@ export default {
             this.getALLCharge()
         },
         getALLCharge() {
-            this.$axios.get('/charge-config/findAllChargeConfig').then((res) => {
+            this.$axios.get('/charge-config/findAllChargeRecordConfig').then((res) => {
                 this.chargeLists = res.data
             })
         },

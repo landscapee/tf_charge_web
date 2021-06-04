@@ -135,7 +135,7 @@ export default {
         getLists(data) {
             this.submitData = data
             this.$axios
-                .get('/charge-config/findChargeConfigWhitPage', {
+                .get('/charge-config/findChargeRecordConfigWhitPage', {
                     params: data,
                 })
                 .then((res) => {

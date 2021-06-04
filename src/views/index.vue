@@ -391,67 +391,58 @@ export default {
     }
 }
 
-.rightBox {
-    table {
-        width: 100%;
-        thead {
-            tr {
+table {
+    width: 100%;
+    thead {
+        tr {
+            height: 40px;
+            th {
+                background-color: #3a3f43 !important;
+                color: #fff;
                 height: 40px;
-                th {
-                    background-color: #3a3f43;
-                    color: #fff;
-                    height: 40px;
-                    padding: 0 !important;
-                }
+                padding: 0 !important;
             }
         }
-        tbody {
-            tr {
+    }
+    tbody {
+        tr {
+            height: 50px;
+            td {
                 height: 50px;
-                td {
-                    height: 50px;
-                    padding: 4px 0 !important;
-                }
-                // td{text-align: center;}
-                .cell > i {
-                    margin: 0 5px;
-                    cursor: pointer;
-                    font-size: 18px;
-                }
-                .stateBoxBox {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                }
+                padding: 4px 0 !important;
             }
-            tr:nth-child(even) {
-                background: #eee;
+            // td{text-align: center;}
+            .cell > i {
+                margin: 0 5px;
+                cursor: pointer;
+                font-size: 18px;
             }
-            tr:hover {
-                td:not(.el-table__expanded-cell) {
-                    background-color: #a0cbf6 !important;
-                }
+            .stateBoxBox {
+                display: flex;
+                justify-content: center;
+                align-items: center;
             }
-            .expandRow:hover {
-                td {
-                    background-color: #a0cbf6 !important;
-                }
+        }
+
+        tr:hover {
+            td:not(.el-table__expanded-cell) {
+                background-color: #a0cbf6 !important;
             }
-            .timeBorder {
-                td {
-                    border-top: 1px solid red;
-                    border-bottom: 1px solid red;
-                }
-                td:nth-child(1) {
-                    border-left: 1px solid red;
-                }
-                td:last-child {
-                    border-right: 1px solid red;
-                }
+        }
+        .timeBorder {
+            td {
+                background-color: rgba(245, 108, 108, 0.8) !important;
+                color: #fff;
+            }
+        }
+        .expandRow:hover {
+            td {
+                background-color: #a0cbf6 !important;
             }
         }
     }
 }
+
 .outtable {
     th {
         background: none !important;
@@ -647,5 +638,37 @@ export default {
 }
 .row-expand-cover td .el-table__expand-icon {
     visibility: hidden;
+}
+
+.flightNoBox {
+    display: flex;
+    .flightNo-check {
+        display: flex;
+        flex-direction: column;
+        width: 500px;
+        margin: 0 0 20px 20px;
+        p {
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            color: #3988ff;
+        }
+        ul {
+            height: 300px;
+            overflow: auto;
+            border: 1px solid #ccc;
+            display: flex;
+            flex-wrap: wrap;
+            li {
+                height: 30px;
+                border: 1px solid #3988ff;
+                margin: 5px;
+                display: flex;
+                align-items: center;
+                padding: 0 10px;
+                cursor: pointer;
+            }
+        }
+    }
 }
 </style>

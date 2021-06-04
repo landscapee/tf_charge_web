@@ -18,7 +18,6 @@
                         <el-option v-for="item in serviceLists" :key="item.serviceCode" :label="item.serviceName" :value="item.serviceCode"></el-option>
                     </el-select>
                 </el-form-item>
-
                 <el-form-item label="参数">
                     <el-button type="primary" size="small" @click="editParameter">查看</el-button>
                 </el-form-item>

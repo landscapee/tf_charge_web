@@ -207,7 +207,7 @@ export default {
                 })
         },
         getALLCharge() {
-            this.$axios.get('/charge-config/findAllChargeConfig').then((res) => {
+            this.$axios.get('/charge-config/findAllChargeRecordConfig').then((res) => {
                 this.chargeLists = res.data
                 this.getSingLists()
             })
