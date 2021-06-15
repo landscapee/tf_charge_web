@@ -4,6 +4,7 @@
  * @param { Number } [wait] 抖动延迟时间(毫秒)
  * @param { Boolean } [immediate] 是否立即执行
 **/
+import moment  from "moment";
 export const debounce = function (action, wait, immediate = true) {
     var timer = null;
 
@@ -148,4 +149,30 @@ export const getTimeByFormat = function(time,format){
     ss = ss<10?'0'+ss:ss
     
     return format.replace(/YY/,YY).replace(/MM/,MM).replace(/DD/,DD).replace(/hh/,hh).replace(/mm/,mm).replace(/ss/,ss)
+}
+
+export const timeLength = function(time){
+    if (!time) { return '--' }
+    let timeLength = ''
+    let timeLengthObj = moment.duration(time)._data;
+    if (timeLengthObj.years > 0) {
+        timeLength+=`${timeLengthObj.years}年`
+    }
+    if (timeLengthObj.months > 0) {
+        timeLength+=`${timeLengthObj.months}月`
+    }
+    if (timeLengthObj.days > 0) {
+        timeLength+=`${timeLengthObj.days}日`
+    }
+    if (timeLengthObj.hours > 0) {
+        timeLength+=`${timeLengthObj.hours}时`
+    }
+    if (timeLengthObj.minutes > 0) {
+        timeLength+=`${timeLengthObj.minutes}分`
+    }
+    if (timeLengthObj.seconds > 0) {
+        timeLength+=`${timeLengthObj.seconds}秒`
+    }
+    return timeLength
+    
 }

@@ -12,15 +12,17 @@
             <el-form-item label="收费项">
                 <el-input v-model="listData.chargeDataSource.chargeConfig.name" placeholder="收费项" :disabled="!!listData.id"></el-input>
             </el-form-item>
-            <el-form-item label="收费数据" required v-if="!timeShow">
+            <el-form-item label="收费数据" required v-if="!timeShow&&type=='edit'">
                 <el-input v-model="listData.chargeData" placeholder="收费数据"></el-input>
             </el-form-item>
-            <el-form-item label="开始时间" required v-if="timeShow">
+            <el-form-item label="开始时间" required v-if="timeShow&&type=='edit'">
                 <el-date-picker v-model="listData.startTime" type="datetime" placeholder="选择开始时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker>
-
             </el-form-item>
-            <el-form-item label="结束时间" required v-if="timeShow">
+            <el-form-item label="结束时间" required v-if="timeShow&&type=='edit'">
                 <el-date-picker v-model="listData.endTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker>
+            </el-form-item>
+            <el-form-item label="备注" v-if="type=='remark'">
+                <el-input v-model="listData.remark" placeholder="备注"></el-input>
             </el-form-item>
 
         </el-form>
@@ -43,6 +45,7 @@ export default {
                 },
                 startTime: '',
                 endTime: '',
+                remark: '',
             },
             type: '',
             timeShow: false,
@@ -60,6 +63,7 @@ export default {
                 },
                 startTime: '',
                 endTime: '',
+                remark: '',
             }
             if (data) {
                 this.listData = _.cloneDeep(data)

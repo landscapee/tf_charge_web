@@ -7,10 +7,18 @@
         </div>
         <el-form label-position="right" label-width="90px" ref="listData">
             <el-form-item label="名称">
-                <el-input v-model="listData.valueTitle" placeholder="名称" :disabled="!!listData.id"></el-input>
+                <el-input v-model="listData.supplementTitle" placeholder="名称" :disabled="!!listData.id"></el-input>
             </el-form-item>
-            <el-form-item label="数据">
-                <el-input v-model="listData.valueCode" placeholder="数据"></el-input>
+            <el-form-item label="数据" v-if="listData.type===0">
+                <el-input type="number" v-model="listData.valueCode" placeholder="数据"></el-input>
+            </el-form-item>
+            <el-form-item label="数据" v-if="listData.type===1">
+                <el-input type="text" v-model="listData.valueCode" placeholder="数据"></el-input>
+            </el-form-item>
+            <el-form-item label="数据" v-if="listData.type===2||listData.type===3">
+                <el-select v-model="listData.valueCode" placeholder="请选择" :multiple="listData.type===2?false:true">
+                    <el-option v-for="item in options" :key="item.code" :label="item.describe" :value="item.code"></el-option>
+                </el-select>
             </el-form-item>
         </el-form>
         <div slot="footer" class="footer">
@@ -26,14 +34,26 @@ export default {
         return {
             listShow: false,
             listData: {},
+            options: [],
         }
     },
     methods: {
         initData(data) {
             this.listShow = true
-            this.listData = {}
-            console.log(data)
+            this.listData = {
+                type: 1,
+            }
+            this.options = []
             if (data) {
+                let params =
+                    data.supplementInfoConfig && data.supplementInfoConfig.params
+                        ? JSON.parse(data.supplementInfoConfig.params)
+                        : {}
+                this.options = params.selects ? params.selects : []
+                data.type = params.type ? params.type : 1
+                if (data.type == 3) {
+                    data.valueCode = data.valueCode.split(',') || []
+                }
                 this.listData = _.cloneDeep(data)
             }
         },
@@ -42,7 +62,24 @@ export default {
             if (!verify) {
                 return false
             }
-            this.$axios.post('/flight-supplement-info/save', this.listData).then((res) => {
+            let data = _.cloneDeep(this.listData)
+            if (this.listData.type == 2) {
+                let option = _.find(this.options, { code: this.listData.valueCode })
+                data.valueTitle = option.describe
+            }
+
+            if (this.listData.type == 3) {
+                let title = []
+                let code = []
+                this.listData.valueCode.map((list) => {
+                    let option = _.find(this.options, { code: list })
+                    title.push(option.describe)
+                    code.push(option.code)
+                })
+                data.valueCode = code.join(',')
+                data.valueTitle = title.join(',')
+            }
+            this.$axios.post('/flight-supplement-info/save', data).then((res) => {
                 this.listShow = false
                 this.$alert(res.msg, '提示', {
                     type: 'success',

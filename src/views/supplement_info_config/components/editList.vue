@@ -53,7 +53,7 @@
                 </el-form-item>
 
                 <el-form-item label="参数值" v-if="parameterData.type===0||parameterData.type==1">
-                    <el-input v-model="parameterData.value" placeholder="参数名称"></el-input>
+                    <el-input :type="parameterData.type==1?'text':'number'" v-model="parameterData.value" placeholder="参数名称"></el-input>
                 </el-form-item>
                 <el-form-item label="计量单位" required v-if="parameterData.type===0">
                     <el-select v-model="parameterData.unit" placeholder="请选择">

@@ -24,6 +24,9 @@
                 <el-form-item label="收费数据" required v-if="!timeShow">
                     <el-input v-model="listData.chargeData" placeholder="收费数据"></el-input>
                 </el-form-item>
+                <el-form-item label="设备编号" required v-if="timeShow">
+                    <el-input v-model="listData.deviceCode" placeholder="设备编号"></el-input>
+                </el-form-item>
                 <el-form-item label="开始时间" required v-if="timeShow">
                     <el-date-picker v-model="listData.startTime" type="datetime" placeholder="选择开始时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker>
 
@@ -111,6 +114,7 @@ export default {
                 chargeData: '',
                 startTime: '',
                 endTime: '',
+                deviceCode: '',
             }
         },
         save() {
@@ -165,11 +169,47 @@ export default {
                 })
                 return false
             }
+            if (this.timeShow) {
+                if (!this.listData.startTime) {
+                    this.$alert('开始时间不能为空！', '提示', {
+                        type: 'error',
+                        center: true,
+                    })
+                    return false
+                }
+                if (!this.listData.endTime) {
+                    this.$alert('结束时间不能为空！', '提示', {
+                        type: 'error',
+                        center: true,
+                    })
+                    return false
+                }
+                if (!this.listData.deviceCode) {
+                    this.$alert('设备编号不能为空！', '提示', {
+                        type: 'error',
+                        center: true,
+                    })
+                    return false
+                }
+            }
+
             return true
         },
         getChargeBillArr() {
             this.$axios.get('/charge-bill-config/findChargeBillConfig').then((res) => {
-                this.chargeBillArr = res.data
+                let userData = JSON.parse(sessionStorage.userData)
+                let arrs = []
+                userData.roles.map((role) => {
+                    let charge = _.find(res.data, { code: role.code })
+                    if (charge && role.menus && role.menus.length > 0) {
+                        let menuadd = _.find(role.menus, { code: 'charge_add' })
+                        if (menuadd) {
+                            arrs.push(charge)
+                        }
+                    }
+                })
+
+                this.chargeBillArr = arrs
             })
         },
         chargeBillChange() {

@@ -11,20 +11,41 @@
         </div>
         <div class="searchBox">
             <div class="leftBox">
-                <el-date-picker v-model="searchTime" type="date" placeholder="选择日期" @change="handleLists">
-                </el-date-picker>
-                <el-select v-model="searchDel" placeholder="请选择" @change="handleLists">
-                    <el-option label="正常" :value="false"></el-option>
-                    <el-option label="已删除" :value="true"></el-option>
-                </el-select>
                 <div>
-                    <el-input placeholder="请输入内容" v-model="searchStr" clearable @keyup.enter.native="handleLists">
-                        <i slot="prefix" class="el-input__icon el-icon-search"></i>
-                    </el-input>
+                    <el-date-picker v-model="searchTime" type="datetimerange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" format="yyyy-MM-DD HH:mm:ss" value-format="yyyy-MM-DD HH:mm:ss" @change="handleLists">
+                    </el-date-picker>
+                </div>
+                <div>
+                    <el-select v-model="searchDel" placeholder="请选择" @change="handleLists">
+                        <el-option label="正常" :value="false"></el-option>
+                        <el-option label="已删除" :value="true"></el-option>
+                    </el-select>
+                </div>
+                <div>
+                    <ul class="radioApproval">
+                        <li :class="searchApproval===false?'active':''" @click="searchApproval=searchApproval===false?'':false">待审批</li>
+                        <li :class="searchApproval===true?'active':''" @click="searchApproval=searchApproval===true?'':true">审批完成</li>
+                    </ul>
+                </div>
+                <div>
+                    <ul class="radioApproval">
+                        <li :class="searchApproval===false?'active':''" @click="searchApproval=searchApproval===false?'':false">已签</li>
+                        <li :class="searchApproval===true?'active':''" @click="searchApproval=searchApproval===true?'':true">未签</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <el-input placeholder="机位查询" v-model="searchSeat" @keyup.enter.native="handleLists" style="width:100px" />
+                </div>
+                <div>
+                    <el-input placeholder="机号查询" v-model="searchAircraftNo" @keyup.enter.native="handleLists" style="width:100px" />
+                </div>
+                <div>
+                    <el-input placeholder="航班号或航司查询" v-model="searchStr" @keyup.enter.native="handleLists" />
                 </div>
             </div>
             <div class="rightBox">
-                <el-button type="primary" @click="add">新增收费</el-button>
+                <el-button type="primary" @click="add">补录</el-button>
                 <el-button type="primary" @click="send">发送</el-button>
                 <el-button type="primary" @click="approvalSelect" v-show="powerData.charge_approval">批量审批</el-button>
                 <el-button type="primary" @click="handleLists">刷新</el-button>
@@ -50,11 +71,10 @@
                                                 {{scope1.row.chargeDataSource&&scope1.row.chargeDataSource.chargeConfig?scope1.row.chargeDataSource.chargeConfig.code:''}}
                                             </template>
                                         </el-table-column>
-                                        <el-table-column prop="deviceCode" label="设备号" align="center"></el-table-column>
-                                        <el-table-column prop="chargeData" label="收费数据" align="center"></el-table-column>
-                                        <el-table-column label="单位" align="center">
+                                        <el-table-column prop="deviceCode" label="设备号" align="center" v-if="scope.row.showDevice"></el-table-column>
+                                        <el-table-column prop="chargeData" label="收费数据" align="center">
                                             <template slot-scope="scope1">
-                                                {{getName(scope1.row.chargeDataSource&&scope1.row.chargeDataSource.chargeConfig?scope1.row.chargeDataSource.chargeConfig.unit:'',unitLists,'name')}}
+                                                {{getChargeData(scope1.row)}}
                                             </template>
                                         </el-table-column>
                                         <el-table-column label="航空公司" align="center" class-name="signBox">
@@ -78,17 +98,39 @@
                                                 </div>
                                             </template>
                                         </el-table-column>
-                                        <el-table-column label="时间" width="200">
+                                        <el-table-column label="时间" align="center">
                                             <template slot-scope="scope1">
-                                                <div>{{scope1.row.startTime?getTimeByFormat(scope1.row.startTime,'YY-MM-DD hh:mm:ss'):''}}</div>
-                                                <div>{{getTimeByFormat(scope1.row.endTime,'YY-MM-DD hh:mm:ss')}}</div>
+                                                <div>{{scope1.row.startTime?getTimeByFormat(scope1.row.startTime,'hh:mm:ss(DD)'):''}}</div>
+                                                <div>{{getTimeByFormat(scope1.row.endTime,'hh:mm:ss(DD)')}}</div>
                                             </template>
                                         </el-table-column>
-                                        <el-table-column label="操作" width="150" align="center" v-if="!searchDel&&(powerData.charge_edit||powerData.charge_delete||powerData.charge_approval)" class-name="optBox">
+                                        <el-table-column prop="remark" label="备注" align="center"></el-table-column>
+                                        <el-table-column label="操作" align="center" v-if="!searchDel" class-name="optBox">
                                             <template slot-scope="scope1">
-                                                <el-button type="text" title="审批" @click="approval(scope1.row)" :disabled="scope1.row.approvalStatus=='PASS'" v-show="powerData.charge_approval">审批</el-button>
-                                                <el-button type="text" title="编辑" @click="edit('edit',scope1.row)" :disabled="scope1.row.approvalStatus=='PASS'" v-show="powerData.charge_edit">编辑</el-button>
-                                                <el-button type="text" title="删除" @click="del(scope1.row)" :disabled="scope1.row.approvalStatus=='PASS'" v-show="powerData.charge_delete">删除</el-button>
+                                                <el-button type="text" title="审批" @click="approval(scope1.row)" :disabled="scope1.row.approvalStatus=='PASS'" v-show="getPower(scope.row,'charge_approval')">审批</el-button>
+                                                <!-- <el-button type="text" title="编辑" @click="edit('edit',scope1.row)" :disabled="scope1.row.approvalStatus=='PASS'" v-show="getPower(scope.row,'charge_edit')">编辑</el-button>
+                                                <el-button type="text" title="删除" @click="del(scope1.row)" :disabled="scope1.row.approvalStatus=='PASS'" v-show="getPower(scope.row,'charge_delete')">删除</el-button>
+                                                <el-button type="text" title="历史" @click="history(scope1.row)">历史</el-button>
+                                                <el-button type="text" title="编辑" @click="edit('remark',scope1.row)" :disabled="scope1.row.approvalStatus=='PASS'" v-show="getPower(scope.row,'charge_edit')">备注</el-button> -->
+                                                <el-dropdown trigger="click" style="margin-left:.1rem;">
+                                                    <el-button type="text" title="更多" class="el-dropdown-link">
+                                                        更多
+                                                    </el-button>
+                                                    <el-dropdown-menu slot="dropdown">
+                                                        <el-dropdown-item>
+                                                            <el-button type="text" title="编辑" @click="edit('edit',scope1.row)" :disabled="scope1.row.approvalStatus=='PASS'" v-show="getPower(scope1.row,'charge_edit')">编辑</el-button>
+                                                        </el-dropdown-item>
+                                                        <el-dropdown-item>
+                                                            <el-button type="text" title="删除" @click="del(scope1.row)" :disabled="scope1.row.approvalStatus=='PASS'" v-show="getPower(scope1.row,'charge_delete')">删除</el-button>
+                                                        </el-dropdown-item>
+                                                        <el-dropdown-item>
+                                                            <el-button type="text" title="历史" @click="history(scope1.row)">历史</el-button>
+                                                        </el-dropdown-item>
+                                                        <el-dropdown-item>
+                                                            <el-button type="text" title="备注" @click="edit('remark',scope1.row)">备注</el-button>
+                                                        </el-dropdown-item>
+                                                    </el-dropdown-menu>
+                                                </el-dropdown>
                                             </template>
                                         </el-table-column>
                                     </el-table>
@@ -96,8 +138,8 @@
                                 <div class=" bill_expand_Box1" v-show="scope.row.flightSupplementInfos&&scope.row.flightSupplementInfos.length>0">
                                     <div class="title">补充信息</div>
                                     <el-table class="outtable" :data="scope.row.flightSupplementInfos" border stripe style="width: 100%" row-class-name="expandRow" cell-class-name="el-table__expanded-cell">
-                                        <el-table-column prop="valueTitle" label="名称" align="center"></el-table-column>
-                                        <el-table-column prop="valueCode" label="数据" align="center"></el-table-column>
+                                        <el-table-column prop="supplementTitle" label="名称" align="center"></el-table-column>
+                                        <el-table-column prop="valueTitle" label="数据" align="center"></el-table-column>
                                         <el-table-column label="操作" width="150" align="center" v-if="!searchDel&&powerData.charge_edit" class-name="optBox">
                                             <template slot-scope="scope1">
                                                 <el-button type="text" title="编辑" @click="infoEdit(scope1.row)" v-show="powerData.charge_edit">编辑</el-button>
@@ -125,18 +167,12 @@
                     </el-table-column>
                     <el-table-column prop="flight.aircraftNo" label="机尾号"></el-table-column>
                     <el-table-column prop="flight.seat" label="机位"></el-table-column>
-
-                    <el-table-column label="汇总" width="120" align="center">
+                    <el-table-column label="汇总">
                         <template slot-scope="scope">
-                            <el-popover placement="right" trigger="hover" v-if="!scope.row.expandDefault">
+                            <el-popover placement="right" trigger="hover" v-if="size(scope.row.sum)>1">
                                 <table class="sumTable" border="1">
-                                    <tr>
-                                        <td style="padding:10px 20px">单位</td>
-                                        <td style="padding:10px 20px">值</td>
-                                    </tr>
                                     <tr v-for="(value,key) in scope.row.sum" :key="key">
-                                        <td style="padding:10px 20px">{{key}}</td>
-                                        <td style="padding:10px 20px">{{value}}</td>
+                                        <td style="padding:10px 20px">{{key=='秒'?timeLength(parseInt(value*1000)):`${value}${key}`}}</td>
                                     </tr>
                                 </table>
                                 <el-button slot="reference" type="primary" size="mini" v-if="scope.row.sum&&JSON.stringify(scope.row.sum) != '{}'">查看</el-button>
@@ -146,12 +182,18 @@
                             </span>
                         </template>
                     </el-table-column>
-                    <el-table-column label="计划时间" width="200">
+                    <el-table-column label="航班时间">
                         <template slot-scope="scope">
-                            {{scope.row.flight?getTimeByFormat(scope.row.flight.scheduleTime,'YY-MM-DD hh:mm:ss'):''}}
+
+                            <div>计{{scope.row.flight.movement=="A"?'到':'离'}}:{{scope.row.flight?getTimeByFormat(scope.row.flight.scheduleTime,'hh:mm:ss(DD)'):''}}</div>
+                            <div>实{{scope.row.flight.movement=="A"?'到':'离'}}:{{scope.row.flight?getTimeByFormat(scope.row.flight.actualTime,'hh:mm:ss(DD)'):''}}</div>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="createTime" label="创建时间" width="200"></el-table-column>
+                    <el-table-column label="创建时间">
+                        <template slot-scope="scope">
+                            {{scope.row.flight?getTimeByFormat(scope.row.createTime,'hh:mm:ss(DD)'):''}}
+                        </template>
+                    </el-table-column>
                     <el-table-column label="操作" width="120" align="center" v-if="!searchDel&&powerData.charge_approval" class-name="optBox">
                         <template slot-scope="scope">
                             <el-button type="text" title="审批" @click="approval([scope.row],'arrs')" :disabled="getapprovaldisabled(scope.row)" v-show="powerData.charge_approval">审批</el-button>
@@ -167,6 +209,7 @@
         <edit-list ref="ref_editList" @update="update"></edit-list>
         <add-list ref="ref_addList" @update="update"></add-list>
         <info-edit-list ref="ref_infoEditList" @update="update"></info-edit-list>
+        <history ref="ref_history"></history>
     </div>
 
 </template>
@@ -175,13 +218,19 @@
 import EditList from '../charge_record/components/editList'
 import AddList from './components/addList'
 import InfoEditList from './components/editList'
+import History from './components/history'
 export default {
     props: ['power', 'flagNav'],
     data() {
         return {
-            searchTime: '',
+            searchTime: [],
+            searchApproval: '',
+            searchStrType: 0,
             searchStr: '',
             searchDel: false,
+            searchAircraftNo: '',
+            searchSeat: '',
+
             lists: [],
             submitData: {
                 current: 1,
@@ -203,12 +252,15 @@ export default {
             },
             expends: [],
             infoShow: false,
+            size: _.size,
+            userData: {},
         }
     },
     components: {
         'edit-list': EditList,
         'add-list': AddList,
         'info-edit-list': InfoEditList,
+        history: History,
     },
     created() {},
     mounted() {
@@ -222,12 +274,17 @@ export default {
             )
         } else {
             this.getUnitLists()
+            this.userData = JSON.parse(sessionStorage.userData)
         }
         this.maxHeight = $('.tableBox').height() - 72
         if (this.power) {
             this.powerData = _.cloneDeep(this.power)
         }
-        // this.getExpends()
+    },
+    watch: {
+        searchApproval: function () {
+            this.handleLists()
+        },
     },
     methods: {
         inIframeInit(data) {
@@ -258,7 +315,11 @@ export default {
                 return ''
             } else {
                 _.forIn(sum, (value, key) => {
-                    text.push(value + key)
+                    if (key == '秒') {
+                        text.push(this.timeLength(parseInt(value) * 1000))
+                    } else {
+                        text.push(value + key)
+                    }
                 })
                 return text.join(',')
             }
@@ -305,10 +366,9 @@ export default {
                 linkedData: true,
             }
 
-            if (this.searchTime) {
-                console.log(new Date(this.searchTime).getTime())
-                data.startTime = this.getTimeByFormat(this.searchTime, 'YY-MM-DD') + ' 00:00:00'
-                data.endTime = this.getTimeByFormat(this.searchTime, 'YY-MM-DD') + ' 23:59:59'
+            if (this.searchTime.length > 0) {
+                data.startTime = this.searchTime[0]
+                data.endTime = this.searchTime[1]
             }
             if (this.searchDel) {
                 data.deleted = this.searchDel
@@ -316,6 +376,13 @@ export default {
             if (this.searchStr) {
                 data.params = this.searchStr
             }
+            if (this.searchSeat) {
+                data.seat = this.searchSeat
+            }
+            if (this.searchAircraftNo) {
+                data.aircraftNo = this.searchAircraftNo
+            }
+            data.approvalStatus = this.searchApproval
 
             this.getLists(data)
         },
@@ -458,9 +525,7 @@ export default {
         download(row) {
             var a = document.createElement('a')
             a.download =
-                row.chargeBillConfigName +
-                ' ' +
-                this.getTimeByFormat(new Date(), 'YY-MM-DD hh:mm:ss')
+                row.chargeBillConfigName + ' ' + this.getTimeByFormat(new Date(), 'hh:mm:ss(DD)')
             a.href =
                 this.$axios.defaults.baseURL +
                 'charge-bill/exportChargeBillToPdf?isServer=true&chargeBillId=' +
@@ -509,6 +574,9 @@ export default {
                     })
             })
         },
+        history(row) {
+            this.$refs.ref_history.initData(row)
+        },
         add() {
             this.$refs.ref_addList.initData()
         },
@@ -546,6 +614,13 @@ export default {
             let obj = _.find(lists, { code: item })
             return obj ? obj[key] : item
         },
+        getChargeData(row) {
+            if (row.unit == '秒') {
+                return `${this.timeLength(parseInt(row.chargeData) * 1000)}`
+            } else {
+                return `${row.chargeData}${row.unit}`
+            }
+        },
         getSingSrc(row, type) {
             let obj = _.find(row.chargeBillSigns, { type: type })
             return obj ? obj.content : ''
@@ -561,6 +636,11 @@ export default {
             ) {
                 return 'row-expand-cover'
             }
+        },
+        getPower(row, power) {
+            let role = _.find(this.userData.roles, { code: row.chargeBillConfigCode })
+            let obj = role ? _.find(role.menus, { code: power }) : ''
+            return obj ? true : false
         },
         getSetButtonShow() {
             //设置按钮权限

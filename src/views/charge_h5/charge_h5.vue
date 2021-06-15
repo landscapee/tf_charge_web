@@ -54,24 +54,34 @@
                 <thead>
                     <tr>
                         <th>收费</th>
-                        <th style="width:80px">数据</th>
-                        <th style="width:80px">单位</th>
+                        <th v-show="chargeBill.chargeBillConfig.showDevice">设备号</th>
+                        <th>数据</th>
+                        <th>时间</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="item in data.chargeRecordList" :key="item.id">
                         <td>{{item.chargeDataSource&&item.chargeDataSource.chargeConfig?item.chargeDataSource.chargeConfig.name:''}}</td>
-                        <td>{{item.chargeData}}</td>
-                        <td>{{item.chargeDataSource&&item.chargeDataSource.chargeConfig?item.chargeDataSource.chargeConfig.unit:''}}</td>
+                        <td v-show="chargeBill.chargeBillConfig.showDevice">{{item.deviceCode}}</td>
+                        <td>{{item.unit=='秒'?timeLength(parseInt(item.chargeData*1000)):`${item.chargeData}${item.unit}`}}</td>
+                        <td>
+                            <div>{{item.startTime?getTimeByFormat(item.startTime,'hh:mm:ss(DD)'):''}}</div>
+                            <div>{{getTimeByFormat(item.endTime,'hh:mm:ss(DD)')}}</div>
+                        </td>
                     </tr>
-                    <tr v-for="(item,index) in dataDictionaryList" :key="index" class="list_in">
-                        <div class="label">{{item.name}}签字:</div>
-                        <div class="value" :id="'sign'+idx+index" @click="elSignFn(idx,index,'posElSignFn'+idx+index)">点击签字</div>
-                        <div style='position:relative'>
-                            <div class='list_sign' style="width:100%;position:absolute;top:-20px;left:0">
-                                <div :pos="'posElSignFn'+idx+index" :id="'posElSignFn'+idx+index"></div>
+                    <tr v-for="(item,index) in dataDictionaryList" :key="index">
+                        <td colspan="3">
+                            <div class="list_in">
+                                <div class="label">{{item.name}}签字:</div>
+                                <div class="value" :id="'sign'+idx+index" @click="elSignFn(idx,index,'posElSignFn'+idx+index)">点击签字</div>
+                                <div style='position:relative'>
+                                    <div class='list_sign' style="width:100%;position:absolute;top:-20px;left:0">
+                                        <div :pos="'posElSignFn'+idx+index" :id="'posElSignFn'+idx+index"></div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -80,13 +90,17 @@
             <table>
                 <tbody>
                     <tr v-for="(item,index) in dataDictionaryList" :key="index" class="list_in">
-                        <div class="label">{{item.name}}签字:</div>
-                        <div class="value" :id="'sign0'+index" @click="elSignFn(0,index,'posElSignFn0'+index)">点击签字</div>
-                        <div style='position:relative'>
-                            <div class='list_sign' style="width:100%;position:absolute;top:-20px;left:0">
-                                <div :pos="'posElSignFn0'+index" :id="'posElSignFn0'+index"></div>
+                        <td>
+                            <div class="list_in">
+                                <div class="label">{{item.name}}签字:</div>
+                                <div class="value" :id="'sign0'+index" @click="elSignFn(0,index,'posElSignFn0'+index)">点击签字</div>
+                                <div style='position:relative'>
+                                    <div class='list_sign' style="width:100%;position:absolute;top:-20px;left:0">
+                                        <div :pos="'posElSignFn0'+index" :id="'posElSignFn0'+index"></div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -213,6 +227,7 @@ export default {
                             } else {
                                 this.chargeBillSigns[index][idx] = {
                                     type: dictionary.code,
+                                    groupCode: list.groupCode,
                                 }
                             }
                         })
@@ -361,6 +376,7 @@ export default {
                         type: list.type,
                         data: list.data,
                         id: list.id,
+                        groupCode: list.groupCode,
                     }
                     arrs.push(data)
                 })
@@ -382,7 +398,13 @@ export default {
                         center: true,
                         customClass: 'h5Alert',
                         callback: () => {
-                            window.androidBack()
+                            // this.getData(this.$route.query)
+                            // window.androidBack()
+                            window.WebViewJavascriptBridge.callHandler(
+                                'androidBack',
+                                '1',
+                                function (responseData) {}
+                            )
                         },
                     })
                 })
@@ -439,22 +461,31 @@ export default {
         tr {
             td,
             th {
-                padding: 30px 0;
+                padding: 30px 10px !important;
                 font-size: 70px;
                 color: #333;
+                height: 180px;
+                div {
+                    font-size: 70px;
+                    color: #333;
+                }
             }
-            td:nth-child(1) {
-                width: 500px;
-            }
+            // td:nth-child(1) {
+            //     width: 500px;
+            // }
             th {
                 font-size: 70px;
-                color: #000;
+                color: #fff;
             }
         }
     }
     .chargeMsg {
         tr {
             border-bottom: 1px solid #ccc;
+            td,
+            th {
+                padding: 30px 16px !important;
+            }
         }
         .list_in {
             border: none;
@@ -465,9 +496,9 @@ export default {
     }
     .list_in {
         display: flex;
+        align-items: center;
         height: 200px;
         width: 100%;
-        align-items: center;
     }
     .list_in .label {
         color: #3280e7;

@@ -10,13 +10,18 @@ import 'element-ui/lib/theme-chalk/index.css';
 import './src/styles/elementReset.scss';
 import axios from "axios";
 import IconSvg from './src/components/Icon-svg';// svg组件
-import { RTCInit,getTimeByFormat } from './src/lib/common';
+import { RTCInit, getTimeByFormat,timeLength } from './src/lib/common';
+import moment  from "moment";
+
 
 Vue.component('icon-svg', IconSvg);
 Vue.use(ElementUI);
 Vue.prototype.postal = postal
 Vue.prototype.$axios = axios
+Vue.prototype.$moment = moment
+
 Vue.prototype.getTimeByFormat = getTimeByFormat//时间转换格式
+Vue.prototype.timeLength = timeLength//时间转换格式
 
 Vue.prototype.sysEdition = window.webConfig.sysEdition//系统版本
 Vue.prototype.coder = window.webConfig.coder//是否加密

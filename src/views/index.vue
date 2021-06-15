@@ -370,6 +370,31 @@ export default {
             .el-select {
                 width: 100px;
             }
+            .radioApproval {
+                display: flex;
+                border-radius: 4px;
+                overflow: hidden;
+                li {
+                    height: 40px;
+                    padding: 0 10px;
+                    border: 1px solid #dcdfe6;
+                    line-height: 40px;
+                    background-color: #fff;
+                    cursor: pointer;
+                    color: #606266;
+                }
+                li:nth-child(1) {
+                    border-right: none;
+                    border-radius: 4px 0 0 4px;
+                }
+                li:nth-child(2) {
+                    border-radius: 0 4px 4px 0;
+                }
+                li.active {
+                    background-color: #409eff;
+                    color: #fff;
+                }
+            }
         }
         .rightBox {
             display: flex;

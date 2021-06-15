@@ -30,6 +30,10 @@
             <el-form-item label="审批级别" required>
                 <el-input type="number" v-model="listData.maxApprovalLevel" placeholder="审批级别"></el-input>
             </el-form-item>
+            <el-form-item label="设备号显示">
+                <el-radio v-model="listData.showDevice" :label="true">是</el-radio>
+                <el-radio v-model="listData.showDevice" :label="false">否</el-radio>
+            </el-form-item>
             <el-form-item label="是否预签">
                 <el-radio v-model="listData.preSign" :label="true">是</el-radio>
                 <el-radio v-model="listData.preSign" :label="false">否</el-radio>

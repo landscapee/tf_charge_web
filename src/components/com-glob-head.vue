@@ -52,12 +52,11 @@
                     </el-input>
                 </el-form-item>
             </el-form>
-            <div class="dialog-footer">
+            <div slot="footer">
                 <el-button @click="changePasswordShow = false">取 消</el-button>
                 <el-button type="primary" @click="changePassword">提 交</el-button>
             </div>
         </el-dialog>
-
     </el-row>
 </template>
 <script>
