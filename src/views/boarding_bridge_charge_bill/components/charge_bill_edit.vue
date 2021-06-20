@@ -1,14 +1,25 @@
 <template>
     <div>
-
-        <el-dialog :visible.sync="listShow" id="addTask" center width="600px" :show-close="false">
+        <el-dialog :visible.sync="listShow" id="addTask" center width="1000" :show-close="false">
             <div slot="title" class="head">
                 <div></div>
-                <span>新增</span>
+                <span>{{editType=='add'?'新增':'编辑'}}</span>
                 <i class="el-icon-circle-close" @click="listShow=false"></i>
             </div>
             <el-form label-position="right" label-width="90px" ref="listData">
-                <el-form-item label="航班号" required>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="航班号" required>
+                            <el-input v-model="rowData.flight.flightNo" placeholder="航班号" @focus="flightNoHandle" ref="ref_flightNo" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="机型">
+                            <el-input v-model="rowData.flight.aircraftType" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <!-- <el-form-item label="航班号" required>
                     <el-input v-model="activeFlight.flightNo" placeholder="航班号" @focus="flightNoHandle" ref="ref_flightNo"></el-input>
                 </el-form-item>
                 <el-form-item label="收费单" required>
@@ -33,7 +44,7 @@
                 </el-form-item>
                 <el-form-item label="结束时间" required v-if="timeShow">
                     <el-date-picker v-model="listData.endTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker>
-                </el-form-item>
+                </el-form-item> -->
             </el-form>
             <div slot="footer" class="footer">
                 <el-button @click="listShow=false">取 消</el-button>
@@ -71,10 +82,6 @@
                     </ul>
                 </div>
             </div>
-
-            <!-- <div slot="footer" class="footer">
-                <el-button @click="flightNoShow=false">取 消</el-button>
-            </div> -->
         </el-dialog>
     </div>
 
@@ -85,6 +92,12 @@ export default {
     data() {
         return {
             listShow: false,
+            editType: 'add',
+            billData: {},
+            rowData: {
+                flight: {},
+            },
+
             activeFlight: {},
             listData: {},
             flightArr: [],
@@ -107,8 +120,11 @@ export default {
         },
     },
     methods: {
-        initData() {
+        initData(type, row, bill) {
             this.listShow = true
+            this.rowData = row
+            this.billData = {}
+            this.editType = type
             this.flightArr = []
             this.listData = {
                 chargeBillConfigCode: '',
@@ -117,6 +133,10 @@ export default {
                 startTime: '',
                 endTime: '',
                 deviceCode: '',
+            }
+
+            if (bill) {
+                this.billData = bill
             }
         },
         save() {

@@ -43,7 +43,6 @@
                 </div>
             </div>
             <div class="rightBox">
-                <el-button type="primary" @click="add">补录</el-button>
                 <el-button type="primary" @click="send">发送</el-button>
                 <el-button type="primary" @click="approvalSelect" v-show="powerData.charge_approval">批量审批</el-button>
                 <el-button type="primary" @click="handleLists">刷新</el-button>
@@ -58,23 +57,45 @@
                             <div class="bill_expand">
                                 <div class="bill_expand_Box" v-show="scope.row.chargeRecords&&scope.row.chargeRecords.length>0">
                                     <div class="title">收费数据</div>
-                                    <el-table class="outtable" :data="scope.row.chargeRecords" border stripe style="width: 100%" cell-class-name="el-table__expanded-cell" :row-class-name="getRowName">
+                                    <el-table class="outtable" :data="scope.row.chargeRecords" border stripe style="width: 100%" cell-class-name="el-table__expanded-cell" :row-class-name="getRowName" fit>
                                         <el-table-column label="收费项" align="center">
                                             <template slot-scope="scope1">
                                                 {{scope1.row.chargeDataSource&&scope1.row.chargeDataSource.chargeConfig?scope1.row.chargeDataSource.chargeConfig.name:''}}
                                             </template>
                                         </el-table-column>
-                                        <el-table-column label="收费项编码" align="center">
+                                        <!-- <el-table-column label="收费项编码" align="center">
                                             <template slot-scope="scope1">
                                                 {{scope1.row.chargeDataSource&&scope1.row.chargeDataSource.chargeConfig?scope1.row.chargeDataSource.chargeConfig.code:''}}
                                             </template>
-                                        </el-table-column>
+                                        </el-table-column> -->
                                         <el-table-column prop="deviceCode" label="设备号" align="center" v-if="scope.row.showDevice"></el-table-column>
                                         <el-table-column prop="chargeData" label="收费数据" align="center">
                                             <template slot-scope="scope1">
                                                 {{getChargeData(scope1.row)}}
                                             </template>
                                         </el-table-column>
+                                        <el-table-column prop="afterStartTime" label="航后开始时间" align="center">
+                                            <template slot-scope="scope1">
+                                                <div>{{scope1.row.afterStartTime?getTimeByFormat(scope1.row.afterStartTime,'hh:mm:ss(DD)'):'--'}}</div>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column prop="afterEndTime" label="航后结束时间" align="center">
+                                            <template slot-scope="scope1">
+                                                <div>{{scope1.row.afterEndTime?getTimeByFormat(scope1.row.afterEndTime,'hh:mm:ss(DD)'):'--'}}</div>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column prop="startTime" label="接桥时间" align="center">
+                                            <template slot-scope="scope1">
+                                                <div>{{scope1.row.startTime?getTimeByFormat(scope1.row.startTime,'hh:mm:ss(DD)'):'--'}}</div>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column prop="endTime" label="撤桥时间" align="center">
+                                            <template slot-scope="scope1">
+                                                <div>{{scope1.row.endTime?getTimeByFormat(scope1.row.endTime,'hh:mm:ss(DD)'):'--'}}</div>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column prop="startStaffName" label="接桥人员" align="center"></el-table-column>
+                                        <el-table-column prop="afterStartStaffName" label="撤桥人员" align="center"> </el-table-column>
                                         <el-table-column label="航空公司" align="center" class-name="signBox">
                                             <template slot-scope="scope">
                                                 <div v-for="(item,idx) in getSingList(scope.row,'hkgs')" :key="idx" class="signDiv">
@@ -96,20 +117,17 @@
                                                 </div>
                                             </template>
                                         </el-table-column>
-                                        <el-table-column label="时间" align="center">
+                                        <!-- <el-table-column label="时间" align="center">
                                             <template slot-scope="scope1">
                                                 <div>{{scope1.row.startTime?getTimeByFormat(scope1.row.startTime,'hh:mm:ss(DD)'):''}}</div>
                                                 <div>{{getTimeByFormat(scope1.row.endTime,'hh:mm:ss(DD)')}}</div>
                                             </template>
-                                        </el-table-column>
+                                        </el-table-column> -->
                                         <el-table-column prop="remark" label="备注" align="center"></el-table-column>
                                         <el-table-column label="操作" align="center" v-if="!searchDel" class-name="optBox">
                                             <template slot-scope="scope1">
                                                 <el-button type="text" title="审批" @click="approval(scope1.row)" :disabled="scope1.row.approvalStatus=='PASS'" v-show="getPower(scope.row,'charge_approval')">审批</el-button>
-                                                <el-button type="text" title="编辑" @click="edit('edit',scope1.row)" :disabled="scope1.row.send" v-show="getPower(scope.row,'charge_edit')">编辑</el-button>
-                                                <!--<el-button type="text" title="删除" @click="del(scope1.row)" :disabled="scope1.row.approvalStatus=='PASS'" v-show="getPower(scope.row,'charge_delete')">删除</el-button>
-                                                <el-button type="text" title="历史" @click="history(scope1.row)">历史</el-button>
-                                                <el-button type="text" title="编辑" @click="edit('remark',scope1.row)" :disabled="scope1.row.approvalStatus=='PASS'" v-show="getPower(scope.row,'charge_edit')">备注</el-button> -->
+                                                <el-button type="text" title="编辑" @click="chargeBillAdd('edit',scope.row,scope1.row)" :disabled="scope1.row.send" v-show="getPower(scope.row,'charge_edit')">编辑</el-button>
                                                 <el-dropdown trigger="click" style="margin-left:.1rem;">
                                                     <el-button type="text" title="更多" class="el-dropdown-link">
                                                         更多
@@ -192,10 +210,12 @@
                             {{scope.row.flight?getTimeByFormat(scope.row.createTime,'hh:mm:ss(DD)'):''}}
                         </template>
                     </el-table-column> -->
-                    <el-table-column label="操作" width="120" align="center" v-if="!searchDel&&powerData.charge_approval" class-name="optBox">
+                    <el-table-column label="操作" width="150" align="center" v-if="!searchDel&&powerData.charge_approval" class-name="optBox">
                         <template slot-scope="scope">
-                            <el-button type="text" title="审批" @click="approval([scope.row],'arrs')" :disabled="getapprovaldisabled(scope.row)" v-show="powerData.charge_approval">审批</el-button>
+                            <el-button type="text" title="新增" @click="chargeBillAdd('add',scope.row)" v-show="powerData.charge_add">新增</el-button>
                             <el-button type="text" title="下载" @click="download(scope.row)" v-show="powerData.charge_download">下载</el-button>
+                            <el-button type="text" title="审批" @click="approval([scope.row],'arrs')" :disabled="getapprovaldisabled(scope.row)" v-show="powerData.charge_approval">审批</el-button>
+
                         </template>
                     </el-table-column>
                 </el-table>
@@ -204,8 +224,7 @@
                 </div>
             </div>
         </div>
-        <charge-bill-edit ref="ref_editList" @update="update"></charge-bill-edit>
-        <add-list ref="ref_addList" @update="update"></add-list>
+        <charge-bill-edit ref="ref_chargeBillEdit" @update="update"></charge-bill-edit>
         <supplement-edit ref="ref_supplementEdit" @update="update"></supplement-edit>
         <history ref="ref_history"></history>
     </div>
@@ -214,14 +233,12 @@
 
 <script>
 import ChargeBillEdit from './components/charge_bill_edit'
-import AddList from './components/addList'
-import SupplementEdit from './components/supplement_edit'
-import History from './components/history'
+import SupplementEdit from '../charge_bill/components/supplement_edit'
+import History from '../charge_bill/components/history'
 export default {
     props: ['power', 'flagNav'],
     components: {
         'charge-bill-edit': ChargeBillEdit,
-        'add-list': AddList,
         'supplement-edit': SupplementEdit,
         history: History,
     },
@@ -286,6 +303,9 @@ export default {
         },
     },
     methods: {
+        chargeBillAdd(type, row, bill) {
+            this.$refs.ref_chargeBillEdit.initData(type, row, bill)
+        },
         sortChange({ column, prop, order }) {
             console.log(column, prop, order)
         },
@@ -391,7 +411,7 @@ export default {
         getLists(data) {
             this.submitData = data
             this.$axios
-                .get('/charge-bill/findChargeBillWhitPageAndPc', {
+                .get('/boarding-bridge-charge-bill/findChargeBillWhitPageAndPc', {
                     params: data,
                 })
                 .then((res) => {
@@ -578,9 +598,6 @@ export default {
         },
         history(row) {
             this.$refs.ref_history.initData(row)
-        },
-        add() {
-            this.$refs.ref_addList.initData()
         },
         infoEdit(data) {
             this.$refs.ref_supplementEdit.initData(_.cloneDeep(data))

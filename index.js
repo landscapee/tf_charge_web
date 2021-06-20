@@ -99,7 +99,6 @@ axios.interceptors.request.use(
 
 axios.interceptors.response.use(
     function(response){
-        console.log(response)
 
         let alertClassName = ""
         if (response.config.url.indexOf("/charge-bill-sign/saveAll")>=0 || response.config.url.indexOf("//flight/findFlightAndChargeRecordByFlightId")>=0) {

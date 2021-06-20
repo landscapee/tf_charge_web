@@ -7,7 +7,6 @@
  * @LastEditTime: 2020-04-08 14:44:26
  */
 const merge = require('webpack-merge');
-const argv = require('yargs').argv;
 const common = require('./webpack.common.js');
 const webpack = require('webpack');
 
@@ -19,10 +18,15 @@ module.exports = merge(common, {
         port: 8090,
         open: false,
         progress: true, // 打包过程中的进度条
-        host:"0.0.0.0"
+        hot: true,
+        host: "0.0.0.0",
     },
     plugins: [
         // 热更新插件
         new webpack.HotModuleReplacementPlugin(),
+        new webpack.DefinePlugin(
+          {
+            'DEBUG': JSON.stringify(true)
+          }),
     ]
 })

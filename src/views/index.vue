@@ -94,6 +94,12 @@ export default {
                     path: 'charge_bill',
                     show: false,
                 },
+                {
+                    name: '登机桥收费单',
+                    icon: 'el-icon-c-scale-to-original',
+                    path: 'boarding_bridge_charge_bill',
+                    show: false,
+                },
                 // {
                 //     name: '收费数据审批',
                 //     icon: 'el-icon-c-scale-to-original',
@@ -670,8 +676,8 @@ table {
     .flightNo-check {
         display: flex;
         flex-direction: column;
-        width: 500px;
-        margin: 0 0 20px 20px;
+        width: 600px;
+        margin: 0 0 20px 10px;
         p {
             height: 40px;
             line-height: 40px;
@@ -684,6 +690,7 @@ table {
             border: 1px solid #ccc;
             display: flex;
             flex-wrap: wrap;
+            flex-direction: column;
             li {
                 height: 30px;
                 border: 1px solid #3988ff;
@@ -692,6 +699,7 @@ table {
                 align-items: center;
                 padding: 0 10px;
                 cursor: pointer;
+                justify-content: center;
             }
         }
     }

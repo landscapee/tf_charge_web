@@ -10,10 +10,10 @@
                 <el-input v-model="listData.supplementTitle" placeholder="名称" :disabled="!!listData.id"></el-input>
             </el-form-item>
             <el-form-item label="数据" v-if="listData.type===0">
-                <el-input type="number" v-model="listData.valueCode" placeholder="数据"></el-input>
+                <el-input type="number" v-model="listData.valueTitle" placeholder="数据"></el-input>
             </el-form-item>
             <el-form-item label="数据" v-if="listData.type===1">
-                <el-input type="text" v-model="listData.valueCode" placeholder="数据"></el-input>
+                <el-input type="text" v-model="listData.valueTitle" placeholder="数据"></el-input>
             </el-form-item>
             <el-form-item label="数据" v-if="listData.type===2||listData.type===3">
                 <el-select v-model="listData.valueCode" placeholder="请选择" :multiple="listData.type===2?false:true">
@@ -67,7 +67,6 @@ export default {
                 let option = _.find(this.options, { code: this.listData.valueCode })
                 data.valueTitle = option.describe
             }
-
             if (this.listData.type == 3) {
                 let title = []
                 let code = []

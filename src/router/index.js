@@ -30,6 +30,10 @@ const data_dictionary = () => import(/*webpackChunkName:"data_dictionary"*/ '../
 const charge_record = () => import(/*webpackChunkName:"charge_record"*/ '../views/charge_record/charge_record')
 //收费单
 const charge_bill = () => import(/*webpackChunkName:"charge_bill"*/ '../views/charge_bill/charge_bill')
+//收费单
+const boarding_bridge_charge_bill = () => import(/*webpackChunkName:"boarding_bridge_charge_bill"*/ '../views/boarding_bridge_charge_bill/boarding_bridge_charge_bill')
+
+
 
 // 收费项配置: charge_config
 // 数据源配置:charge_data_source
@@ -53,6 +57,7 @@ var routes = [
     { path: '/charge_bill', name: 'charge_bill', component:charge_bill},
     { path: '/supplement_info_config', name: 'supplement_info_config', component:supplement_info_config},
     { path: '/data_dictionary', name: 'data_dictionary', component:data_dictionary},
+    { path: '/boarding_bridge_charge_bill', name: 'boarding_bridge_charge_bill', component:boarding_bridge_charge_bill},
 
   ]},
 ]
