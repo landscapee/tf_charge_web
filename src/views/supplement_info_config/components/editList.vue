@@ -47,9 +47,12 @@
                 <el-form-item label="最大数字" v-if="parameterData.type===0">
                     <el-input type="number" v-model="parameterData.maxNumber" placeholder="最大数字"></el-input>
                 </el-form-item>
+                <el-form-item label="小数位数" v-if="parameterData.type===0">
+                    <el-input type="number" v-model="parameterData.decimalLength" placeholder="小数位数"></el-input>
+                </el-form-item>
 
                 <el-form-item label="最大长度" v-if="parameterData.type==1">
-                    <el-input type="number" v-model="parameterData.maxInput" placeholder="最大数字"></el-input>
+                    <el-input type="number" v-model="parameterData.maxInput" placeholder="最大长度"></el-input>
                 </el-form-item>
 
                 <el-form-item label="参数值" v-if="parameterData.type===0||parameterData.type==1">
@@ -155,12 +158,32 @@ export default {
             }
 
             if (this.listData.params && _.isNumber(this.listData.params.type)) {
+                if (this.listData.params.type == 0) {
+                    delete this.listData.params.maxInput
+                    delete this.listData.params.selects
+                }
+                if (this.listData.params.type == 1) {
+                    delete this.listData.params.minNumber
+                    delete this.listData.params.maxNumber
+                    delete this.listData.params.decimalLength
+                    delete this.listData.params.unit
+                    delete this.listData.params.selects
+                }
+                if (this.listData.params.type == 2 || this.listData.params.type == 3) {
+                    delete this.listData.params.minNumber
+                    delete this.listData.params.maxNumber
+                    delete this.listData.params.decimalLength
+                    delete this.listData.params.unit
+                    delete this.listData.params.maxInput
+                }
+
                 this.listData.params.title = this.listData.name
                 this.listData.params.code = this.listData.code
                 this.listData.params = JSON.stringify(this.listData.params)
             } else {
                 this.listData.params = null
             }
+
             this.$axios.post('/supplement-info-config/save', this.listData).then((res) => {
                 console.log(res)
                 this.listShow = false

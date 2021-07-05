@@ -18,15 +18,21 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="签名项" required>
-                <el-select v-model="listData.chargeBillConfigSignList" filterable multiple clearable placeholder="请选择">
+                <!-- <el-select v-model="listData.chargeBillConfigSignList" filterable multiple clearable placeholder="请选择">
                     <el-option v-for="item in singLists" :key="item.id" :label="item.name" :value="item.code"></el-option>
-                </el-select>
+                </el-select> -->
+                <el-form label-position="right" label-width="160px">
+                    <el-form-item :label="sign.name+'   签名次数:'" v-for="(sign,idx) in singListsArr" :key="idx">
+                        <el-input-number v-model="sign.number" :min="0" :max="5" label="签名次数"></el-input-number>
+                    </el-form-item>
+                </el-form>
             </el-form-item>
             <el-form-item label="签名类型" required>
                 <el-select v-model="listData.signType" filterable clearable placeholder="请选择">
                     <el-option v-for="item in signTypeLists" :key="item.id" :label="item.name" :value="item.code"></el-option>
                 </el-select>
             </el-form-item>
+
             <el-form-item label="审批级别" required>
                 <el-input type="number" v-model="listData.maxApprovalLevel" placeholder="审批级别"></el-input>
             </el-form-item>
@@ -65,6 +71,11 @@ export default {
             listData: {},
             type: '',
             fileList: [],
+            singListsArr: [],
+            number0: 0,
+            number1: 0,
+            number2: 0,
+            number3: 0,
         }
     },
     methods: {
@@ -73,22 +84,29 @@ export default {
             this.listShow = true
             this.listData = {}
             this.fileList = []
+            this.singListsArr = []
+
+            let arrs = _.cloneDeep(this.singLists)
+            arrs.map((arr) => {
+                arr.number = 0
+            })
             if (data) {
-                let chargeBillConfigSignList = []
                 let chargeBillItemList = []
-                data.chargeBillConfigSignList &&
-                    data.chargeBillConfigSignList.map((list) => {
-                        chargeBillConfigSignList.push(list.dataCode)
-                    })
                 data.chargeBillItemList &&
                     data.chargeBillItemList.map((list) => {
                         chargeBillItemList.push(list.chargeCode)
                     })
-                data.chargeBillConfigSignList = chargeBillConfigSignList
                 data.chargeBillItemList = chargeBillItemList
                 this.fileList = data.file ? [data.file] : []
                 this.listData = data
+                arrs.map((arr) => {
+                    let sign = _.find(data.chargeBillConfigSignList, { dataCode: arr.code })
+                    if (sign) {
+                        arr.number = sign.number ? sign.number : 0
+                    }
+                })
             }
+            this.singListsArr = arrs
         },
         save() {
             let verify = this.dataVerify()
@@ -99,11 +117,15 @@ export default {
             let data = _.cloneDeep(this.listData)
             let chargeBillConfigSignList = []
             let chargeBillItemList = []
-            data.chargeBillConfigSignList.map((list) => {
-                chargeBillConfigSignList.push({
-                    chargeBillConfigCode: data.code,
-                    dataCode: list,
-                })
+
+            this.singListsArr.map((arr) => {
+                if (arr.number > 0) {
+                    chargeBillConfigSignList.push({
+                        chargeBillConfigCode: data.code,
+                        dataCode: arr.code,
+                        number: arr.number,
+                    })
+                }
             })
             data.chargeBillItemList.map((list) => {
                 chargeBillItemList.push({
@@ -113,7 +135,6 @@ export default {
             })
             data.chargeBillConfigSignList = chargeBillConfigSignList
             data.chargeBillItemList = chargeBillItemList
-
             this.$axios.post('/charge-bill-config/save', data).then((res) => {
                 console.log(res)
                 this.listShow = false

@@ -100,6 +100,12 @@ export default {
                     path: 'boarding_bridge_charge_bill',
                     show: false,
                 },
+                {
+                    name: '收费保障',
+                    icon: 'el-icon-c-scale-to-original',
+                    path: 'flight_control_report',
+                    show: false,
+                },
                 // {
                 //     name: '收费数据审批',
                 //     icon: 'el-icon-c-scale-to-original',
@@ -424,6 +430,23 @@ export default {
 
 table {
     width: 100%;
+    .cell {
+        height: 100%;
+        padding: 4px 6px !important;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .el-dropdown {
+        display: flex;
+        align-items: center;
+    }
+    .optBox,
+    .indexTd {
+        .cell {
+            flex-direction: inherit !important;
+        }
+    }
     thead {
         tr {
             height: 40px;
@@ -440,7 +463,7 @@ table {
             height: 50px;
             td {
                 height: 50px;
-                padding: 4px 0 !important;
+                padding: 0 0 !important;
             }
             // td{text-align: center;}
             .cell > i {
@@ -533,6 +556,21 @@ table {
     background: #fff;
     color: #333;
     border: 1px solid #333;
+}
+.noApprove {
+    .cell {
+        background: #f56c6c !important;
+    }
+}
+.passApprove {
+    .cell {
+        background: #67c23a !important;
+    }
+}
+.noRelateRecord {
+    .cell {
+        background: #e6a23c !important;
+    }
 }
 
 .rowDrawer {
@@ -630,7 +668,7 @@ table {
     }
 }
 .bill_expand {
-    padding: 0 5px 20px;
+    padding: 0 5px 10px;
 
     .title {
         height: 40px;
@@ -644,8 +682,10 @@ table {
         padding: 0;
     }
     .bill_expand_Box1 {
-        width: 50%;
-        padding: 0;
+        width: 100%;
+        padding: 15px 15px 0;
+        // display: flex;
+        // flex-wrap: wrap;
     }
 }
 .indexTd {

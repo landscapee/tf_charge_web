@@ -31,21 +31,11 @@
         </div>
         <div class="chargeMsg" v-show="supplementInfos.length>0">
             <div class="title">补充信息</div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>名称</th>
-                        <th>数据</th>
-                        <th>描述</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="item in supplementInfos" :key="item.id">
-                        <td>{{item.supplementTitle}}</td>
-                        <td>{{item.valueCode}}</td>
-                        <td>{{item.valueTitle}}</td>
-                    </tr>
-                </tbody>
+            <table class="table1">
+                <tr v-for="item in supplementInfos" :key="item.id">
+                    <td>{{item.supplementTitle}}</td>
+                    <td>{{item.valueTitle}}</td>
+                </tr>
             </table>
         </div>
         <div class="chargeMsg" v-if="chargeBillRecordSigns.length>0">
@@ -72,15 +62,14 @@
                     <tr v-for="(item,index) in dataDictionaryList" :key="index">
                         <td colspan="3">
                             <div class="list_in">
-                                <div class="label">{{item.name}}签字:</div>
-                                <div class="value" :id="'sign'+idx+index" @click="elSignFn(idx,index,'posElSignFn'+idx+index)">点击签字</div>
-                                <div style='position:relative'>
-                                    <div class='list_sign' style="width:100%;position:absolute;top:-20px;left:0">
-                                        <div :pos="'posElSignFn'+idx+index" :id="'posElSignFn'+idx+index"></div>
+                                <div class="label">{{item.dataDictionary.name}}签字:</div>
+                                <div v-for="(number,num) in item.number?item.number:1" :key="num" class="numberBox">
+                                    <div class="value" :id="'sign'+idx+index+(num>0?num:'')" @click="elSignFn(idx,index,num,'posElSignFn'+idx+index+(num>0?num:''))">点击签字</div>
+                                    <div class='list_sign' style="width:100%;position:absolute;top:0;left:0">
+                                        <div :pos="'posElSignFn'+idx+index+(num>0?num:'')" :id="'posElSignFn'+idx+index+(num>0?num:'')"></div>
                                     </div>
                                 </div>
                             </div>
-
                         </td>
                     </tr>
                 </tbody>
@@ -92,11 +81,11 @@
                     <tr v-for="(item,index) in dataDictionaryList" :key="index" class="list_in">
                         <td>
                             <div class="list_in">
-                                <div class="label">{{item.name}}签字:</div>
-                                <div class="value" :id="'sign0'+index" @click="elSignFn(0,index,'posElSignFn0'+index)">点击签字</div>
-                                <div style='position:relative'>
-                                    <div class='list_sign' style="width:100%;position:absolute;top:-20px;left:0">
-                                        <div :pos="'posElSignFn0'+index" :id="'posElSignFn0'+index"></div>
+                                <div class="label">{{item.dataDictionary.name}}签字:</div>
+                                <div v-for="(number,num) in item.number?item.number:1" :key="num" class="numberBox">
+                                    <div class="value" :id="'sign0'+index+(num>0?num:'')" @click="elSignFn(0,index,num,'posElSignFn0'+index+(num>0?num:''))">点击签字</div>
+                                    <div class='list_sign' style="width:100%;position:absolute;top:0;left:0">
+                                        <div :pos="'posElSignFn0'+index+(num>0?num:'')" :id="'posElSignFn0'+index+(num>0?num:'')"></div>
                                     </div>
                                 </div>
                             </div>
@@ -208,26 +197,42 @@ export default {
                 this.chargeBillRecordSigns = this.details.chargeBill.chargeBillRecordSigns || []
                 this.dataDictionaryList =
                     (this.details.chargeBill.chargeBillConfig &&
-                        this.details.chargeBill.chargeBillConfig.dataDictionaryList) ||
+                        this.details.chargeBill.chargeBillConfig.chargeBillConfigSignList) ||
                     []
                 let signs = []
                 if (this.chargeBillRecordSigns.length > 0) {
                     this.chargeBillRecordSigns.forEach((list, index) => {
                         this.chargeBillSigns[index] = {}
                         this.dataDictionaryList.forEach((dictionary, idx) => {
-                            let sign = _.find(list.chargeBillSignList, { type: dictionary.code })
-                            if (sign) {
-                                this.chargeBillSigns[index][idx] = sign
-                                if (sign.signId && sign.data) {
-                                    signs.push({
-                                        signatureid: sign.signId,
-                                        signatureData: sign.data,
-                                    })
+                            let signArr = _.filter(list.chargeBillSignList, {
+                                type: dictionary.dataCode,
+                            })
+                            let lists = Array.apply(
+                                null,
+                                Array(dictionary.number ? dictionary.number : 1)
+                            ).map(() => {
+                                return {}
+                            })
+                            if (signArr.length > 0) {
+                                this.chargeBillSigns[index][idx] = {
+                                    type: dictionary.dataCode,
+                                    groupCode: list.groupCode,
+                                    lists: lists,
                                 }
+                                signArr.map((sign) => {
+                                    this.chargeBillSigns[index][idx].lists[sign.number] = sign
+                                    if (sign.signId && sign.data) {
+                                        signs.push({
+                                            signatureid: sign.signId,
+                                            signatureData: sign.data,
+                                        })
+                                    }
+                                })
                             } else {
                                 this.chargeBillSigns[index][idx] = {
-                                    type: dictionary.code,
+                                    type: dictionary.dataCode,
                                     groupCode: list.groupCode,
+                                    lists: lists,
                                 }
                             }
                         })
@@ -235,8 +240,17 @@ export default {
                 } else {
                     this.chargeBillSigns[0] = {}
                     this.dataDictionaryList.forEach((dictionary, idx) => {
+                        let lists = Array.apply(
+                            null,
+                            Array(dictionary.number ? dictionary.number : 1)
+                        ).map(() => {
+                            return {}
+                        })
+
                         this.chargeBillSigns[0][idx] = {
-                            type: dictionary.code,
+                            type: dictionary.dataCode,
+                            groupCode: null,
+                            lists: lists,
                         }
                     })
                 }
@@ -248,13 +262,16 @@ export default {
             })
         },
         showSign() {
+            console.log(this.chargeBillSigns)
             _.forIn(this.chargeBillSigns, (chargeBillSign, idx) => {
                 _.forIn(chargeBillSign, (list, index) => {
-                    if (list.signId) {
-                        $('#sign' + idx + index).hide()
-                    } else {
-                        $('#sign' + idx + index).show()
-                    }
+                    list.lists.forEach((arr, number) => {
+                        if (arr.signId) {
+                            $('#sign' + idx + index + (number > 0 ? number : '')).hide()
+                        } else {
+                            $('#sign' + idx + index + (number > 0 ? number : '')).show()
+                        }
+                    })
                 })
             })
         },
@@ -266,12 +283,14 @@ export default {
                 ) {
                     _.forIn(this.chargeBillSigns, (chargeBillSign) => {
                         _.forIn(chargeBillSign, (list) => {
-                            if (list.signId == key) {
-                                this.$set(list, 'signId', '')
-                                this.$set(list, 'data', '')
-                                this.$set(list, 'content', '')
-                                this.showSign()
-                            }
+                            list.lists.map((arr) => {
+                                if (arr.signId == key) {
+                                    this.$set(arr, 'signId', '')
+                                    this.$set(arr, 'data', '')
+                                    this.$set(arr, 'content', '')
+                                }
+                            })
+                            this.showSign()
                         })
                     })
                     var signatureCreator = Signature.create()
@@ -279,9 +298,11 @@ export default {
                     break
                 }
             }
+            console.log(this.chargeBillSigns)
             return true
         },
         resetSignature() {
+            console.log(this.sysEdition)
             Signature.init({
                 //初始化属性
                 //keysn:'0741170010110516',
@@ -296,9 +317,9 @@ export default {
                 certType: 'server', //设置证书在签章服务器
                 sealType: 'server', //设置印章从签章服务器取
                 serverUrl:
-                    this.sysEdition == 'tianfu'
-                        ? 'http://10.42.66.33:8089/iSignatureHTML5'
-                        : 'http://173.101.1.134:8089/iSignatureHTML5',
+                    this.sysEdition == 'shuangliu'
+                        ? 'http://173.101.1.134:8089/iSignatureHTML5'
+                        : 'http://10.42.66.33:8089/iSignatureHTML5',
                 documentid: 'KG2016093001333', //设置文档ID
                 documentname: '测试文档KG2016093001', //设置文档名称
                 pw_timeout: 's1800', //s：秒；h:小时；d:天
@@ -313,7 +334,7 @@ export default {
             //     }
             // }
         },
-        elSignFn(idx, index, ele) {
+        elSignFn(idx, index, number, ele) {
             var signatureCreator = Signature.create()
             var that = this
 
@@ -337,20 +358,23 @@ export default {
                             // 点击确定后的回调方法，this为签章对象 ,签章数据撤销时，将回调此方法，需要实现签章数据持久化（保存数据到后台数据库）,保存成功后必须回调fn(true/false)渲染签章到页面上
 
                             fn(true)
+
                             that.$set(
-                                that.chargeBillSigns[idx][index],
+                                that.chargeBillSigns[idx][index].lists[number],
                                 'signId',
                                 this.getSignatureid()
                             )
                             that.$set(
-                                that.chargeBillSigns[idx][index],
+                                that.chargeBillSigns[idx][index].lists[number],
                                 'data',
                                 this.getSignatureData()
                             )
-                            that.$set(that.chargeBillSigns[idx][index], 'type', dataDictionary.code)
-
+                            that.$set(
+                                that.chargeBillSigns[idx][index],
+                                'type',
+                                dataDictionary.dataCode
+                            )
                             that.showSign()
-                            // that.signObj[this.getSignatureid()] = this.getSignatureData()
                         },
                         cancelCall: function () {
                             // 点击取消后的回调方法
@@ -366,19 +390,23 @@ export default {
             _.forIn(this.chargeBillSigns, (chargeBillSign, key) => {
                 _.forIn(chargeBillSign, (list, key) => {
                     let src = ''
-                    if (list.signId) {
-                        src = document.querySelector('#kg-img-' + list.signId).src
-                    }
-                    let data = {
-                        chargeBillId: this.details.chargeBill.id,
-                        signId: list.signId,
-                        content: src,
-                        type: list.type,
-                        data: list.data,
-                        id: list.id,
-                        groupCode: list.groupCode,
-                    }
-                    arrs.push(data)
+                    console.log(list)
+                    list.lists.forEach((arr, number) => {
+                        if (arr.signId) {
+                            src = document.querySelector('#kg-img-' + arr.signId).src
+                        }
+                        let data = {
+                            chargeBillId: this.details.chargeBill.id,
+                            signId: arr.signId,
+                            content: src,
+                            type: list.type,
+                            data: arr.data,
+                            id: arr.id,
+                            groupCode: list.groupCode,
+                            number: number,
+                        }
+                        arrs.push(data)
+                    })
                 })
             })
 
@@ -398,8 +426,6 @@ export default {
                         center: true,
                         customClass: 'h5Alert',
                         callback: () => {
-                            // this.getData(this.$route.query)
-                            // window.androidBack()
                             window.WebViewJavascriptBridge.callHandler(
                                 'androidBack',
                                 '1',
@@ -508,12 +534,22 @@ export default {
         margin-right: 40px;
         white-space: nowrap;
     }
+    .numberBox {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 300px;
+        height: 100%;
+        position: relative;
+    }
     .list_in .value {
         font-size: 70px;
         color: red;
         height: 200px;
         line-height: 200px;
         white-space: nowrap;
+        position: absolute;
+        z-index: 100;
     }
     .list_sign {
         height: 200px;

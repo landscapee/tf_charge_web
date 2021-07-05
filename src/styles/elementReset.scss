@@ -15,6 +15,10 @@
     width: 0;
 }
 
+.cell {
+    white-space: nowrap !important;
+}
+
 .stepDialog {
     .el-dialog_header_step {
         height: 60px;

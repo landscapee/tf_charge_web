@@ -52,7 +52,9 @@ router.beforeEach(function(to,from,next){
     if(to.name=="login"){//登陆页清空信息
         clearInterval(timer)
         sessionStorage.clear()
-         next()
+        store.commit('resetStore')
+        next()
+
        
     } else {
         next()

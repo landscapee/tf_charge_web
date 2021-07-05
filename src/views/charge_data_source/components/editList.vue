@@ -57,7 +57,7 @@
                 </el-form-item>
 
                 <el-form-item label="最大长度" v-if="parameterData.type==1">
-                    <el-input type="number" v-model="parameterData.maxInput" placeholder="最大数字"></el-input>
+                    <el-input type="number" v-model="parameterData.maxInput" placeholder="最大长度"></el-input>
                 </el-form-item>
 
                 <el-form-item label="参数值" v-if="parameterData.type===0||parameterData.type==1">

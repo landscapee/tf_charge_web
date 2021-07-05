@@ -1,30 +1,86 @@
 <template>
-    <el-dialog :visible.sync="listShow" id="addTask" center width="600px" :show-close="false">
+    <el-dialog :visible.sync="listShow" id="addTask" center :width="pageType=='boarding-bridge'&&type=='edit'?'800px':'400px'" :show-close="false">
         <div slot="title" class="head">
             <div></div>
             <span>{{type=='add'?'新增':'编辑'}}</span>
             <i class="el-icon-circle-close" @click="listShow=false"></i>
         </div>
-        <el-form label-position="right" label-width="90px" ref="listData">
+        <el-form label-position="right" :label-width="pageType=='boarding-bridge'?'110px':'80px'" ref="listData">
             <el-form-item label="航班号">
                 <el-input v-model="listData.flightNo" placeholder="航班号" :disabled="!!listData.id"></el-input>
             </el-form-item>
             <el-form-item label="收费项">
                 <el-input v-model="listData.chargeDataSource.chargeConfig.name" placeholder="收费项" :disabled="!!listData.id"></el-input>
             </el-form-item>
-            <el-form-item label="收费数据" required v-if="!timeShow&&type=='edit'">
-                <el-input v-model="listData.chargeData" placeholder="收费数据"></el-input>
-            </el-form-item>
-            <el-form-item label="开始时间" required v-if="timeShow&&type=='edit'">
-                <el-date-picker v-model="listData.startTime" type="datetime" placeholder="选择开始时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker>
-            </el-form-item>
-            <el-form-item label="结束时间" required v-if="timeShow&&type=='edit'">
-                <el-date-picker v-model="listData.endTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker>
-            </el-form-item>
+
+            <template v-if="pageType=='boarding-bridge'&&type=='edit'">
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="接桥时间">
+                            <el-date-picker style="width:100%" v-model="listData.startTime" type="datetime" placeholder="选择开始时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="接桥人">
+                            <el-select v-model="listData.startStaffId" filterable clearable placeholder="请选择">
+                                <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="撤桥时间">
+                            <el-date-picker style="width:100%" v-model="listData.endTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="撤侨人">
+                            <el-select v-model="listData.endStaffId" filterable clearable placeholder="请选择">
+                                <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="航后开始时间">
+                            <el-date-picker style="width:100%" v-model="listData.afterStartTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="航后结束时间">
+                            <el-date-picker style="width:100%" v-model="listData.afterEndTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="设备号">
+                            <el-input v-model="listData.deviceCode" placeholder="设备编号"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="来源">
+                            <el-input :value="getSourceName(listData)" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+            </template>
+            <template v-else>
+                <el-form-item label="收费数据" required v-if="!timeShow&&type=='edit'">
+                    <el-input v-model="listData.chargeData" placeholder="收费数据"></el-input>
+                </el-form-item>
+                <el-form-item label="开始时间" v-if="timeShow&&type=='edit'">
+                    <el-date-picker style="width:100%" v-model="listData.startTime" type="datetime" placeholder="选择开始时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker>
+                </el-form-item>
+                <el-form-item label="结束时间" v-if="timeShow&&type=='edit'">
+                    <el-date-picker style="width:100%" v-model="listData.endTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker>
+                </el-form-item>
+            </template>
             <el-form-item label="备注" v-if="type=='remark'">
                 <el-input v-model="listData.remark" placeholder="备注"></el-input>
             </el-form-item>
-
         </el-form>
         <div slot="footer" class="footer">
             <el-button @click="listShow=false">取 消</el-button>
@@ -35,6 +91,7 @@
 
 <script>
 export default {
+    props: ['userDeptLists'],
     data() {
         return {
             listShow: false,
@@ -49,13 +106,25 @@ export default {
             },
             type: '',
             timeShow: false,
+            pageType: '',
+            rowData: {},
         }
     },
     methods: {
-        initData(type, data) {
+        getSourceName(record) {
+            return record.dataSourceSort === 0 ? 'BBMS' : 'OMMS'
+        },
+        initData(type, data, row) {
             this.timeShow = false
             this.type = type
             this.listShow = true
+            this.rowData = row
+            if (data.chargeCode == 'LANQ') {
+                this.pageType = 'boarding-bridge'
+            } else {
+                this.pageType = ''
+            }
+
             this.listData = {
                 chargeBill: {},
                 chargeDataSource: {
@@ -67,16 +136,9 @@ export default {
             }
             if (data) {
                 this.listData = _.cloneDeep(data)
-                let startTime = new Date(this.listData.startTime).getTime()
-                let endTime = new Date(this.listData.endTime).getTime()
                 console.log(this.listData)
-                if (
-                    endTime &&
-                    startTime &&
-                    (endTime - startTime > 6 * 24 * 3600000 || endTime - startTime < 10 * 600000)
-                ) {
-                    this.timeShow = true
-                }
+
+                this.timeShow = data.unit == '秒' ? true : false
             }
         },
         save() {
@@ -84,7 +146,22 @@ export default {
             if (!verify) {
                 return false
             }
-            this.$axios.post('/charge-record/save', this.listData).then((res) => {
+
+            let startStaffObj = _.find(this.userDeptLists, { id: this.listData.startStaffId }) || {}
+            let endStaffObj =
+                _.find(this.userDeptLists, {
+                    id: this.listData.endStaffId,
+                }) || {}
+
+            this.listData.startStaffName = startStaffObj.name || ''
+            this.listData.endStaffName = endStaffObj.name || ''
+
+            let url =
+                this.pageType == 'boarding-bridge'
+                    ? '/boarding-bridge-charge-record/save'
+                    : '/charge-record/save'
+
+            this.$axios.post(url, this.listData).then((res) => {
                 this.listShow = false
                 this.$alert(res.msg, '提示', {
                     type: 'success',

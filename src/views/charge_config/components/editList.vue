@@ -18,12 +18,6 @@
                     </el-option>
                 </el-select>
             </el-form-item>
-            <!-- <el-form-item label="采集方式" required>
-                <el-select v-model="listData.input" placeholder="请选择">
-                    <el-option v-for="(item,idx) in inputLists" :key="idx" :label="item.name" :value="item.value">
-                    </el-option>
-                </el-select>
-            </el-form-item> -->
             <el-form-item label="是否发布">
                 <el-radio v-model="listData.enable" :label="true">发布</el-radio>
                 <el-radio v-model="listData.enable" :label="false">不发布</el-radio>
