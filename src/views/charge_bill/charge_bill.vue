@@ -70,12 +70,12 @@
                                                 {{scope1.row.chargeDataSource&&scope1.row.chargeDataSource.chargeConfig?scope1.row.chargeDataSource.chargeConfig.name:''}}
                                             </template>
                                         </el-table-column>
-                                        <el-table-column label="收费项编码" align="center">
+                                        <!-- <el-table-column label="收费项编码" align="center">
                                             <template slot-scope="scope1">
                                                 {{scope1.row.chargeDataSource&&scope1.row.chargeDataSource.chargeConfig?scope1.row.chargeDataSource.chargeConfig.code:''}}
                                             </template>
-                                        </el-table-column>
-                                        <el-table-column prop="dataSourceSort" label="来源" align="center" v-if="scope.row.chargeBillConfigCode=='LANQ'">
+                                        </el-table-column> -->
+                                        <el-table-column prop="dataSourceSort" label="来源" align="center" v-if="scope.row.chargeBillConfigCode=='LANQ'" width="60">
                                             <template slot-scope="scope1">
                                                 <div>{{getSourceName(scope1.row)}}</div>
                                                 <div v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">{{getSourceName(scope1.row.relateRecord)}}</div>
@@ -94,13 +94,13 @@
                                             </template>
                                         </el-table-column>
                                         <template v-if="scope.row.chargeBillConfigCode=='LANQ'">
-                                            <el-table-column prop="afterStartTime" label="航后开始时间" align="center">
+                                            <el-table-column prop="afterStartTime" label="航后开始" align="center">
                                                 <template slot-scope="scope1">
                                                     <div :title="getTimeByFormat(scope1.row.afterStartTime,'YY年MM月DD日 hh时mm分ss秒')">{{getTimeByFormat(scope1.row.afterStartTime,'hh:mm:ss(DD)')}}</div>
                                                     <div :title="getTimeByFormat(scope1.row.relateRecord.afterStartTime,'YY年MM月DD日 hh时mm分ss秒')" v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">{{getTimeByFormat(scope1.row.relateRecord.afterStartTime,'hh:mm:ss(DD)')}}</div>
                                                 </template>
                                             </el-table-column>
-                                            <el-table-column prop="afterEndTime" label="航后结束时间" align="center">
+                                            <el-table-column prop="afterEndTime" label="航后结束" align="center">
                                                 <template slot-scope="scope1">
                                                     <div :title="getTimeByFormat(scope1.row.afterEndTime,'YY年MM月DD日 hh时mm分ss秒')">{{getTimeByFormat(scope1.row.afterEndTime,'hh:mm:ss(DD)')}}</div>
                                                     <div :title="getTimeByFormat(scope1.row.relateRecord.afterEndTime,'YY年MM月DD日 hh时mm分ss秒')" v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">{{getTimeByFormat(scope1.row.relateRecord.afterEndTime,'hh:mm:ss(DD)')}}</div>
@@ -128,6 +128,13 @@
                                                 <template slot-scope="scope1">
                                                     <div>{{scope1.row.endStaffName}}</div>
                                                     <div v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">{{scope1.row.relateRecord.endStaffName}}</div>
+                                                </template>
+                                            </el-table-column>
+                                            <el-table-column label="航后签章" align="center" class-name="signBox">
+                                                <template slot-scope="scope1">
+                                                    <!-- <div v-for="(item,idx) in getSingList(scope1.row,'hkgs')" :key="idx" class="signDiv">
+                                                        <img :src="item.content" alt="">
+                                                    </div> -->
                                                 </template>
                                             </el-table-column>
 
@@ -167,8 +174,33 @@
                                                 <div :title="scope1.row.endTime?getTimeByFormat(scope1.row.endTime,'YY年MM月DD日 hh时mm分ss秒'):''">{{getTimeByFormat(scope1.row.endTime,'hh:mm:ss(DD)')}}</div>
                                             </template>
                                         </el-table-column>
+                                        <el-table-column label="发送人" align="center">
+                                            <template slot-scope="scope1">
+                                                <div>{{scope1.row.sendPersonnel}}</div>
+                                                <div v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">{{scope1.row.relateRecord.sendPersonnel}}</div>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="发送时间" align="center">
+                                            <template slot-scope="scope1">
+                                                <div :title="getTimeByFormat(scope1.row.sendTime,'YY年MM月DD日 hh时mm分ss秒')">{{getTimeByFormat(scope1.row.sendTime,'hh:mm:ss(DD)')}}</div>
+                                                <div :title="getTimeByFormat(scope1.row.relateRecord.sendTime,'YY年MM月DD日 hh时mm分ss秒')" v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">{{getTimeByFormat(scope1.row.relateRecord.sendTime,'hh:mm:ss(DD)')}}</div>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="审核人" align="center">
+                                            <template slot-scope="scope1">
+                                                <div>{{scope1.row.approvalPersonnel}}</div>
+                                                <div v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">{{scope1.row.relateRecord.approvalPersonnel}}</div>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="补录人" align="center">
+                                            <template slot-scope="scope1">
+                                                <div>{{scope1.row.supplementPersonnel}}</div>
+                                                <div v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">{{scope1.row.relateRecord.supplementPersonnel}}</div>
+                                            </template>
+                                        </el-table-column>
+
                                         <el-table-column prop="remark" label="备注" align="center"></el-table-column>
-                                        <el-table-column label="操作" align="center" v-if="!searchDel" class-name="optBox" width="150">
+                                        <el-table-column label="操作" align="center" v-if="!searchDel" class-name="optBox" width="130">
                                             <template slot-scope="scope1">
                                                 <el-button type="text" title="审批" @click="approval(scope1.row)" :disabled="scope1.row.approvalStatus=='PASS'||scope1.row.dataSourceSort==1" v-show="getPower(scope.row,'charge_approval')">审批</el-button>
                                                 <el-button type="text" title="编辑" @click="edit('edit',scope1.row,scope.row)" :disabled="scope1.row.send" v-show="getPower(scope.row,'charge_edit')">编辑</el-button>

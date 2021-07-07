@@ -498,6 +498,9 @@ table {
 }
 
 .outtable {
+    .cell {
+        display: flex !important;
+    }
     th {
         background: none !important;
         color: #333 !important;
@@ -570,6 +573,7 @@ table {
 .noRelateRecord {
     .cell {
         background: #e6a23c !important;
+        color: #fff;
     }
 }
 

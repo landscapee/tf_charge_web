@@ -160,8 +160,8 @@ const sysMsg = {
         getMonitorType:(state)=>{
             return state.monitorType
         },
-        getServerTime:(state)=>{
-            return state.serverTime
+        getServerTime: (state) => {
+            return state.serverTime?state.serverTime:new Date()
         },
         getUserMsg:(state)=>{
             return state.userMsg
