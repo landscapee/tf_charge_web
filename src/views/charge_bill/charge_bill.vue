@@ -202,21 +202,21 @@
                                         <el-table-column prop="remark" label="备注" align="center"></el-table-column>
                                         <el-table-column label="操作" align="center" v-if="!searchDel" class-name="optBox" width="130">
                                             <template slot-scope="scope1">
-                                                <el-button type="text" title="审批" @click="approval(scope1.row)" :disabled="scope1.row.approvalStatus=='PASS'||scope1.row.dataSourceSort==1" v-show="getPower(scope.row,'charge_approval')">审批</el-button>
-                                                <el-button type="text" title="编辑" @click="edit('edit',scope1.row,scope.row)" :disabled="scope1.row.send" v-show="getPower(scope.row,'charge_edit')">编辑</el-button>
+                                                <el-button type="text" title="审批" @click="approval(scope1.row)" :disabled="scope.row.report||scope1.row.approvalStatus=='PASS'||scope1.row.dataSourceSort==1" v-show="getPower(scope.row,'charge_approval')">审批</el-button>
+                                                <el-button type="text" title="编辑" @click="edit('edit',scope1.row,scope.row)" :disabled="scope.row.report||scope1.row.approvalStatus=='PASS'||scope1.row.send" v-show="getPower(scope.row,'charge_edit')">编辑</el-button>
                                                 <el-dropdown trigger="click" style="margin-left:.1rem;">
                                                     <el-button type="text" title="更多" class="el-dropdown-link">
                                                         更多
                                                     </el-button>
                                                     <el-dropdown-menu slot="dropdown">
                                                         <el-dropdown-item>
-                                                            <el-button type="text" title="删除" @click="del(scope1.row)" :disabled="scope1.row.approvalStatus=='PASS'" v-show="getPower(scope1.row,'charge_delete')">删除</el-button>
+                                                            <el-button type="text" title="删除" @click="del(scope1.row)" :disabled="scope.row.report||scope1.row.approvalStatus=='PASS'" v-show="getPower(scope1.row,'charge_delete')">删除</el-button>
                                                         </el-dropdown-item>
                                                         <el-dropdown-item>
                                                             <el-button type="text" title="历史" @click="history(scope1.row)">历史</el-button>
                                                         </el-dropdown-item>
                                                         <el-dropdown-item>
-                                                            <el-button type="text" title="备注" @click="edit('remark',scope1.row)">备注</el-button>
+                                                            <el-button type="text" title="备注" :disabled="scope.row.report||scope1.row.approvalStatus=='PASS'||scope1.row.send" @click="edit('remark',scope1.row)">备注</el-button>
                                                         </el-dropdown-item>
                                                     </el-dropdown-menu>
                                                 </el-dropdown>
@@ -311,8 +311,8 @@
                     </el-table-column>
                     <el-table-column label="操作" align="center" v-if="!searchDel&&powerData.charge_approval" class-name="optBox">
                         <template slot-scope="scope">
-                            <el-button type="text" title="新增" v-if="scope.row.chargeBillConfigCode=='LANQ'" @click="add(scope.row)" v-show="powerData.charge_add">新增</el-button>
-                            <el-button type="text" title="审批" @click="approval([scope.row],'arrs')" :disabled="scope.row.approvalStatus" v-show="powerData.charge_approval">审批</el-button>
+                            <el-button type="text" title="新增" @click="add(scope.row)" v-show="powerData.charge_add" :disabled="scope.row.report||scope.row.approvalStatus">新增</el-button>
+                            <el-button type="text" title="审批" @click="approval([scope.row],'arrs')" :disabled="scope.row.report||scope.row.approvalStatus" v-show="powerData.charge_approval">审批</el-button>
                             <el-button type="text" title="上报" @click="report(scope)" :disabled="scope.row.report" v-if="getReportShow(scope)">上报</el-button>
                             <el-button type="text" title="下载" @click="download(scope.row)" v-show="powerData.charge_download">下载</el-button>
                         </template>
@@ -462,18 +462,29 @@ export default {
             }
         },
         getRowName({ row }) {
+            let flight = _.find(this.lists, { id: row.chargeBillId }).flight
             let name = 'expandRow'
             let startTime = row.startTime ? new Date(row.startTime).getTime() : ''
             let endTime = row.endTime ? new Date(row.endTime).getTime() : ''
+            let atd = flight.atd ? new Date(flight.atd).getTime() : ''
+            let ata = flight.ata ? new Date(flight.ata).getTime() : ''
 
             if (
-                row.chargeCode == 'LANQ' &&
+                row.chargeBillConfigCode == 'LANQ' &&
                 endTime &&
                 startTime &&
                 (endTime - startTime > 6 * 60 * 60 * 1000 || endTime - startTime < 10 * 60 * 1000)
             ) {
                 name += ' timeBorder'
             }
+
+            if (
+                row.chargeBillConfigCode == 'QZSB' &&
+                ((atd && endTime && atd < endTime) || (ata && startTime && ata > startTime))
+            ) {
+                name += ' timeBorder'
+            }
+
             return name
         },
         getSumText(sum) {

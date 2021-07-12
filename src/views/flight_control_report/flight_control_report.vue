@@ -37,13 +37,14 @@
         </div>
         <div id="tableBox">
             <div class="tableBox" ref="tableBox">
-                <el-table :data="lists" border stripe style="width: 100%" :max-height="maxHeight" :highlight-current-row="true" @selection-change="listSelectionChange" :cell-class-name="getCellClassname">
+                <!-- @selection-change="listSelectionChange"  -->
+                <el-table :data="lists" border stripe style="width: 100%" :max-height="maxHeight" :highlight-current-row="true" :cell-class-name="getCellClassname">
                     <el-table-column label="序号" width="60" align="center">
                         <template slot-scope="scope">
                             {{(submitData.current-1)*submitData.size+scope.$index+1}}
                         </template>
                     </el-table-column>
-                    <el-table-column type="selection" width="55" align="center"></el-table-column>
+                    <!-- <el-table-column type="selection" width="55" align="center"></el-table-column> -->
                     <el-table-column prop="flightNo" label="航班号" width="160">
                         <template slot-scope="scope">
                             {{getFlightNo(scope)}}
@@ -193,7 +194,7 @@ export default {
                 })
                 return
             }
-            if (row.approveCount > 0 && row.totalCount != row.approveCount) {
+            if (row.approveCount === 0 || row.totalCount != row.approveCount) {
                 this.$alert('当前有未审核收费项，不能上报！', '提示', {
                     type: 'warning',
                     center: true,
@@ -205,10 +206,6 @@ export default {
                 cancelButtonText: '取消',
                 type: 'warning',
             }).then(() => {
-                // +
-                //             '&relateFlightId=' +
-
-                //             row.relateFlightId
                 this.$axios.post('/flightReport/report?flightId=' + row.flightId).then((res) => {
                     this.update()
                     this.$alert(res.msg, '提示', {

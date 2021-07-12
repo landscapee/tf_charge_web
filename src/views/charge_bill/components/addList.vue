@@ -75,9 +75,6 @@
                 </el-form-item>
                 <el-form-item label="补充信息" v-if="supplementArr.length>0&&!this.rowData">
                     <el-form label-width="80px" style="width:500px">
-                        <!-- <el-form-item :label="item.name" v-for="(item,idx) in supplementArr" :key="idx">
-                            <el-input></el-input>
-                        </el-form-item> -->
                         <el-form-item :label="item.name+':'" v-for="(item,idx) in supplementArr" :key="idx">
                             <el-input v-model="item.valueTitle" v-if="item.params.type===0||item.params.type===1" :type="item.params.type===0?'number':'text'" @change="saveSupplement(item)"></el-input>
                             <el-select v-model="item.valueCode" v-else placeholder="请选择" :multiple="item.params.type===2?false:true" @change="saveSupplement(item)">
@@ -418,11 +415,14 @@ export default {
             if (!this.dataVerify()) {
                 return
             }
+            let activeChargeBill = _.find(this.chargeBillArr, {
+                code: this.listData.chargeBillConfigCode,
+            })
 
             let url =
                 this.pageType == 'boarding-bridge'
-                    ? `/boarding-bridge-charge-record/saveChargeRecordAndChargeBillIsExists?flightId=${this.activeFlight.flightId}&chargeBillConfigCode=${this.listData.chargeBillConfigCode}`
-                    : `/charge-record/saveChargeAndChargeBillIsExists?flightId=${this.activeFlight.flightId}&chargeBillConfigCode=${this.listData.chargeBillConfigCode}`
+                    ? `/boarding-bridge-charge-record/saveChargeRecordAndChargeBillIsExists?flightId=${this.activeFlight.flightId}&chargeBillConfigCode=${activeChargeBill.code}`
+                    : `/charge-record/saveChargeAndChargeBillIsExists?flightId=${this.activeFlight.flightId}&chargeBillConfigCode=${activeChargeBill.code}`
 
             let supplementRecords = []
             this.supplementArr.map((list) => {
@@ -434,6 +434,7 @@ export default {
                         supplementTitle: list.name,
                         valueTitle: list.valueTitle,
                         valueCode: list.valueCode,
+                        chargeBillId: activeChargeBill.id,
                     })
                 }
             })
