@@ -1,5 +1,5 @@
 <template>
-    <el-dialog :visible.sync="listShow" id="addTask" center width="600px" :show-close="false">
+    <el-dialog :visible.sync="listShow" id="addTask" center width="800px" :show-close="false">
         <div slot="title" class="head">
             <div></div>
             <span>{{title}}</span>
@@ -18,6 +18,12 @@
                     {{scope.row.approvalStatus=='PASS'?'已审核':'待审核'}}
                 </template>
             </el-table-column>
+            <el-table-column prop="sendTime" label="报送时间">
+                <template slot-scope="scope">
+                    {{getTimeByFormat(scope.row.sendTime,'hh:mm(DD)')}}
+                </template>
+            </el-table-column>
+            <el-table-column prop="sendPersonnel" label="报送人"></el-table-column>
         </el-table>
         <div style="height:25px"></div>
     </el-dialog>

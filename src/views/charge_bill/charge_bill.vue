@@ -5,7 +5,8 @@
                 <li>
                     <div></div>
                     <div class="mid one">{{flagNav?flagNav.name:'收费单'}}</div>
-                    <div></div>
+                    <div>
+                    </div>
                 </li>
             </ul>
         </div>
@@ -27,7 +28,7 @@
                     </ul>
                 </div>
                 <div>
-                    <ul class="radioApproval">
+                    <ul class="radioApproval" v-if="sendShow">
                         <li :class="searchSend===false?'active':''" @click="searchSend=searchSend===false?'':false">未发送</li>
                         <li :class="searchSend===true?'active':''" @click="searchSend=searchSend===true?'':true">已发送</li>
                     </ul>
@@ -50,7 +51,7 @@
             </div>
             <div class="rightBox">
                 <el-button type="primary" @click="add('')">补录</el-button>
-                <el-button type="primary" @click="sendSelect" v-show="searchSend===false">发送</el-button>
+                <el-button type="primary" @click="sendSelect" v-show="searchSend===false" v-if="sendShow">发送</el-button>
                 <el-button type="primary" @click="approvalSelect" v-show="powerData.charge_approval">批量审批</el-button>
                 <el-button type="primary" @click="handleLists">刷新</el-button>
             </div>
@@ -132,9 +133,9 @@
                                             </el-table-column>
                                             <el-table-column label="航后签章" align="center" class-name="signBox">
                                                 <template slot-scope="scope1">
-                                                    <!-- <div v-for="(item,idx) in getSingList(scope1.row,'hkgs')" :key="idx" class="signDiv">
-                                                        <img :src="item.content" alt="">
-                                                    </div> -->
+                                                    <div class="signDiv">
+                                                        <img :src="scope1.row.afterFlightSign" alt="">
+                                                    </div>
                                                 </template>
                                             </el-table-column>
 
@@ -198,25 +199,33 @@
                                                 <div v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">{{scope1.row.relateRecord.supplementPersonnel}}</div>
                                             </template>
                                         </el-table-column>
-
+                                        <el-table-column prop="changePersonnel" label="变更人"></el-table-column>
+                                        <el-table-column prop="changeTime" label="变更时间">
+                                            <template slot-scope="scope1">
+                                                <div>{{getTimeByFormat(scope1.row.changeTime,'hh:mm(DD)')}}</div>
+                                            </template>
+                                        </el-table-column>
                                         <el-table-column prop="remark" label="备注" align="center"></el-table-column>
                                         <el-table-column label="操作" align="center" v-if="!searchDel" class-name="optBox" width="130">
                                             <template slot-scope="scope1">
-                                                <el-button type="text" title="审批" @click="approval(scope1.row)" :disabled="scope.row.report||scope1.row.approvalStatus=='PASS'||scope1.row.dataSourceSort==1" v-show="getPower(scope.row,'charge_approval')">审批</el-button>
-                                                <el-button type="text" title="编辑" @click="edit('edit',scope1.row,scope.row)" :disabled="scope.row.report||scope1.row.approvalStatus=='PASS'||scope1.row.send" v-show="getPower(scope.row,'charge_edit')">编辑</el-button>
+                                                <el-button type="text" title="审批" @click="approval(scope1.row)" :disabled="!!(scope1.row.approvalStatus=='PASS'||scope1.row.dataSourceSort==1&&scope1.row.chargeBillConfigCode=='LANQ')" v-show="getPower(scope.row,'charge_approval')">审批</el-button>
+                                                <el-button type="text" title="编辑" @click="edit('edit',scope1.row,scope.row)" :disabled="!!(scope1.row.approvalStatus=='PASS'||scope1.row.send)" v-show="getPower(scope1.row,'charge_edit')">编辑</el-button>
                                                 <el-dropdown trigger="click" style="margin-left:.1rem;">
                                                     <el-button type="text" title="更多" class="el-dropdown-link">
                                                         更多
                                                     </el-button>
                                                     <el-dropdown-menu slot="dropdown">
                                                         <el-dropdown-item>
-                                                            <el-button type="text" title="删除" @click="del(scope1.row)" :disabled="scope.row.report||scope1.row.approvalStatus=='PASS'" v-show="getPower(scope1.row,'charge_delete')">删除</el-button>
+                                                            <el-button type="text" title="删除" @click="del(scope1.row)" :disabled="!!(scope1.row.approvalStatus=='PASS')" v-show="getPower(scope1.row,'charge_delete')">删除</el-button>
                                                         </el-dropdown-item>
                                                         <el-dropdown-item>
                                                             <el-button type="text" title="历史" @click="history(scope1.row)">历史</el-button>
                                                         </el-dropdown-item>
                                                         <el-dropdown-item>
-                                                            <el-button type="text" title="备注" :disabled="scope.row.report||scope1.row.approvalStatus=='PASS'||scope1.row.send" @click="edit('remark',scope1.row)">备注</el-button>
+                                                            <el-button type="text" title="备注" @click="edit('remark',scope1.row)" :disabled="!!(scope1.row.approvalStatus=='PASS'||scope1.row.send)">备注</el-button>
+                                                        </el-dropdown-item>
+                                                        <el-dropdown-item>
+                                                            <el-button type="text" title="发送日志" @click="sendLog(scope1)">日志</el-button>
                                                         </el-dropdown-item>
                                                     </el-dropdown-menu>
                                                 </el-dropdown>
@@ -225,7 +234,7 @@
                                     </el-table>
                                 </div>
 
-                                <div class=" bill_expand_Box1" v-show="scope.row.flightSupplementInfos&&scope.row.flightSupplementInfos.length>0">
+                                <div class="bill_expand_Box1" v-show="scope.row.flightSupplementInfos&&scope.row.flightSupplementInfos.length>0">
                                     <el-form :inline="true" class="demo-form-inline">
                                         <el-form-item :label="item.supplementTitle+':'" v-for="(item,idx) in scope.row.flightSupplementInfos" :key="idx">
                                             <el-input v-model="item.valueTitle" v-if="item.type===0||item.type===1" :type="item.type===0?'number':'text'" @change="saveSupplement(item)"></el-input>
@@ -304,17 +313,24 @@
                             {{scope.row.sendAll?'已发送':'未发送'}}
                         </template>
                     </el-table-column>
-                    <el-table-column prop="report" label="是否上报" width="120">
+                    <!-- <el-table-column prop="report" label="是否上报" width="120">
                         <template slot-scope="scope">
                             {{scope.row.report?'已上报':'未上报'}}
                         </template>
-                    </el-table-column>
-                    <el-table-column label="操作" align="center" v-if="!searchDel&&powerData.charge_approval" class-name="optBox">
+                    </el-table-column> -->
+                    <el-table-column prop="changePersonnel" label="变更人" width="120"></el-table-column>
+                    <el-table-column prop="changeTime" label="变更时间">
                         <template slot-scope="scope">
-                            <el-button type="text" title="新增" @click="add(scope.row)" v-show="powerData.charge_add" :disabled="scope.row.report||scope.row.approvalStatus">新增</el-button>
-                            <el-button type="text" title="审批" @click="approval([scope.row],'arrs')" :disabled="scope.row.report||scope.row.approvalStatus" v-show="powerData.charge_approval">审批</el-button>
+                            <div>{{getTimeByFormat(scope.row.changeTime,'hh:mm(DD)')}}</div>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作" align="center" v-if="!searchDel&&powerData.charge_approval" class-name="optBox" width="160">
+                        <template slot-scope="scope">
+                            <el-button type="text" title="新增" @click="add(scope.row)" v-show="powerData.charge_add" :disabled="!!scope.row.approvalStatus">新增</el-button>
+                            <el-button type="text" title="审批" @click="approval([scope.row],'arrs')" :disabled="!!scope.row.approvalStatus" v-show="powerData.charge_approval">审批</el-button>
                             <el-button type="text" title="上报" @click="report(scope)" :disabled="scope.row.report" v-if="getReportShow(scope)">上报</el-button>
                             <el-button type="text" title="下载" @click="download(scope.row)" v-show="powerData.charge_download">下载</el-button>
+
                         </template>
                     </el-table-column>
                 </el-table>
@@ -327,6 +343,21 @@
         <add-list ref="ref_addList" @update="update" :userDeptLists="userDeptLists" :chargeBillArrs="chargeBillArrs"></add-list>
         <supplement-edit ref="ref_supplementEdit" @update="update"></supplement-edit>
         <history ref="ref_history"></history>
+
+        <el-dialog :visible.sync="logShow" id="addTask" class="codeDialog" center width="1000px" :show-close="false">
+            <div slot="title" class="head">
+                <div></div>
+                <span>日志</span>
+                <i class="el-icon-circle-close" @click="logShow=false"></i>
+            </div>
+            <ul>
+                <li v-for="(item,idx) in logLists" :key="idx">
+                    {{item.content}}
+                </li>
+
+            </ul>
+
+        </el-dialog>
     </div>
 
 </template>
@@ -346,6 +377,9 @@ export default {
     },
     data() {
         return {
+            logShow: false,
+            logLists: [],
+
             searchTime: [],
             searchApproval: '',
             searchSend: '',
@@ -383,25 +417,26 @@ export default {
             userDeptLists: [],
             sortObj: {},
             chargeBillArrs: [],
+
+            pageSelf: true,
+            sendShow: false,
         }
     },
 
-    created() {
-        this.getChargeBillArr()
-    },
+    created() {},
     mounted() {
         if (top != self) {
             window.addEventListener(
                 'message',
                 (event) => {
+                    this.pageSelf = false
                     this.inIframeInit(event.data)
                 },
                 false
             )
         } else {
-            this.getUnitLists()
-            this.getUserLists()
-            this.userData = JSON.parse(sessionStorage.userData)
+            this.pageSelf = true
+            this.getChargeBillArr()
         }
         this.maxHeight = $('.tableBox').height() - 72
         if (this.power) {
@@ -417,9 +452,36 @@ export default {
         },
     },
     methods: {
+        sendLog({ row }) {
+            let origin = `http://${window.location.hostname}:6010`
+
+            if (
+                _.includes(origin, 'localhost') ||
+                _.includes(origin, '127.0.0.1') ||
+                _.includes(origin, '192.168.131.131')
+            ) {
+                origin = 'http://173.101.4.3:6010'
+            }
+            let url =
+                origin + '/omms-tf-charge-service/chargeRecord/sendLogs?chargeRecordId=' + row.id
+            this.$axios.get(url).then((res) => {
+                this.logShow = true
+                this.logLists = res.data
+            })
+        },
         getChargeBillArr() {
             this.$axios.get('/charge-bill-config/findChargeBillConfigWithAuth').then((res) => {
                 this.chargeBillArrs = res.data
+                this.getUnitLists()
+                if (this.pageSelf) {
+                    this.getUserLists()
+                    this.userData = JSON.parse(sessionStorage.userData)
+                    this.sendShow =
+                        this.userData.deptCode == 'BoardingBridge' ||
+                        this.userData.deptCode == 'MaintenanceLoadBridge'
+                } else {
+                    this.getUserData(sessionStorage.token)
+                }
             })
         },
         getSourceName(record) {
@@ -434,6 +496,9 @@ export default {
             let obj = {
                 A: {},
                 D: {},
+            }
+            if (!flight) {
+                return obj
             }
             if (flight.movement == 'A') {
                 obj['A'] = flight
@@ -455,10 +520,9 @@ export default {
         },
         inIframeInit(data) {
             if (data.token) {
-                this.pageType = data.pageType
                 sessionStorage.setItem('token', data.token)
-                this.getUserData(data.token)
-                this.getUnitLists()
+                this.pageType = data.pageType
+                this.getChargeBillArr()
             }
         },
         getRowName({ row }) {
@@ -470,21 +534,15 @@ export default {
             let ata = flight.ata ? new Date(flight.ata).getTime() : ''
 
             if (
-                row.chargeBillConfigCode == 'LANQ' &&
-                endTime &&
-                startTime &&
-                (endTime - startTime > 6 * 60 * 60 * 1000 || endTime - startTime < 10 * 60 * 1000)
+                (atd && endTime && atd < endTime) ||
+                (ata && startTime && ata > startTime) ||
+                (endTime &&
+                    startTime &&
+                    (endTime - startTime > 6 * 60 * 60 * 1000 ||
+                        endTime - startTime < 10 * 60 * 1000))
             ) {
                 name += ' timeBorder'
             }
-
-            if (
-                row.chargeBillConfigCode == 'QZSB' &&
-                ((atd && endTime && atd < endTime) || (ata && startTime && ata > startTime))
-            ) {
-                name += ' timeBorder'
-            }
-
             return name
         },
         getSumText(sum) {
@@ -531,6 +589,9 @@ export default {
             }).then((res) => {
                 this.userData = res.data
                 sessionStorage.setItem('userData', JSON.stringify(_.omit(res.data, 'token')))
+                this.sendShow =
+                    this.userData.deptCode == 'BoardingBridge' ||
+                    this.userData.deptCode == 'MaintenanceLoadBridge'
                 this.getSetButtonShow()
                 if (this.pageType == 'boarding-bridge') {
                     this.getUserLists()
@@ -540,7 +601,7 @@ export default {
         handleLists() {
             this.lists = []
             let data = {
-                current: this.submitData.current,
+                current: 1,
                 size: this.submitData.size,
                 params: null,
                 deleted: false,
@@ -582,10 +643,36 @@ export default {
                     params: data,
                 })
                 .then((res) => {
-                    this.lists = res.data.records
+                    let lists = res.data.records
                     this.total = res.data.total
 
-                    this.lists.map((list) => {
+                    lists.map((list) => {
+                        list.chargeRecords = _.sortBy(list.chargeRecords, 'chargeCode')
+
+                        if (list.chargeBillConfigCode == 'QZSB') {
+                            list.flightSupplementInfos.map((list) => {
+                                if (_.includes(list.supplementTitle, '航班')) {
+                                    list.sort = 0
+                                }
+                                if (_.includes(list.supplementTitle, '飞机')) {
+                                    list.sort = 1
+                                }
+                                if (_.includes(list.supplementTitle, '电源')) {
+                                    list.sort = 2
+                                }
+                                if (_.includes(list.supplementTitle, '空调')) {
+                                    list.sort = 3
+                                }
+                                if (_.includes(list.supplementTitle, '备注')) {
+                                    list.sort = 4
+                                }
+                            })
+                            list.flightSupplementInfos = _.sortBy(
+                                list.flightSupplementInfos,
+                                'sort'
+                            )
+                        }
+
                         if (list.chargeBillConfigCode == 'LANQ') {
                             let newLists = []
                             list.chargeRecords.map((record) => {
@@ -609,6 +696,8 @@ export default {
                         }
                     })
 
+                    this.lists = lists
+
                     if (update) {
                         return
                     }
@@ -619,11 +708,13 @@ export default {
         },
         getUserLists() {
             let userData = JSON.parse(sessionStorage.userData)
-            this.$axios.get('/sys/user/getUsersByDeptId?deptId=' + userData.deptId).then((res) => {
-                if (res && res.data) {
-                    this.userDeptLists = res.data
-                }
-            })
+            this.$axios
+                .get('/sys/user/getAllUserByDeptId?deptId=' + userData.deptId)
+                .then((res) => {
+                    if (res && res.data) {
+                        this.userDeptLists = res.data
+                    }
+                })
         },
         loadData(data) {
             let records = []
@@ -685,7 +776,7 @@ export default {
                 row.forEach((list, idx) => {
                     let chargeRecordIds = _.reduce(
                         list.chargeRecords || [],
-                        function (result, value, key) {
+                        function (result, value) {
                             if (value.approvalStatus != 'PASS') {
                                 result.push({ id: value.id })
                             }
@@ -887,11 +978,6 @@ export default {
                             code: 'RULE_CHARGE_PUB',
                         },
                     }),
-                    // this.$axios.get('/data-dictionary/findDataDictionaryByCode', {
-                    //     params: {
-                    //         code: 'RULE_CHARGE_PUB',
-                    //     },
-                    // }),
                 ])
                 .then(
                     this.$axios.spread((res1, res2, res3) => {
@@ -901,17 +987,6 @@ export default {
                         this.handleLists()
                     })
                 )
-
-            // this.$axios
-            //     .get('/data-dictionary/findDataDictionaryByCode', {
-            //         params: {
-            //             code: 'unit',
-            //         },
-            //     })
-            //     .then((res) => {
-            //         this.unitLists = res.data
-            //         this.handleLists()
-            //     })
         },
         getName(item, lists, key) {
             let obj = _.find(lists, { code: item })
@@ -994,6 +1069,7 @@ export default {
             let charge = _.find(this.reporLists, { code: 'RULE_CHARGE_PUB_BILL' })
             if (
                 airline &&
+                row.flight &&
                 airline.name.indexOf(row.flight.airlineCode) >= 0 &&
                 charge &&
                 charge.name.indexOf(row.chargeBillConfigCode) >= 0
@@ -1026,8 +1102,7 @@ export default {
                 let options = this.getSupplementOption(item.supplementInfoConfig)
                 let option = _.find(options, { code: item.valueCode })
                 data.valueTitle = option.describe
-            }
-            if (item.type == 3) {
+            } else if (item.type == 3) {
                 let title = []
                 let code = []
                 let options = this.getSupplementOption(item.supplementInfoConfig)
@@ -1038,7 +1113,10 @@ export default {
                 })
                 data.valueCode = code.join(',')
                 data.valueTitle = title.join(',')
+            } else {
+                data.valueCode = data.valueTitle
             }
+
             this.$axios.post('/flight-supplement-info/save', data).then((res) => {
                 this.$message({
                     message: res.msg,

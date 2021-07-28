@@ -145,13 +145,14 @@
                         <el-row>
                             <el-col :span="12">
                                 <el-form-item label="接桥时间">
-                                    <el-date-picker style="width:100%" v-model="activeChargeRecord.startTime" type="datetime" placeholder="选择开始时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker>
+                                    <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.startTime" :keyName="'startTime'" />
+                                    <!-- <el-date-picker style="width:100%" v-model="activeChargeRecord.startTime" type="datetime" placeholder="选择开始时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                                 </el-form-item>
                             </el-col>
                             <el-col :span="12">
                                 <el-form-item label="接桥人">
                                     <el-select v-model="activeChargeRecord.startStaffId" filterable clearable placeholder="请选择">
-                                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                                        <el-option v-for="item in userDeptLists" :key="'0'+item.id" :label="item.name" :value="item.id"></el-option>
                                     </el-select>
                                 </el-form-item>
                             </el-col>
@@ -159,13 +160,14 @@
                         <el-row>
                             <el-col :span="12">
                                 <el-form-item label="撤桥时间">
-                                    <el-date-picker style="width:100%" v-model="activeChargeRecord.endTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker>
+                                    <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.endTime" :keyName="'endTime'" />
+                                    <!-- <el-date-picker style="width:100%" v-model="activeChargeRecord.endTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                                 </el-form-item>
                             </el-col>
                             <el-col :span="12">
                                 <el-form-item label="撤侨人">
                                     <el-select v-model="activeChargeRecord.endStaffId" filterable clearable placeholder="请选择">
-                                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                                        <el-option v-for="item in userDeptLists" :key="'1'+item.id" :label="item.name" :value="item.id"></el-option>
                                     </el-select>
                                 </el-form-item>
                             </el-col>
@@ -173,12 +175,14 @@
                         <el-row>
                             <el-col :span="12">
                                 <el-form-item label="航后开始时间">
-                                    <el-date-picker style="width:100%" v-model="activeChargeRecord.afterStartTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker>
+                                    <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.afterStartTime" :keyName="'afterStartTime'" />
+                                    <!-- <el-date-picker style="width:100%" v-model="activeChargeRecord.afterStartTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                                 </el-form-item>
                             </el-col>
                             <el-col :span="12">
                                 <el-form-item label="航后结束时间">
-                                    <el-date-picker style="width:100%" v-model="activeChargeRecord.afterEndTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker>
+                                    <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.afterEndTime" :keyName="'afterEndTime'" />
+                                    <!-- <el-date-picker style="width:100%" v-model="activeChargeRecord.afterEndTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                                 </el-form-item>
                             </el-col>
                         </el-row>
@@ -195,10 +199,12 @@
                             <el-input type="number" v-model="activeChargeRecord.chargeData" placeholder="收费数据"></el-input>
                         </el-form-item>
                         <el-form-item label="开始时间" v-if="getActiveChargeRecordTimeShow">
-                            <el-date-picker style="width:100%" v-model="activeChargeRecord.startTime" type="datetime" placeholder="选择开始时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker>
+                            <time-picker @timePickerTime="timePickerTime" :value="listData.startTime" :keyName="'startTime'" />
+                            <!-- <el-date-picker style="width:100%" v-model="activeChargeRecord.startTime" type="datetime" placeholder="选择开始时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                         </el-form-item>
                         <el-form-item label="结束时间" v-if="getActiveChargeRecordTimeShow">
-                            <el-date-picker style="width:100%" v-model="activeChargeRecord.endTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker>
+                            <time-picker @timePickerTime="timePickerTime" :value="listData.endTime" :keyName="'endTime'" />
+                            <!-- <el-date-picker style="width:100%" v-model="activeChargeRecord.endTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                         </el-form-item>
                         <el-form-item label="设备编号" v-if="getActiveChargeRecordTimeShow">
                             <el-input v-model="activeChargeRecord.deviceCode" placeholder="设备编号"></el-input>
@@ -218,7 +224,11 @@
 </template>
 
 <script>
+import TimePicker from '../../../components/time-picker'
 export default {
+    components: {
+        'time-picker': TimePicker,
+    },
     props: ['userDeptLists', 'chargeBillArrs'],
     data() {
         return {
@@ -272,6 +282,10 @@ export default {
             } else {
                 this.chargeRecordPageType = ''
             }
+
+            if (this.listData.chargeBillConfigCode == 'QZSB' && this.activeFlight.flightNo) {
+                this.activeChargeRecord.deviceCode = this.activeFlight.seat + '-' + val
+            }
         },
         chargeBillArrs: function (val) {
             let userData = JSON.parse(sessionStorage.userData)
@@ -288,8 +302,14 @@ export default {
 
             this.chargeBillArr = arrs
         },
+        'activeChargeRecord.startTime': function (val) {
+            console.log(val)
+        },
     },
     methods: {
+        timePickerTime(keyName, time) {
+            this.activeChargeRecord[keyName] = time
+        },
         initData(row) {
             // this.getChargeBillArr()
             this.chargeRecords = []
@@ -302,6 +322,11 @@ export default {
                 chargeBillConfigCode: '',
             }
 
+            if (this.chargeBillArr.length == 1) {
+                this.listData.chargeBillConfigCode = this.chargeBillArr[0].code
+                this.chargeBillChange()
+            }
+
             if (this.rowData) {
                 this.flightDisable = true
                 this.activeFlight = this.rowData.flight
@@ -312,6 +337,7 @@ export default {
             }
         },
         addChargeRecord() {
+            console.log(this.chargeArr)
             if (this.chargeArr.length == 0) {
                 this.$alert('未选择收费单', '提示', {
                     type: 'error',
@@ -321,6 +347,10 @@ export default {
             }
             this.activeChargeRecordType = 'add'
             this.activeChargeRecord = {}
+
+            if (this.chargeArr.length == 1) {
+                this.activeChargeRecord.chargeCode = this.chargeArr[0].code
+            }
             this.chargeRecordShow = true
         },
         recordVerify() {
@@ -368,7 +398,6 @@ export default {
             if (!this.recordVerify()) {
                 return
             }
-
             if (this.activeChargeRecord.chargeCode) {
                 let charge = _.find(this.chargeArr, { code: this.activeChargeRecord.chargeCode })
                 this.chargeRecordShow = false
@@ -418,11 +447,14 @@ export default {
             let activeChargeBill = _.find(this.chargeBillArr, {
                 code: this.listData.chargeBillConfigCode,
             })
-
             let url =
                 this.pageType == 'boarding-bridge'
                     ? `/boarding-bridge-charge-record/saveChargeRecordAndChargeBillIsExists?flightId=${this.activeFlight.flightId}&chargeBillConfigCode=${activeChargeBill.code}`
                     : `/charge-record/saveChargeAndChargeBillIsExists?flightId=${this.activeFlight.flightId}&chargeBillConfigCode=${activeChargeBill.code}`
+
+            if (this.rowData.id) {
+                url += `&chargeBillId=${this.rowData.id}`
+            }
 
             let supplementRecords = []
             this.supplementArr.map((list) => {
@@ -434,7 +466,7 @@ export default {
                         supplementTitle: list.name,
                         valueTitle: list.valueTitle,
                         valueCode: list.valueCode,
-                        chargeBillId: activeChargeBill.id,
+                        chargeBillId: this.rowData.id,
                     })
                 }
             })
@@ -475,29 +507,23 @@ export default {
             // }
             return true
         },
-        getChargeBillArr() {
-            this.$axios.get('/charge-bill-config/findChargeBillConfigWithAuth').then((res) => {
-                let userData = JSON.parse(sessionStorage.userData)
-                let arrs = []
-                userData.roles.map((role) => {
-                    let charge = _.find(res.data, { code: role.code })
-                    if (charge && role.menus && role.menus.length > 0) {
-                        let menuadd = _.find(role.menus, { code: 'charge_add' })
-                        if (menuadd) {
-                            arrs.push(charge)
-                        }
-                    }
-                })
-
-                this.chargeBillArr = arrs
-            })
-        },
-        getSupplementArr() {},
         chargeBillChange() {
             let charge = _.cloneDeep(
                 _.find(this.chargeBillArr, { code: this.listData.chargeBillConfigCode })
             )
+            if (!charge) {
+                this.$alert('当前的收费单没有新增权限！', '提示', {
+                    type: 'error',
+                    center: true,
+                })
+                this.listShow = false
+                return
+            }
+
+            console.log(this.chargeBillArr, this.listData.chargeBillConfigCode)
             this.chargeArr = charge.chargeRecordConfigs || []
+
+            console.log(this.chargeArr)
 
             charge.supplementInfoConfigs.map((list) => {
                 list.params = JSON.parse(list.params)

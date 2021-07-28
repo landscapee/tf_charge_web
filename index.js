@@ -54,13 +54,32 @@ router.beforeEach(function(to,from,next){
         sessionStorage.clear()
         store.commit('resetStore')
         next()
-
-       
     } else {
         next()
         
     }
     
+})
+router.afterEach(()=>{
+    if(sessionStorage.token&&loginFlag==0){
+        loginFlag = 1
+        timer = setInterval(() => {//每10分钟更新一次token
+            axios({
+                method:"post",
+                url:'/sso/login/renew',
+                dataType:"text",
+                data:sessionStorage.token,
+                async:false,
+                headers:{
+                    'Content-Type':'application/json;charset=utf-8'
+                }
+            })
+            .then(res=>{
+                let newToken = 'Bearer '+res.data
+                sessionStorage.setItem("token",newToken)
+            })
+        }, 1000*60*1);
+    }
 })
 
 
@@ -79,7 +98,8 @@ axios.interceptors.request.use(
 
         if( config.url.indexOf("/user/changeUserPwd")>-1
             ||config.url.indexOf("/department/getAllDepartmentByDeptIdWithTree")>-1
-            ||config.url.indexOf("/user/getUsersByDeptId")>-1
+            || config.url.indexOf("/user/getUsersByDeptId") > -1
+            || config.url.indexOf("/user/getAllUserByDeptId") > -1
         ){
             config.url = origin+"/"+interfaceType+ config.url
         }else{

@@ -95,7 +95,8 @@
             </table>
         </div>
         <div>
-            <button @click="saveSign">提交签名</button>
+            <!-- <button @click="saveSign">提交签名</button> -->
+            <el-button type="primary" :loading="subLoading" @click="saveSign">提交签名</el-button>
         </div>
 
         <remote-script src="/static/kinggrid/core/kinggrid.min.js" type="1" @load="loadJS"></remote-script>
@@ -114,6 +115,7 @@ import '../../components//importJs.js'
 export default {
     data() {
         return {
+            subLoading: false,
             details: {},
             isElSign: true,
             elSignImageData: {},
@@ -262,7 +264,6 @@ export default {
             })
         },
         showSign() {
-            console.log(this.chargeBillSigns)
             _.forIn(this.chargeBillSigns, (chargeBillSign, idx) => {
                 _.forIn(chargeBillSign, (list, index) => {
                     list.lists.forEach((arr, number) => {
@@ -389,12 +390,12 @@ export default {
             console.log(this.chargeBillSigns)
             _.forIn(this.chargeBillSigns, (chargeBillSign, key) => {
                 _.forIn(chargeBillSign, (list, key) => {
-                    let src = ''
-                    console.log(list)
                     list.lists.forEach((arr, number) => {
+                        let src = ''
                         if (arr.signId) {
                             src = document.querySelector('#kg-img-' + arr.signId).src
                         }
+                        // console.log(_.cloneDeep(arr), src)
                         let data = {
                             chargeBillId: this.details.chargeBill.id,
                             signId: arr.signId,
@@ -418,6 +419,7 @@ export default {
                 })
                 return false
             }
+            this.subLoading = true
             this.$axios
                 .post(`/charge-bill-sign/saveAll?chargeBillId=${this.queryData.chargeBillId}`, arrs)
                 .then((res) => {
@@ -426,6 +428,8 @@ export default {
                         center: true,
                         customClass: 'h5Alert',
                         callback: () => {
+                            this.subLoading = false
+                            this.getData(this.$route.query)
                             window.WebViewJavascriptBridge.callHandler(
                                 'androidBack',
                                 '1',
@@ -465,6 +469,11 @@ export default {
         font-size: 100px !important;
     }
 }
+.chargeDetails {
+    * {
+        font-size: 80px;
+    }
+}
 </style>
 
 <style lang="scss" scoped>
@@ -472,9 +481,7 @@ export default {
     height: 100%;
     padding: 40px;
     overflow: auto;
-    * {
-        font-size: 80px;
-    }
+
     .title {
         height: 150px;
         line-height: 150px;
@@ -556,8 +563,6 @@ export default {
     }
     button {
         width: 100%;
-        color: #fff;
-        background-color: #409eff;
         border: none;
         border-radius: 10px;
         height: 200px;

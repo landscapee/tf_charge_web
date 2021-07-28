@@ -25,7 +25,7 @@
                     <el-input placeholder="机位查询" v-model="searchSeat" @keyup.enter.native="handleLists" style="width:100px" />
                 </div>
                 <div>
-                    <el-input placeholder="机号查询" v-model="searchAircraftNo" @keyup.enter.native="handleLists" style="width:100px" />
+                    <el-input placeholder="机尾号查询" v-model="searchAircraftNo" @keyup.enter.native="handleLists" style="width:100px" />
                 </div>
                 <div>
                     <el-input placeholder="航班号或航司查询" v-model="searchStr" @keyup.enter.native="handleLists" />
@@ -37,14 +37,12 @@
         </div>
         <div id="tableBox">
             <div class="tableBox" ref="tableBox">
-                <!-- @selection-change="listSelectionChange"  -->
                 <el-table :data="lists" border stripe style="width: 100%" :max-height="maxHeight" :highlight-current-row="true" :cell-class-name="getCellClassname">
                     <el-table-column label="序号" width="60" align="center">
                         <template slot-scope="scope">
                             {{(submitData.current-1)*submitData.size+scope.$index+1}}
                         </template>
                     </el-table-column>
-                    <!-- <el-table-column type="selection" width="55" align="center"></el-table-column> -->
                     <el-table-column prop="flightNo" label="航班号" width="160">
                         <template slot-scope="scope">
                             {{getFlightNo(scope)}}
@@ -52,10 +50,11 @@
                     </el-table-column>
                     <el-table-column prop="movement" label="进/离">
                         <template slot-scope="scope">
-                            {{scope.row.movement=='A'?'进':'离'}}
+                            {{getMovement(scope)}}
                         </template>
                     </el-table-column>
                     <el-table-column prop="aircraftNo" label="机尾号"></el-table-column>
+                    <el-table-column prop="aircraftType" label="机型"></el-table-column>
                     <el-table-column prop="flightType" label="航班类型">
                         <template slot-scope="scope">
                             {{getflightTpye[scope.row.flightType]}}
@@ -194,7 +193,8 @@ export default {
                 })
                 return
             }
-            if (row.approveCount === 0 || row.totalCount != row.approveCount) {
+            // || row.totalCount != row.approveCount
+            if (row.approveCount === 0) {
                 this.$alert('当前有未审核收费项，不能上报！', '提示', {
                     type: 'warning',
                     center: true,
@@ -226,6 +226,15 @@ export default {
             let flgihtNo_D = (row.movement == 'D' ? row.flightNo : row.relateFlightNo) || '-'
 
             return `${flgihtNo_A}/${flgihtNo_D}`
+        },
+        getMovement({ row }) {
+            let flgihtNo_A = row.movement == 'A' ? row.flightNo : row.relateFlightNo
+            let flgihtNo_D = row.movement == 'D' ? row.flightNo : row.relateFlightNo
+
+            if (flgihtNo_A && flgihtNo_D) {
+                return `进/离`
+            }
+            return row.movement == 'A' ? '进' : '离'
         },
         handleLists() {
             this.lists = []
@@ -259,7 +268,8 @@ export default {
                     params: data,
                 })
                 .then((res) => {
-                    this.lists = res.data
+                    this.lists = res.data.records
+                    this.total = res.data.total
                 })
         },
         update() {

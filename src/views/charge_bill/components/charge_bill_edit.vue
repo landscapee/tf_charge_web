@@ -17,7 +17,8 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="接桥时间">
-                            <el-date-picker style="width:100%" v-model="listData.startTime" type="datetime" placeholder="选择开始时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker>
+                            <time-picker @timePickerTime="timePickerTime" :value="listData.startTime" :keyName="'startTime'" />
+                            <!-- <el-date-picker style="width:100%" v-model="listData.startTime" type="datetime" placeholder="选择开始时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
@@ -31,7 +32,8 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="撤桥时间">
-                            <el-date-picker style="width:100%" v-model="listData.endTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker>
+                            <time-picker @timePickerTime="timePickerTime" :value="listData.endTime" :keyName="'endTime'" />
+                            <!-- <el-date-picker style="width:100%" v-model="listData.endTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
@@ -45,12 +47,14 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="航后开始时间">
-                            <el-date-picker style="width:100%" v-model="listData.afterStartTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker>
+                            <time-picker @timePickerTime="timePickerTime" :value="listData.afterStartTime" :keyName="'afterStartTime'" />
+                            <!-- <el-date-picker style="width:100%" v-model="listData.afterStartTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="航后结束时间">
-                            <el-date-picker style="width:100%" v-model="listData.afterEndTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker>
+                            <time-picker @timePickerTime="timePickerTime" :value="listData.afterEndTime" :keyName="'afterEndTime'" />
+                            <!-- <el-date-picker style="width:100%" v-model="listData.afterEndTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -72,10 +76,12 @@
                     <el-input v-model="listData.chargeData" placeholder="收费数据"></el-input>
                 </el-form-item>
                 <el-form-item label="开始时间" v-if="timeShow&&type=='edit'">
-                    <el-date-picker style="width:100%" v-model="listData.startTime" type="datetime" placeholder="选择开始时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker>
+                    <time-picker @timePickerTime="timePickerTime" :value="listData.startTime" :keyName="'startTime'" />
+                    <!-- <el-date-picker style="width:100%" v-model="listData.startTime" type="datetime" placeholder="选择开始时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                 </el-form-item>
                 <el-form-item label="结束时间" v-if="timeShow&&type=='edit'">
-                    <el-date-picker style="width:100%" v-model="listData.endTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker>
+                    <time-picker @timePickerTime="timePickerTime" :value="listData.endTime" :keyName="'endTime'" />
+                    <!-- <el-date-picker style="width:100%" v-model="listData.endTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                 </el-form-item>
             </template>
             <el-form-item label="备注" v-if="type=='remark'">
@@ -90,7 +96,11 @@
 </template>
 
 <script>
+import TimePicker from '../../../components/time-picker'
 export default {
+    components: {
+        'time-picker': TimePicker,
+    },
     props: ['userDeptLists'],
     data() {
         return {
@@ -111,8 +121,11 @@ export default {
         }
     },
     methods: {
+        timePickerTime(keyName, time) {
+            this.listData[keyName] = time
+        },
         getSourceName(record) {
-            return record.dataSourceSort === 0 ? 'BBMS' : 'OMMS'
+            return record.chargeDataSource.code.split('-')[1]
         },
         initData(type, data, row) {
             this.timeShow = false
@@ -136,17 +149,13 @@ export default {
             }
             if (data) {
                 this.listData = _.cloneDeep(data)
-                console.log(this.listData)
-
                 this.timeShow = data.unit == '秒' ? true : false
             }
         },
         save() {
-            let verify = this.dataVerify()
-            if (!verify) {
-                return false
+            if (!this.recordVerify()) {
+                return
             }
-
             let startStaffObj = _.find(this.userDeptLists, { id: this.listData.startStaffId }) || {}
             let endStaffObj =
                 _.find(this.userDeptLists, {
@@ -160,7 +169,6 @@ export default {
                 this.pageType == 'boarding-bridge'
                     ? '/boarding-bridge-charge-record/save'
                     : '/charge-record/save'
-
             this.$axios.post(url, this.listData).then((res) => {
                 this.listShow = false
                 this.$alert(res.msg, '提示', {
@@ -170,9 +178,41 @@ export default {
                 this.$emit('update')
             })
         },
-        dataVerify() {
-            if (!this.listData.chargeData && this.timeShow) {
-                this.$alert('收费数据不能为空！', '提示', {
+        recordVerify() {
+            console.log(this.listData)
+            if (this.listData.chargeData < 0) {
+                this.$alert('收费数据最小为0！', '提示', {
+                    type: 'error',
+                    center: true,
+                })
+                this.listData.chargeData = 0
+                return false
+            }
+
+            if (this.listData.startTime && this.listData.endTime) {
+                let msg = '开始时间不能超过结束时间！'
+                if (this.listData.chargeCode == 'LANQ') {
+                    msg = '撤桥时间不能超过接桥时间！'
+                }
+                if (
+                    new Date(this.listData.startTime).getTime() >
+                    new Date(this.listData.endTime).getTime()
+                ) {
+                    this.$alert(msg, '提示', {
+                        type: 'error',
+                        center: true,
+                    })
+                    return false
+                }
+            }
+
+            if (
+                this.listData.afterStartTime &&
+                this.listData.afterEndTime &&
+                new Date(this.listData.afterStartTime).getTime() >
+                    new Date(this.listData.afterEndTime).getTime()
+            ) {
+                this.$alert('航后开始时间不能超过航后结束时间！', '提示', {
                     type: 'error',
                     center: true,
                 })
