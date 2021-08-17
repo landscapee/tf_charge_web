@@ -30,9 +30,12 @@
                 <div>
                     <el-input placeholder="航班号或航司查询" v-model="searchStr" @keyup.enter.native="handleLists" />
                 </div>
+                <div v-show="unsendCount>0">
+                    <el-button type="danger" @click="getUnSendHandle">昨日未上报{{unsendCount}}个</el-button>
+                </div>
             </div>
             <div class="rightBox">
-                <!-- <el-button type="primary" @click="reportSelect">批量上报</el-button> -->
+                <el-button type="primary" @click="handleLists">刷新</el-button>
             </div>
         </div>
         <div id="tableBox">
@@ -83,13 +86,16 @@
                     </el-table-column>
                     <el-table-column prop="approve" label="收费项审核">
                         <template slot-scope="scope">
-                            {{scope.row.approveCount?scope.row.approveCount:0}}/{{scope.row.totalCount?scope.row.totalCount:0}}
+                            <div style="height:50px;line-height:50px;">
+                                {{scope.row.approveCount?scope.row.approveCount:0}}/{{scope.row.totalCount?scope.row.totalCount:0}}
+                            </div>
+
                         </template>
                     </el-table-column>
                     <el-table-column label="操作" width="100" align="center" class-name="optBox">
                         <template slot-scope="scope">
                             <el-button type="text" title="详情" @click="details(scope)">详情</el-button>
-                            <el-button type="text" title="上报" @click="report(scope)" :disabled="submitData.status===1">上报</el-button>
+                            <el-button type="text" title="上报" @click="report(scope)" :disabled="submitData.status===1||scope.row.approveMap.noSendCount === 0">上报</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -115,7 +121,7 @@ export default {
         return {
             searchTime: '',
             searchStr: '',
-            searchReport: '',
+            searchReport: 0,
             searchSeat: '',
             searchAircraftNo: '',
             lists: [],
@@ -127,6 +133,9 @@ export default {
             maxHeight: 1000,
             userData: {},
             selections: [],
+            unsendCount: 0,
+            dataTimer: null,
+            unsendAlert: false,
         }
     },
     computed: {
@@ -148,9 +157,20 @@ export default {
             )
         } else {
             this.handleLists()
+            if (this.dataTimer) {
+                clearInterval(this.dataTimer)
+                this.dataTimer = null
+            }
+            this.getunSendCount()
+            this.dataTimer = setInterval(() => {
+                this.getunSendCount()
+            }, 5 * 60 * 1000)
             this.userData = JSON.parse(sessionStorage.userData)
         }
         this.maxHeight = $('.tableBox').height() - 72
+    },
+    detroyed() {
+        clearInterval(this.dataTimer)
     },
     methods: {
         inIframeInit(data) {
@@ -158,6 +178,14 @@ export default {
                 sessionStorage.setItem('token', data.token)
                 this.getUserData(data.token)
                 this.handleLists()
+                if (this.dataTimer) {
+                    clearInterval(this.dataTimer)
+                    this.dataTimer = null
+                }
+                this.getunSendCount()
+                this.dataTimer = setInterval(() => {
+                    this.getunSendCount()
+                }, 5 * 60 * 1000)
             }
         },
         getUserData(token) {
@@ -186,6 +214,14 @@ export default {
             this.approval(this.selections, 'arrs')
         },
         report({ row }) {
+            if (row.approveMap.noSendCount == 0) {
+                this.$alert('当前没有审核的数据不能上报！', '提示', {
+                    type: 'warning',
+                    center: true,
+                })
+                return
+            }
+
             if (!row.totalCount) {
                 this.$alert('当前没有收费项，不能上报！', '提示', {
                     type: 'warning',
@@ -258,10 +294,42 @@ export default {
                 data.aircraftNo = this.searchAircraftNo
             }
             data.status = this.searchReport
+            data.yesterdayReport = false
 
-            this.getLists(data)
+            this.findAllFlightReport(data)
+        },
+        getunSendCount() {
+            let data = {
+                current: 1,
+                size: 20,
+                status: 0,
+            }
+
+            data.yesterdayReport = true
+
+            this.findAllFlightReport(data, 'getCount')
+        },
+        getUnSendHandle() {
+            let data = {
+                current: 1,
+                size: 20,
+            }
+
+            // if (this.searchTime) {
+            //     data.beginTime = this.searchTime[0]
+            //     data.endTime = this.searchTime[1]
+            // }
+            this.searchStr = ''
+            this.searchSeat = ''
+            this.searchAircraftNo = ''
+            data.status = 0
+            data.yesterdayReport = true
+            this.findAllFlightReport(data)
         },
         getLists(data) {
+            this.findAllFlightReport(data)
+        },
+        findAllFlightReport(data, getCount) {
             this.submitData = data
             this.$axios
                 .get('/flightReport/findAllFlightReport', {
@@ -270,6 +338,41 @@ export default {
                 .then((res) => {
                     this.lists = res.data.records
                     this.total = res.data.total
+                    if (getCount) {
+                        let nowTime = new Date().getTime()
+                        let startTime = new Date(
+                            this.getTimeByFormat(nowTime, 'YY-MM-DD') + ' 08:00:00'
+                        )
+                        let endTime = new Date(
+                            this.getTimeByFormat(nowTime, 'YY-MM-DD') + ' 09:20:00'
+                        )
+                        if (this.unsendCount != res.data.total && this.unsendAlert) {
+                            this.$msgbox.close()
+                            this.unsendAlert = false
+                        }
+                        this.unsendCount = res.data.total
+                        if (
+                            !this.unsendAlert &&
+                            this.unsendCount > 0 &&
+                            nowTime >= startTime &&
+                            nowTime <= endTime
+                        ) {
+                            this.unsendAlert = true
+                            this.$msgbox.alert(
+                                `昨日还有${this.unsendCount}个航班未上报，财务要求9点前完成00点之前执行的收费数据上报。`,
+                                '提示',
+                                {
+                                    type: 'warning',
+                                    center: true,
+                                    callback: () => {
+                                        this.unsendAlert = false
+                                    },
+                                }
+                            )
+                        }
+
+                        return
+                    }
                 })
         },
         update() {
@@ -310,16 +413,27 @@ export default {
         },
         getCellClassname({ row, column, rowIndex, columnIndex }) {
             if (column.property == 'approve') {
-                if (
-                    row.approveCount > 0 &&
-                    row.totalCount > 0 &&
-                    row.totalCount == row.approveCount
-                ) {
+                let approveMap = row.approveMap
+
+                if (approveMap.noSendCount > 0) {
                     return 'passApprove'
-                } else {
+                } else if (row.totalCount > approveMap.sendCount) {
                     return 'noApprove'
                 }
+
+                // if (
+                //     row.approveCount > 0 &&
+                //     row.totalCount > 0 &&
+                //     row.totalCount == row.approveCount
+                // ) {
+                //     return 'passApprove'
+                // } else {
+                //     return 'noApprove'
+                // }
             }
+        },
+        getReport({ row }) {
+            return row.approveMap.noSendCount === 0
         },
     },
 }

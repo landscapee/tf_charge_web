@@ -37,7 +37,7 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="撤侨人">
+                        <el-form-item label="撤桥人">
                             <el-select v-model="listData.endStaffId" filterable clearable placeholder="请选择">
                                 <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
                             </el-select>
@@ -77,14 +77,17 @@
                 </el-form-item>
                 <el-form-item label="开始时间" v-if="timeShow&&type=='edit'">
                     <time-picker @timePickerTime="timePickerTime" :value="listData.startTime" :keyName="'startTime'" />
-                    <!-- <el-date-picker style="width:100%" v-model="listData.startTime" type="datetime" placeholder="选择开始时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                 </el-form-item>
                 <el-form-item label="结束时间" v-if="timeShow&&type=='edit'">
                     <time-picker @timePickerTime="timePickerTime" :value="listData.endTime" :keyName="'endTime'" />
-                    <!-- <el-date-picker style="width:100%" v-model="listData.endTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
+                </el-form-item>
+                <el-form-item label="操作人" v-if="type=='edit'">
+                    <el-select v-model="listData.operatorId" filterable clearable placeholder="请选择">
+                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                    </el-select>
                 </el-form-item>
             </template>
-            <el-form-item label="备注" v-if="type=='remark'">
+            <el-form-item label="备注">
                 <el-input v-model="listData.remark" placeholder="备注"></el-input>
             </el-form-item>
         </el-form>
@@ -125,7 +128,7 @@ export default {
             this.listData[keyName] = time
         },
         getSourceName(record) {
-            return record.chargeDataSource.code.split('-')[1]
+            return record.chargeDataSource.code ? record.chargeDataSource.code.split('-')[1] : ''
         },
         initData(type, data, row) {
             this.timeShow = false
@@ -148,7 +151,13 @@ export default {
                 remark: '',
             }
             if (data) {
-                this.listData = _.cloneDeep(data)
+                // setTimeout(() => {
+                //     this.listData = _.cloneDeep(data)
+                // }, 1000)
+                this.$nextTick(() => {
+                    this.listData = _.cloneDeep(data)
+                })
+
                 this.timeShow = data.unit == '秒' ? true : false
             }
         },
@@ -156,14 +165,20 @@ export default {
             if (!this.recordVerify()) {
                 return
             }
+
             let startStaffObj = _.find(this.userDeptLists, { id: this.listData.startStaffId }) || {}
             let endStaffObj =
                 _.find(this.userDeptLists, {
                     id: this.listData.endStaffId,
                 }) || {}
+            let operatorObj =
+                _.find(this.userDeptLists, {
+                    id: this.listData.operatorId,
+                }) || {}
 
             this.listData.startStaffName = startStaffObj.name || ''
             this.listData.endStaffName = endStaffObj.name || ''
+            this.listData.operatorName = operatorObj.name || ''
 
             let url =
                 this.pageType == 'boarding-bridge'
@@ -179,13 +194,20 @@ export default {
             })
         },
         recordVerify() {
-            console.log(this.listData)
             if (this.listData.chargeData < 0) {
                 this.$alert('收费数据最小为0！', '提示', {
                     type: 'error',
                     center: true,
                 })
                 this.listData.chargeData = 0
+                return false
+            }
+
+            if (!this.listData.remark) {
+                this.$alert('修改备注必填', '提示', {
+                    type: 'error',
+                    center: true,
+                })
                 return false
             }
 

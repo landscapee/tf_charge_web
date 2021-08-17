@@ -431,11 +431,7 @@ export default {
 table {
     width: 100%;
     .cell {
-        height: 100%;
         padding: 4px 6px !important;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
     }
     .el-dropdown {
         display: flex;

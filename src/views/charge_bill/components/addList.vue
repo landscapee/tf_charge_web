@@ -56,6 +56,8 @@
                                 </template>
                             </el-table-column>
                             <el-table-column prop="deviceCode" label="设备编号"></el-table-column>
+
+                            <el-table-column prop="operatorName" label="操作人"></el-table-column>
                         </template>
                         <el-table-column label="操作" width="80" align='center' class-name="optBox">
                             <template slot-scope="scope">
@@ -199,15 +201,20 @@
                             <el-input type="number" v-model="activeChargeRecord.chargeData" placeholder="收费数据"></el-input>
                         </el-form-item>
                         <el-form-item label="开始时间" v-if="getActiveChargeRecordTimeShow">
-                            <time-picker @timePickerTime="timePickerTime" :value="listData.startTime" :keyName="'startTime'" />
+                            <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.startTime" :keyName="'startTime'" />
                             <!-- <el-date-picker style="width:100%" v-model="activeChargeRecord.startTime" type="datetime" placeholder="选择开始时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                         </el-form-item>
                         <el-form-item label="结束时间" v-if="getActiveChargeRecordTimeShow">
-                            <time-picker @timePickerTime="timePickerTime" :value="listData.endTime" :keyName="'endTime'" />
+                            <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.endTime" :keyName="'endTime'" />
                             <!-- <el-date-picker style="width:100%" v-model="activeChargeRecord.endTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                         </el-form-item>
                         <el-form-item label="设备编号" v-if="getActiveChargeRecordTimeShow">
                             <el-input v-model="activeChargeRecord.deviceCode" placeholder="设备编号"></el-input>
+                        </el-form-item>
+                        <el-form-item label="操作人">
+                            <el-select v-model="activeChargeRecord.operatorId" filterable clearable placeholder="请选择">
+                                <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                            </el-select>
                         </el-form-item>
                     </template>
                 </template>
@@ -229,7 +236,7 @@ export default {
     components: {
         'time-picker': TimePicker,
     },
-    props: ['userDeptLists', 'chargeBillArrs'],
+    props: ['userDeptLists'],
     data() {
         return {
             listShow: false,
@@ -287,7 +294,12 @@ export default {
                 this.activeChargeRecord.deviceCode = this.activeFlight.seat + '-' + val
             }
         },
-        chargeBillArrs: function (val) {
+    },
+    methods: {
+        timePickerTime(keyName, time) {
+            this.activeChargeRecord[keyName] = time
+        },
+        getChargeBillArr(val) {
             let userData = JSON.parse(sessionStorage.userData)
             let arrs = []
             userData.roles.map((role) => {
@@ -299,19 +311,10 @@ export default {
                     }
                 }
             })
-
             this.chargeBillArr = arrs
         },
-        'activeChargeRecord.startTime': function (val) {
-            console.log(val)
-        },
-    },
-    methods: {
-        timePickerTime(keyName, time) {
-            this.activeChargeRecord[keyName] = time
-        },
-        initData(row) {
-            // this.getChargeBillArr()
+        initData(row, chargeBillArrs) {
+            this.getChargeBillArr(chargeBillArrs)
             this.chargeRecords = []
             this.supplementArr = []
             this.listShow = true
@@ -354,19 +357,49 @@ export default {
             this.chargeRecordShow = true
         },
         recordVerify() {
-            if (this.activeChargeRecord.chargeData < 0) {
-                this.$alert('收费数据最小为0！', '提示', {
-                    type: 'error',
-                    center: true,
-                })
-                this.activeChargeRecord.chargeData = 0
-                return false
+            if (this.getActiveChargeRecordTimeShow) {
+                if (!this.activeChargeRecord.startTime) {
+                    let msg = `${
+                        this.activeChargeRecord.chargeCode == 'LANQ' ? '接桥' : '开始'
+                    }时间不能为空！`
+                    this.$alert(msg, '提示', {
+                        type: 'error',
+                        center: true,
+                    })
+                    return false
+                }
+                if (!this.activeChargeRecord.endTime) {
+                    let msg = `${
+                        this.activeChargeRecord.chargeCode == 'LANQ' ? '撤桥' : '结束'
+                    }时间不能为空！`
+                    this.$alert(msg, '提示', {
+                        type: 'error',
+                        center: true,
+                    })
+                    return false
+                }
+            } else {
+                if (!this.activeChargeRecord.chargeData) {
+                    this.$alert('收费数据不能为空', '提示', {
+                        type: 'error',
+                        center: true,
+                    })
+                    return false
+                }
+                if (this.activeChargeRecord.chargeData < 0) {
+                    this.$alert('收费数据最小为0！', '提示', {
+                        type: 'error',
+                        center: true,
+                    })
+                    this.activeChargeRecord.chargeData = 0
+                    return false
+                }
             }
 
             if (this.activeChargeRecord.startTime && this.activeChargeRecord.endTime) {
                 let msg = '开始时间不能超过结束时间！'
                 if (this.activeChargeRecord.chargeCode == 'LANQ') {
-                    msg = '撤桥时间不能超过接桥时间！'
+                    msg = '接桥时间不能超过撤桥时间！'
                 }
                 if (
                     new Date(this.activeChargeRecord.startTime).getTime() >
@@ -412,17 +445,20 @@ export default {
                     _.find(this.userDeptLists, {
                         id: this.activeChargeRecord.endStaffId,
                     }) || {}
+                let operatorObj =
+                    _.find(this.userDeptLists, {
+                        id: this.activeChargeRecord.operatorId,
+                    }) || {}
 
                 this.activeChargeRecord.startStaffName = startStaffObj.name || ''
                 this.activeChargeRecord.endStaffName = endStaffObj.name || ''
+                this.activeChargeRecord.operatorName = operatorObj.name || ''
 
                 if (this.activeChargeRecordType == 'edit') {
-                    console.log(this.activeChargeRecordIndex)
                     this.chargeRecords[this.activeChargeRecordIndex] = this.activeChargeRecord
                     this.tableKey++
                     return
                 }
-
                 this.chargeRecords.push(this.activeChargeRecord)
             } else {
                 this.$alert('收费项不能为空！', '提示', {
@@ -520,11 +556,7 @@ export default {
                 return
             }
 
-            console.log(this.chargeBillArr, this.listData.chargeBillConfigCode)
             this.chargeArr = charge.chargeRecordConfigs || []
-
-            console.log(this.chargeArr)
-
             charge.supplementInfoConfigs.map((list) => {
                 list.params = JSON.parse(list.params)
             })

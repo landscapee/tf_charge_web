@@ -55,6 +55,9 @@
                 <el-form-item label="最大数字" v-if="parameterData.type===0">
                     <el-input type="number" v-model="parameterData.maxNumber" placeholder="最大数字"></el-input>
                 </el-form-item>
+                <el-form-item label="小数位数" v-if="parameterData.type===0">
+                    <el-input type="number" v-model="parameterData.decimalLength" placeholder="小数位数"></el-input>
+                </el-form-item>
 
                 <el-form-item label="最大长度" v-if="parameterData.type==1">
                     <el-input type="number" v-model="parameterData.maxInput" placeholder="最大长度"></el-input>
@@ -101,7 +104,6 @@
                         <el-button class="addRowBox" type="primary" icon="el-icon-plus" @click="addRowValue" style="width:100%">增加</el-button>
                     </div>
                 </el-form-item>
-
             </el-form>
             <div slot="footer" class="footer">
                 <el-button @click="parameterShow=false">取 消</el-button>

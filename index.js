@@ -78,7 +78,7 @@ router.afterEach(()=>{
                 let newToken = 'Bearer '+res.data
                 sessionStorage.setItem("token",newToken)
             })
-        }, 1000*60*1);
+        }, 1000*60*10);
     }
 })
 

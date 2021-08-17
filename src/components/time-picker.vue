@@ -1,17 +1,25 @@
 <template>
     <div class="timePicker">
-        <input ref="ref_year" placeholder="年" type="text" maxlength=4 v-model="year" class="yearInput" @keyup="inputKeyup($event,'year','month','')" @blur="yeaBulr">-
-        <input ref="ref_month" placeholder="月" type="text" maxlength=2 v-model="month" @keyup="inputKeyup($event,'month','day','year')">-
-        <input ref="ref_day" placeholder="日" type="text" maxlength=2 v-model="day" @keyup="inputKeyup($event,'day','hours','month')">
-        <input ref="ref_hours" placeholder="时" type="text" maxlength=2 v-model="hours" @keyup="inputKeyup($event,'hours','minute','day')">:
-        <input ref="ref_minute" placeholder="分" type="text" maxlength=2 v-model="minute" @keyup="inputKeyup($event,'minute','second','hours')">:
-        <input ref="ref_second" placeholder="秒" type="text" maxlength=2 v-model="second" @keyup="inputKeyup($event,'second','','minute')">
+        <input ref="ref_year" placeholder="年" type="text" maxlength=4 v-model="year" class="yearInput" @keyup="inputKeyup($event,'year','month','')" @blur="yeaBlur">-
+        <input ref="ref_month" placeholder="月" type="text" maxlength=2 v-model="month" @keyup="inputKeyup($event,'month','day','year')" @blur="monthBlur">-
+        <input ref="ref_day" placeholder="日" type="text" maxlength=2 v-model="day" @keyup="inputKeyup($event,'day','hours','month')" @blur="dayBlur">
+        <input ref="ref_hours" placeholder="时" type="text" maxlength=2 v-model="hours" @keyup="inputKeyup($event,'hours','minute','day')" @blur="hoursBlur">:
+        <input ref="ref_minute" placeholder="分" type="text" maxlength=2 v-model="minute" @keyup="inputKeyup($event,'minute','second','hours')" @blur="minuteBlur">:
+        <input ref="ref_second" placeholder="秒" type="text" maxlength=2 v-model="second" @keyup="inputKeyup($event,'second','','minute')" @blur="secondBlur">
     </div>
 </template>
 
 <script>
 export default {
-    props: ['keyName', 'value'],
+    // props: ['keyName', 'value'],
+    props: {
+        keyName: {
+            type: String,
+        },
+        value: {
+            type: String,
+        },
+    },
     data() {
         return {
             year: '',
@@ -20,6 +28,9 @@ export default {
             hours: '',
             minute: '',
             second: '',
+
+            yearAlert: false,
+            monthAlert: false,
         }
     },
     watch: {
@@ -68,118 +79,243 @@ export default {
     methods: {
         inputKeyup(event, type, nextType, prevType) {
             let code = event.keyCode
-            let num = 2
-            if (type == 'year') {
-                num = 4
-            }
-            if (this[type] === '') {
-                return
-            }
-            let value = parseInt(this[type])
-
+            let value = _.toNumber(_.trim(this[type]))
+            let length = _.trim(this[type]).length
             if (!_.isInteger(value)) {
                 this.$alert('时间只能为整数', '提示', {
                     type: 'warning',
                     center: true,
                 })
-                return
-            }
-
-            if (type == 'month' && (value < 1 || value > 12)) {
                 this[type] = ''
-                this.$alert('月份只能为1-12', '提示', {
-                    type: 'warning',
-                    center: true,
-                })
                 return
             }
-            if (type == 'day' && (value < 1 || value > 31)) {
-                this[type] = ''
-                this.$alert('日期只能1-31', '提示', {
-                    type: 'warning',
-                    center: true,
-                })
-                return
-            }
-            if (type == 'hours' && (value < 0 || value > 24)) {
-                this[type] = ''
-                this.$alert('小时只能0-24', '提示', {
-                    type: 'warning',
-                    center: true,
-                })
-                return
-            }
-            if (type == 'minute' && (value < 0 || value > 60)) {
-                this[type] = ''
-                this.$alert('分钟只能0-60', '提示', {
-                    type: 'warning',
-                    center: true,
-                })
-                return
-            }
-            if (type == 'second' && (value < 0 || value > 60)) {
-                this[type] = ''
-                this.$alert('秒钟只能0-60', '提示', {
-                    type: 'warning',
-                    center: true,
-                })
-                return
-            }
-            this.$nextTick(() => {
-                if (code == 8) {
-                    if (prevType && this[type].length == 0) {
-                        this.$refs['ref_' + prevType].focus()
+            if (type == 'year') {
+                this.$nextTick(() => {
+                    if (code == 32) {
+                        this.$refs['ref_' + nextType].focus()
+                        return
                     }
-                } else {
-                    if (nextType && (this[type].length == num || code == 32)) {
+                    if (length == 4) {
                         this.$refs['ref_' + nextType].focus()
                     }
-                }
-                this.getValue()
-            })
+                })
+            }
+            if (type == 'month') {
+                this.$nextTick(() => {
+                    if (code == 8 && length == 0) {
+                        this.$refs['ref_' + prevType].focus()
+                        return
+                    }
+                    if (code == 32) {
+                        this.$refs['ref_' + nextType].focus()
+                        return
+                    }
+
+                    if (length == 2) {
+                        this.$refs['ref_' + nextType].focus()
+                    }
+                })
+            }
+            if (type == 'day') {
+                this.$nextTick(() => {
+                    if (code == 8 && length == 0) {
+                        this.$refs['ref_' + prevType].focus()
+                        return
+                    }
+                    if (code == 32 && length < 2) {
+                        this.$refs['ref_' + nextType].focus()
+                        return
+                    }
+
+                    if (length == 2) {
+                        this.$refs['ref_' + nextType].focus()
+                    }
+                })
+            }
+            if (type == 'hours') {
+                this.$nextTick(() => {
+                    if (code == 8 && length == 0) {
+                        this.$refs['ref_' + prevType].focus()
+                        return
+                    }
+                    if (code == 32 && length < 2) {
+                        this.$refs['ref_' + nextType].focus()
+                        return
+                    }
+
+                    if (length == 2) {
+                        this.$refs['ref_' + nextType].focus()
+                    }
+                })
+            }
+            if (type == 'minute') {
+                this.$nextTick(() => {
+                    if (code == 8 && length == 0) {
+                        this.$refs['ref_' + prevType].focus()
+                        return
+                    }
+                    if (code == 32) {
+                        this.$refs['ref_' + nextType].focus()
+                        return
+                    }
+
+                    if (length == 2) {
+                        this.$refs['ref_' + nextType].focus()
+                    }
+                })
+            }
+            if (type == 'second') {
+                this.$nextTick(() => {
+                    if (code == 8 && length == 0) {
+                        this.$refs['ref_' + prevType].focus()
+                        return
+                    }
+                })
+                return
+            }
+            // this.getValue()
         },
-        yeaBulr() {
-            let value = parseInt(this.year)
+        yeaBlur() {
+            let value = parseInt(_.trim(this.year))
             if (value < 1000 || value > 9999) {
-                this['year'] = ''
-                this.$refs['ref_year'].focus()
                 this.$alert('年份只能1000-9999', '提示', {
                     type: 'warning',
                     center: true,
+                    callback: () => {
+                        this.$refs['ref_year'].focus()
+                        this.year = ''
+                    },
                 })
             }
         },
-
-        getValue() {
-            let year = this.year
-            let month = this.month
-            let day = this.day
-            let hours = this.hours
-            let minute = this.minute
-            let second = this.second
-            let time = ''
-            if (year && month && day && hours && minute && second) {
-                if (month.length == 1) {
-                    month = 0 + this.month
-                }
-                if (day.length == 1) {
-                    console.log(day)
-                    day = 0 + this.day
-                }
-                if (hours.length == 1) {
-                    hours = 0 + this.hours
-                }
-                if (minute.length == 1) {
-                    minute = 0 + this.minute
-                }
-                if (second.length == 1) {
-                    second = 0 + this.second
-                }
-
-                time = `${year}-${month}-${day} ${hours}:${minute}:${second}`
+        monthBlur() {
+            let month = _.toNumber(_.trim(this.month))
+            if (this.month !== null && this.month !== '' && (month > 12 || month <= 0)) {
+                this.$alert('月份只能为01-12', '提示', {
+                    type: 'warning',
+                    center: true,
+                    callback: () => {
+                        this.$refs['ref_month'].focus()
+                        this.monthAlert = false
+                        this.month = ''
+                    },
+                })
+                return
             }
 
-            this.$emit('timePickerTime', this.keyName, time)
+            if (this.month !== null && this.month !== '' && month < 10 && month > 0) {
+                this.month = '0' + month
+            }
+            this.getValue()
+        },
+        dayBlur() {
+            let day = _.toNumber(_.trim(this.day))
+            if (this.day !== null && this.day !== '' && (day > 31 || day <= 0)) {
+                this.$alert('日期只能01-31', '提示', {
+                    type: 'warning',
+                    center: true,
+                    callback: () => {
+                        this.$refs['ref_day'].focus()
+                        this.dayAlert = false
+                        this.day = ''
+                    },
+                })
+                return
+            }
+
+            if (this.day !== null && this.day !== '' && day < 10 && day > 0) {
+                this.day = '0' + day
+            }
+            this.getValue()
+        },
+        hoursBlur() {
+            let hours = _.toNumber(_.trim(this.hours))
+            if (hours > 24 || hours < 0) {
+                this.$alert('小时只能00-24', '提示', {
+                    type: 'warning',
+                    center: true,
+                    callback: () => {
+                        this.$refs['ref_hours'].focus()
+                        this.hoursAlert = false
+                        this.hours = ''
+                    },
+                })
+                return
+            }
+
+            if (this.hours !== null && this.hours !== '' && hours < 10 && hours >= 0) {
+                this.hours = '0' + hours
+            }
+            this.getValue()
+        },
+        minuteBlur() {
+            let minute = _.toNumber(_.trim(this.minute))
+            if (minute > 60 || minute < 0) {
+                this.$alert('分钟只能00-60', '提示', {
+                    type: 'warning',
+                    center: true,
+                    callback: () => {
+                        this.$refs['ref_minute'].focus()
+                        this.minuteAlert = false
+                        this.minute = ''
+                    },
+                })
+                return
+            }
+
+            if (this.minute !== null && this.minute !== '' && minute < 10 && minute >= 0) {
+                this.minute = '0' + minute
+            }
+            this.getValue()
+        },
+        secondBlur() {
+            let second = _.toNumber(_.trim(this.second))
+            if (second > 60 || second < 0) {
+                this.$alert('秒钟只能0-60', '提示', {
+                    type: 'warning',
+                    center: true,
+                    callback: () => {
+                        this.$refs['ref_second'].focus()
+                        this.secondAlert = false
+                        this.second = ''
+                    },
+                })
+                return
+            }
+            console.log(this.second === '', second)
+
+            if (this.second !== null && this.second !== '' && second < 10 && second >= 0) {
+                this.second = '0' + second
+            }
+            this.getValue()
+        },
+        getValue() {
+            let year = _.toNumber(_.trim(this.year))
+            let month = _.toNumber(_.trim(this.month))
+            let day = _.toNumber(_.trim(this.day))
+            let hours = _.toNumber(_.trim(this.hours))
+            let minute = _.toNumber(_.trim(this.minute))
+            let second = _.toNumber(_.trim(this.second))
+
+            if (year == 0 && month == 0 && day == 0 && hours == 0 && minute == 0 && second == 0) {
+                this.$emit('timePickerTime', this.keyName, '')
+                return
+            }
+
+            if (
+                year &&
+                month > 0 &&
+                day > 0 &&
+                hours >= 0 &&
+                minute >= 0 &&
+                second >= 0 &&
+                this.hours &&
+                this.minute &&
+                this.second
+            ) {
+                let time = `${this.year}-${this.month}-${this.day} ${this.hours}:${this.minute}:${this.second}`
+                this.$emit('timePickerTime', this.keyName, time)
+            }
         },
     },
 }
