@@ -194,13 +194,43 @@ export default {
             })
         },
         recordVerify() {
-            if (this.listData.chargeData < 0) {
-                this.$alert('收费数据最小为0！', '提示', {
-                    type: 'error',
-                    center: true,
-                })
-                this.listData.chargeData = 0
-                return false
+            if (this.timeShow) {
+                if (!this.listData.startTime) {
+                    let msg = `${
+                        this.listData.chargeCode == 'LANQ' ? '接桥' : '开始'
+                    }时间不能为空！`
+                    this.$alert(msg, '提示', {
+                        type: 'error',
+                        center: true,
+                    })
+                    return false
+                }
+                if (!this.listData.endTime) {
+                    let msg = `${
+                        this.listData.chargeCode == 'LANQ' ? '撤桥' : '结束'
+                    }时间不能为空！`
+                    this.$alert(msg, '提示', {
+                        type: 'error',
+                        center: true,
+                    })
+                    return false
+                }
+            } else {
+                if (!this.listData.chargeData) {
+                    this.$alert('收费数据不能为空', '提示', {
+                        type: 'error',
+                        center: true,
+                    })
+                    return false
+                }
+                if (this.listData.chargeData <= 0) {
+                    this.$alert('收费数据必须大于0！', '提示', {
+                        type: 'error',
+                        center: true,
+                    })
+                    this.listData.chargeData = ''
+                    return false
+                }
             }
 
             if (!this.listData.remark) {
@@ -212,12 +242,12 @@ export default {
             }
 
             if (this.listData.startTime && this.listData.endTime) {
-                let msg = '开始时间不能超过结束时间！'
+                let msg = '开始时间不能大于或者等于结束时间！'
                 if (this.listData.chargeCode == 'LANQ') {
-                    msg = '撤桥时间不能超过接桥时间！'
+                    msg = '撤桥时间不能大于或者等于接桥时间！'
                 }
                 if (
-                    new Date(this.listData.startTime).getTime() >
+                    new Date(this.listData.startTime).getTime() >=
                     new Date(this.listData.endTime).getTime()
                 ) {
                     this.$alert(msg, '提示', {

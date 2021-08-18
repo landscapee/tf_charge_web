@@ -297,6 +297,11 @@
                                                 </el-dropdown>
                                             </template>
                                         </el-table-column>
+                                        <el-table-column label="操作" align="center" v-else class-name="optBox" width="130">
+                                            <template slot-scope="scope1">
+                                                <el-button type="text" title="历史" @click="history(scope1.row)">历史</el-button>
+                                            </template>
+                                        </el-table-column>
                                     </el-table>
                                 </div>
 
@@ -395,13 +400,12 @@
                             <div>{{getTimeByFormat(scope.row.changeTime,'hh:mm(DD)')}}</div>
                         </template>
                     </el-table-column>
-                    <el-table-column label="操作" align="center" v-if="!searchDel&&powerData.charge_approval" class-name="optBox" width="160">
+                    <el-table-column label="操作" align="center" v-if="!searchDel" class-name="optBox" width="160">
                         <template slot-scope="scope">
                             <el-button type="text" title="新增" @click="add(scope.row)" v-show="powerData.charge_add" :disabled="!!scope.row.approvalStatus">新增</el-button>
                             <el-button type="text" title="审批" @click="approval([scope.row],'arrs')" :disabled="!!scope.row.approvalStatus" v-show="powerData.charge_approval">审批</el-button>
                             <el-button type="text" title="上报" @click="report(scope)" :disabled="scope.row.report" v-if="getReportShow(scope)">上报</el-button>
                             <el-button type="text" title="下载" @click="download(scope.row)" v-show="powerData.charge_download">下载</el-button>
-
                         </template>
                     </el-table-column>
                 </el-table>
@@ -967,14 +971,13 @@ export default {
                     let chargeRecordIds = _.reduce(
                         list.chargeRecords || [],
                         function (result, value) {
-                            if (value.approvalStatus != 'PASS'&&!value.chargeData) {
+                            if (value.approvalStatus != 'PASS' && !value.chargeData) {
                                 result.push({ id: value.id })
                             }
                             return result
                         },
                         []
                     )
-
 
                     if (chargeRecordIds.length == 0) {
                         this.$alert(
@@ -987,8 +990,6 @@ export default {
                         )
                         return false
                     }
-
-                    
 
                     if (chargeRecordIds.length != 0) {
                         data.push({

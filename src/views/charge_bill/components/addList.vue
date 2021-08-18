@@ -327,20 +327,19 @@ export default {
 
             if (this.chargeBillArr.length == 1) {
                 this.listData.chargeBillConfigCode = this.chargeBillArr[0].code
-                this.chargeBillChange()
+                this.chargeBillChange('new')
             }
 
             if (this.rowData) {
                 this.flightDisable = true
                 this.activeFlight = this.rowData.flight
                 this.listData.chargeBillConfigCode = this.rowData.chargeBillConfigCode
-                this.chargeBillChange()
+                this.chargeBillChange('new')
             } else {
                 this.flightDisable = false
             }
         },
         addChargeRecord() {
-            console.log(this.chargeArr)
             if (this.chargeArr.length == 0) {
                 this.$alert('未选择收费单', '提示', {
                     type: 'error',
@@ -386,23 +385,23 @@ export default {
                     })
                     return false
                 }
-                if (this.activeChargeRecord.chargeData < 0) {
-                    this.$alert('收费数据最小为0！', '提示', {
+                if (this.activeChargeRecord.chargeData <= 0) {
+                    this.$alert('收费数据必须大于0！', '提示', {
                         type: 'error',
                         center: true,
                     })
-                    this.activeChargeRecord.chargeData = 0
+                    this.activeChargeRecord.chargeData = ''
                     return false
                 }
             }
 
             if (this.activeChargeRecord.startTime && this.activeChargeRecord.endTime) {
-                let msg = '开始时间不能超过结束时间！'
+                let msg = '开始时间不能大于或者等于结束时间！'
                 if (this.activeChargeRecord.chargeCode == 'LANQ') {
-                    msg = '接桥时间不能超过撤桥时间！'
+                    msg = '接桥时间不能大于或者等于撤桥时间！'
                 }
                 if (
-                    new Date(this.activeChargeRecord.startTime).getTime() >
+                    new Date(this.activeChargeRecord.startTime).getTime() >=
                     new Date(this.activeChargeRecord.endTime).getTime()
                 ) {
                     this.$alert(msg, '提示', {
@@ -543,16 +542,22 @@ export default {
             // }
             return true
         },
-        chargeBillChange() {
+        chargeBillChange(type) {
             let charge = _.cloneDeep(
                 _.find(this.chargeBillArr, { code: this.listData.chargeBillConfigCode })
             )
+            console.log(type)
+
             if (!charge) {
-                this.$alert('当前的收费单没有新增权限！', '提示', {
-                    type: 'error',
-                    center: true,
-                })
-                this.listShow = false
+                if (type == 'new') {
+                    this.$alert('当前的收费单没有新增权限！', '提示', {
+                        type: 'error',
+                        center: true,
+                    })
+                    this.listShow = false
+                    return
+                }
+                this.chargeArr = []
                 return
             }
 
@@ -562,14 +567,6 @@ export default {
             })
 
             this.supplementArr = _.cloneDeep(charge.supplementInfoConfigs || [])
-            // this.$axios
-            //     .get(
-            //         '/charge-config/findAllByChargeBillConfigCode?chargeBillConfigCode=' +
-            //             this.listData.chargeBillConfigCode
-            //     )
-            //     .then((res) => {
-            //         this.chargeArr = res.data
-            //     })
         },
         flightNoHandle(e) {
             this.$refs.ref_flightNo.blur()
