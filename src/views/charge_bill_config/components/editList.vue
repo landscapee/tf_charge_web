@@ -109,8 +109,7 @@ export default {
             this.singListsArr = arrs
         },
         save() {
-            let verify = this.dataVerify()
-            if (!verify) {
+            if (!this.dataVerify()) {
                 return false
             }
 
@@ -127,6 +126,13 @@ export default {
                     })
                 }
             })
+            if (chargeBillConfigSignList.length == 0) {
+                this.$alert('签名项不能为空！', '提示', {
+                    type: 'error',
+                    center: true,
+                })
+                return false
+            }
             data.chargeBillItemList.map((list) => {
                 chargeBillItemList.push({
                     chargeBillConfigCode: data.code,
@@ -135,6 +141,7 @@ export default {
             })
             data.chargeBillConfigSignList = chargeBillConfigSignList
             data.chargeBillItemList = chargeBillItemList
+
             this.$axios.post('/charge-bill-config/save', data).then((res) => {
                 console.log(res)
                 this.listShow = false
@@ -170,16 +177,7 @@ export default {
                 })
                 return false
             }
-            if (
-                !this.listData.chargeBillConfigSignList ||
-                this.listData.chargeBillConfigSignList.length == 0
-            ) {
-                this.$alert('签名项不能为空！', '提示', {
-                    type: 'error',
-                    center: true,
-                })
-                return false
-            }
+
             if (!this.listData.signType) {
                 this.$alert('签名类型不能为空！', '提示', {
                     type: 'error',

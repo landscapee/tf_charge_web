@@ -17,7 +17,7 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="接桥时间">
-                            <time-picker @timePickerTime="timePickerTime" :value="listData.startTime" :keyName="'startTime'" />
+                            <time-picker @timePickerTime="timePickerTime" :value="listData.startTime" :objectName="'listData'" :keyName="'startTime'" />
                             <!-- <el-date-picker style="width:100%" v-model="listData.startTime" type="datetime" placeholder="选择开始时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                         </el-form-item>
                     </el-col>
@@ -32,7 +32,7 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="撤桥时间">
-                            <time-picker @timePickerTime="timePickerTime" :value="listData.endTime" :keyName="'endTime'" />
+                            <time-picker @timePickerTime="timePickerTime" :value="listData.endTime" :objectName="'listData'" :keyName="'endTime'" />
                             <!-- <el-date-picker style="width:100%" v-model="listData.endTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                         </el-form-item>
                     </el-col>
@@ -76,10 +76,10 @@
                     <el-input v-model="listData.chargeData" placeholder="收费数据"></el-input>
                 </el-form-item>
                 <el-form-item label="开始时间" v-if="timeShow&&type=='edit'">
-                    <time-picker @timePickerTime="timePickerTime" :value="listData.startTime" :keyName="'startTime'" />
+                    <time-picker @timePickerTime="timePickerTime" :value="listData.startTime" :objectName="'listData'" :keyName="'startTime'" />
                 </el-form-item>
                 <el-form-item label="结束时间" v-if="timeShow&&type=='edit'">
-                    <time-picker @timePickerTime="timePickerTime" :value="listData.endTime" :keyName="'endTime'" />
+                    <time-picker @timePickerTime="timePickerTime" :value="listData.endTime" :objectName="'listData'" :keyName="'endTime'" />
                 </el-form-item>
                 <el-form-item label="操作人" v-if="type=='edit'">
                     <el-select v-model="listData.operatorId" filterable clearable placeholder="请选择">
@@ -124,8 +124,8 @@ export default {
         }
     },
     methods: {
-        timePickerTime(keyName, time) {
-            this.listData[keyName] = time
+        timePickerTime(objectName, keyName, time) {
+            this[objectName][keyName] = time
         },
         getSourceName(record) {
             return record.chargeDataSource.code ? record.chargeDataSource.code.split('-')[1] : ''
@@ -233,13 +233,13 @@ export default {
                 }
             }
 
-            if (!this.listData.remark) {
-                this.$alert('修改备注必填', '提示', {
-                    type: 'error',
-                    center: true,
-                })
-                return false
-            }
+            // if (!this.listData.remark) {
+            //     this.$alert('修改备注必填', '提示', {
+            //         type: 'error',
+            //         center: true,
+            //     })
+            //     return false
+            // }
 
             if (this.listData.startTime && this.listData.endTime) {
                 let msg = '开始时间不能大于或者等于结束时间！'

@@ -303,7 +303,6 @@ export default {
             return true
         },
         resetSignature() {
-            console.log(this.sysEdition)
             Signature.init({
                 //初始化属性
                 //keysn:'0741170010110516',

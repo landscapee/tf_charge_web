@@ -16,6 +16,9 @@ export default {
         keyName: {
             type: String,
         },
+        objectName: {
+            type: String,
+        },
         value: {
             type: String,
         },
@@ -314,7 +317,7 @@ export default {
                 this.second
             ) {
                 let time = `${this.year}-${this.month}-${this.day} ${this.hours}:${this.minute}:${this.second}`
-                this.$emit('timePickerTime', this.keyName, time)
+                this.$emit('timePickerTime', this.objectName, this.keyName, time)
             }
         },
     },

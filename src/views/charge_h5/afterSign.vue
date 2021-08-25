@@ -63,7 +63,6 @@ export default {
             httpUrl: '',
         }
     },
-
     created() {},
     mounted() {
         let timer = setInterval(() => {
@@ -115,7 +114,6 @@ export default {
                 if (res.responseCode != 1000) {
                     return false
                 }
-
                 Signature.loadSignatures([
                     { signatureid: res.data.signId, signatureData: res.data.data },
                 ])
@@ -151,9 +149,9 @@ export default {
                 certType: 'server', //设置证书在签章服务器
                 sealType: 'server', //设置印章从签章服务器取
                 serverUrl:
-                    this.sysEdition == 'tianfu'
-                        ? 'http://10.42.66.33:8089/iSignatureHTML5'
-                        : 'http://173.101.1.134:8089/iSignatureHTML5',
+                    this.sysEdition == 'shuangliu'
+                        ? 'http://173.101.1.134:8089/iSignatureHTML5'
+                        : 'http://10.42.66.33:8089/iSignatureHTML5',
                 documentid: 'KG2016093001333', //设置文档ID
                 documentname: '测试文档KG2016093001', //设置文档名称
                 pw_timeout: 's1800', //s：秒；h:小时；d:天

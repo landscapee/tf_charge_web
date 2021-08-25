@@ -6,16 +6,30 @@
                 <span>新增</span>
                 <i class="el-icon-circle-close" @click="listShow=false"></i>
             </div>
-            <el-form label-position="right" label-width="110px" ref="listData">
-                <el-form-item label="航班号" required>
-                    <el-input v-model="activeFlight.flightNo" placeholder="航班号" @focus="flightNoHandle" ref="ref_flightNo" :disabled="flightDisable"></el-input>
-                </el-form-item>
+            <el-form label-position="right" label-width="80px" ref="listData">
+                <el-row>
+                    <el-col :span="8">
+                        <el-form-item label="航班号" required>
+                            <el-input v-model="activeFlight.flightNo" placeholder="航班号" @focus="flightNoHandle" ref="ref_flightNo" :disabled="flightDisable"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="机位" required>
+                            <el-input v-model="activeFlight.seat" placeholder="机位"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="机号" required>
+                            <el-input v-model="activeFlight.aircraftNo" placeholder="机号"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
                 <el-form-item label="收费单" required>
                     <el-select v-model="listData.chargeBillConfigCode" filterable clearable placeholder="请选择" @change="chargeBillChange" :disabled="flightDisable">
                         <el-option v-for="item in chargeBillArr" :key="item.id" :label="item.name" :value="item.code"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="收费项">
+                <el-form-item label="收费项" v-if="listData.chargeBillConfigCode!='QZSB'">
                     <el-table :data="chargeRecords" style="width: 100%" :key="tableKey">
                         <el-table-column prop="chargeName" label="收费项"></el-table-column>
                         <template v-if="listData.chargeBillConfigCode=='LANQ'">
@@ -70,21 +84,83 @@
                             </template>
                         </el-table-column>
                     </el-table>
-
                     <div class="addRowBoxBox" style="margin-top:15px;">
                         <el-button class="addRowBox" type="primary" icon="el-icon-plus" @click="addChargeRecord" style="width:100%">增加</el-button>
                     </div>
                 </el-form-item>
+                <el-form-item label="桥载电源" v-if="listData.chargeBillConfigCode=='QZSB'">
+                    <el-form label-position="right" ref="listData" label-width="80px">
+                        <el-row>
+                            <el-col :span="12">
+                                <el-form-item label="开始时间">
+                                    <time-picker @timePickerTime="timePickerTime" :value="QZSBrecords1.startTime" :objectName="'QZSBrecords1'" :keyName="'startTime'" />
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+
+                                <el-form-item label="结束时间">
+                                    <time-picker @timePickerTime="timePickerTime" :value="QZSBrecords1.endTime" :objectName="'QZSBrecords1'" :keyName="'endTime'" />
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="12">
+                                <el-form-item label="设备编号">
+                                    <el-input v-model="QZSBrecords1.deviceCode" placeholder="设备编号"></el-input>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="操作人">
+                                    <el-select v-model="QZSBrecords1.operatorId" filterable clearable placeholder="请选择">
+                                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                    </el-form>
+                </el-form-item>
+                <el-form-item label="桥载空调" v-if="listData.chargeBillConfigCode=='QZSB'">
+                    <el-form label-position="right" ref="listData" label-width="80px">
+                        <el-row>
+                            <el-col :span="12">
+                                <el-form-item label="开始时间">
+                                    <time-picker @timePickerTime="timePickerTime" :value="QZSBrecords2.startTime" :objectName="'QZSBrecords2'" :keyName="'startTime'" />
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="结束时间">
+                                    <time-picker @timePickerTime="timePickerTime" :value="QZSBrecords2.endTime" :objectName="'QZSBrecords2'" :keyName="'endTime'" />
+                                </el-form-item>
+
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="12">
+                                <el-form-item label="设备编号">
+                                    <el-input v-model="QZSBrecords2.deviceCode" placeholder="设备编号"></el-input>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="操作人">
+                                    <el-select v-model="QZSBrecords2.operatorId" filterable clearable placeholder="请选择">
+                                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+
+                    </el-form>
+                </el-form-item>
+
                 <el-form-item label="补充信息" v-if="supplementArr.length>0&&!this.rowData">
                     <el-form label-width="80px" style="width:500px">
                         <el-form-item :label="item.name+':'" v-for="(item,idx) in supplementArr" :key="idx">
                             <el-input v-model="item.valueTitle" v-if="item.params.type===0||item.params.type===1" :type="item.params.type===0?'number':'text'" @change="saveSupplement(item)"></el-input>
-                            <el-select v-model="item.valueCode" v-else placeholder="请选择" :multiple="item.params.type===2?false:true" @change="saveSupplement(item)">
+                            <el-select v-model="item.valueCode" v-else placeholder="请选择" filterable :multiple="item.params.type===2?false:true" @change="saveSupplement(item)">
                                 <el-option v-for="select in item.params.selects" :key="select.code" :label="select.describe" :value="select.code"></el-option>
                             </el-select>
                         </el-form-item>
                     </el-form>
-
                 </el-form-item>
             </el-form>
             <div slot="footer" class="footer">
@@ -121,8 +197,9 @@
                     <p>航班选择列表-双击确定</p>
                     <ul>
                         <li v-for="(item,idx) in flightArr" :key="idx" @dblclick="flightNoDbHandle(item)">
-                            {{item.flightNo}}/{{item.successionFlightNo}}&nbsp;&nbsp;
-                            实到:{{getTimeByFormat(item.actualTime,'hh:mm(DD)')}}&nbsp;&nbsp;
+                            {{item.flightNo}}&nbsp;&nbsp;
+                            {{item.movement=='A'?'进':'离'}}&nbsp;&nbsp;
+                            实际:{{getTimeByFormat(item.actualTime,'hh:mm(DD)')}}&nbsp;&nbsp;
                             机位:{{item.seat}}&nbsp;&nbsp;
                             机号:{{item.aircraftNo}}&nbsp;&nbsp;
                         </li>
@@ -147,7 +224,7 @@
                         <el-row>
                             <el-col :span="12">
                                 <el-form-item label="接桥时间">
-                                    <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.startTime" :keyName="'startTime'" />
+                                    <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.startTime" :objectName="'activeChargeRecord'" :keyName="'startTime'" />
                                     <!-- <el-date-picker style="width:100%" v-model="activeChargeRecord.startTime" type="datetime" placeholder="选择开始时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                                 </el-form-item>
                             </el-col>
@@ -162,7 +239,7 @@
                         <el-row>
                             <el-col :span="12">
                                 <el-form-item label="撤桥时间">
-                                    <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.endTime" :keyName="'endTime'" />
+                                    <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.endTime" :objectName="'activeChargeRecord'" :keyName="'endTime'" />
                                     <!-- <el-date-picker style="width:100%" v-model="activeChargeRecord.endTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                                 </el-form-item>
                             </el-col>
@@ -177,13 +254,13 @@
                         <el-row>
                             <el-col :span="12">
                                 <el-form-item label="航后开始时间">
-                                    <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.afterStartTime" :keyName="'afterStartTime'" />
+                                    <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.afterStartTime" :objectName="'activeChargeRecord'" :keyName="'afterStartTime'" />
                                     <!-- <el-date-picker style="width:100%" v-model="activeChargeRecord.afterStartTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                                 </el-form-item>
                             </el-col>
                             <el-col :span="12">
                                 <el-form-item label="航后结束时间">
-                                    <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.afterEndTime" :keyName="'afterEndTime'" />
+                                    <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.afterEndTime" :objectName="'activeChargeRecord'" :keyName="'afterEndTime'" />
                                     <!-- <el-date-picker style="width:100%" v-model="activeChargeRecord.afterEndTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                                 </el-form-item>
                             </el-col>
@@ -201,11 +278,11 @@
                             <el-input type="number" v-model="activeChargeRecord.chargeData" placeholder="收费数据"></el-input>
                         </el-form-item>
                         <el-form-item label="开始时间" v-if="getActiveChargeRecordTimeShow">
-                            <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.startTime" :keyName="'startTime'" />
+                            <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.startTime" :objectName="'activeChargeRecord'" :keyName="'startTime'" />
                             <!-- <el-date-picker style="width:100%" v-model="activeChargeRecord.startTime" type="datetime" placeholder="选择开始时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                         </el-form-item>
                         <el-form-item label="结束时间" v-if="getActiveChargeRecordTimeShow">
-                            <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.endTime" :keyName="'endTime'" />
+                            <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.endTime" :objectName="'activeChargeRecord'" :keyName="'endTime'" />
                             <!-- <el-date-picker style="width:100%" v-model="activeChargeRecord.endTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                         </el-form-item>
                         <el-form-item label="设备编号" v-if="getActiveChargeRecordTimeShow">
@@ -222,7 +299,7 @@
             </el-form>
 
             <div slot="footer" class="footer">
-                <el-button @click="chargeRecordSave" type="primary">确 定</el-button>
+                <el-button @click="chargeRecordSave(activeChargeRecord)" type="primary">确 定</el-button>
                 <el-button @click="chargeRecordShow=false">取 消</el-button>
             </div>
         </el-dialog>
@@ -263,6 +340,8 @@ export default {
             chargeRecordPageType: '',
             activeChargeRecordType: '',
             tableKey: 0,
+            QZSBrecords1: {},
+            QZSBrecords2: {},
         }
     },
     mounted() {},
@@ -273,6 +352,9 @@ export default {
                 this.pageType = 'boarding-bridge'
             } else {
                 this.pageType = ''
+            }
+            if (val == 'QZSB') {
+                this.getActiveChargeRecordTimeShow = true
             }
         },
         'activeChargeRecord.chargeCode': function (val) {
@@ -296,8 +378,8 @@ export default {
         },
     },
     methods: {
-        timePickerTime(keyName, time) {
-            this.activeChargeRecord[keyName] = time
+        timePickerTime(objectName, keyName, time) {
+            this[objectName][keyName] = time
         },
         getChargeBillArr(val) {
             let userData = JSON.parse(sessionStorage.userData)
@@ -355,11 +437,12 @@ export default {
             }
             this.chargeRecordShow = true
         },
-        recordVerify() {
+        recordVerify(activeChargeRecord) {
+            console.log(this.getActiveChargeRecordTimeShow)
             if (this.getActiveChargeRecordTimeShow) {
-                if (!this.activeChargeRecord.startTime) {
+                if (!activeChargeRecord.startTime) {
                     let msg = `${
-                        this.activeChargeRecord.chargeCode == 'LANQ' ? '接桥' : '开始'
+                        activeChargeRecord.chargeCode == 'LANQ' ? '接桥' : '开始'
                     }时间不能为空！`
                     this.$alert(msg, '提示', {
                         type: 'error',
@@ -367,9 +450,9 @@ export default {
                     })
                     return false
                 }
-                if (!this.activeChargeRecord.endTime) {
+                if (!activeChargeRecord.endTime) {
                     let msg = `${
-                        this.activeChargeRecord.chargeCode == 'LANQ' ? '撤桥' : '结束'
+                        activeChargeRecord.chargeCode == 'LANQ' ? '撤桥' : '结束'
                     }时间不能为空！`
                     this.$alert(msg, '提示', {
                         type: 'error',
@@ -378,31 +461,31 @@ export default {
                     return false
                 }
             } else {
-                if (!this.activeChargeRecord.chargeData) {
+                if (!activeChargeRecord.chargeData) {
                     this.$alert('收费数据不能为空', '提示', {
                         type: 'error',
                         center: true,
                     })
                     return false
                 }
-                if (this.activeChargeRecord.chargeData <= 0) {
+                if (activeChargeRecord.chargeData <= 0) {
                     this.$alert('收费数据必须大于0！', '提示', {
                         type: 'error',
                         center: true,
                     })
-                    this.activeChargeRecord.chargeData = ''
+                    activeChargeRecord.chargeData = ''
                     return false
                 }
             }
 
-            if (this.activeChargeRecord.startTime && this.activeChargeRecord.endTime) {
+            if (activeChargeRecord.startTime && activeChargeRecord.endTime) {
                 let msg = '开始时间不能大于或者等于结束时间！'
-                if (this.activeChargeRecord.chargeCode == 'LANQ') {
+                if (activeChargeRecord.chargeCode == 'LANQ') {
                     msg = '接桥时间不能大于或者等于撤桥时间！'
                 }
                 if (
-                    new Date(this.activeChargeRecord.startTime).getTime() >=
-                    new Date(this.activeChargeRecord.endTime).getTime()
+                    new Date(activeChargeRecord.startTime).getTime() >=
+                    new Date(activeChargeRecord.endTime).getTime()
                 ) {
                     this.$alert(msg, '提示', {
                         type: 'error',
@@ -413,10 +496,10 @@ export default {
             }
 
             if (
-                this.activeChargeRecord.afterStartTime &&
-                this.activeChargeRecord.afterEndTime &&
-                new Date(this.activeChargeRecord.afterStartTime).getTime() >
-                    new Date(this.activeChargeRecord.afterEndTime).getTime()
+                activeChargeRecord.afterStartTime &&
+                activeChargeRecord.afterEndTime &&
+                new Date(activeChargeRecord.afterStartTime).getTime() >
+                    new Date(activeChargeRecord.afterEndTime).getTime()
             ) {
                 this.$alert('航后开始时间不能超过航后结束时间！', '提示', {
                     type: 'error',
@@ -426,39 +509,40 @@ export default {
             }
             return true
         },
-        chargeRecordSave() {
-            if (!this.recordVerify()) {
+        chargeRecordSave(activeChargeRecord) {
+            if (!this.recordVerify(activeChargeRecord)) {
                 return
             }
-            if (this.activeChargeRecord.chargeCode) {
-                let charge = _.find(this.chargeArr, { code: this.activeChargeRecord.chargeCode })
+
+            if (activeChargeRecord.chargeCode) {
+                let charge = _.find(this.chargeArr, { code: activeChargeRecord.chargeCode })
                 this.chargeRecordShow = false
 
-                this.activeChargeRecord.chargeCode = charge.code
-                this.activeChargeRecord.chargeName = charge.name
-                this.activeChargeRecord.unit = charge.unit
+                activeChargeRecord.chargeCode = charge.code
+                activeChargeRecord.chargeName = charge.name
+                activeChargeRecord.unit = charge.unit
 
                 let startStaffObj =
-                    _.find(this.userDeptLists, { id: this.activeChargeRecord.startStaffId }) || {}
+                    _.find(this.userDeptLists, { id: activeChargeRecord.startStaffId }) || {}
                 let endStaffObj =
                     _.find(this.userDeptLists, {
-                        id: this.activeChargeRecord.endStaffId,
+                        id: activeChargeRecord.endStaffId,
                     }) || {}
                 let operatorObj =
                     _.find(this.userDeptLists, {
-                        id: this.activeChargeRecord.operatorId,
+                        id: activeChargeRecord.operatorId,
                     }) || {}
 
-                this.activeChargeRecord.startStaffName = startStaffObj.name || ''
-                this.activeChargeRecord.endStaffName = endStaffObj.name || ''
-                this.activeChargeRecord.operatorName = operatorObj.name || ''
+                activeChargeRecord.startStaffName = startStaffObj.name || ''
+                activeChargeRecord.endStaffName = endStaffObj.name || ''
+                activeChargeRecord.operatorName = operatorObj.name || ''
 
                 if (this.activeChargeRecordType == 'edit') {
-                    this.chargeRecords[this.activeChargeRecordIndex] = this.activeChargeRecord
+                    this.chargeRecords[this.activeChargeRecordIndex] = activeChargeRecord
                     this.tableKey++
                     return
                 }
-                this.chargeRecords.push(this.activeChargeRecord)
+                this.chargeRecords.push(activeChargeRecord)
             } else {
                 this.$alert('收费项不能为空！', '提示', {
                     type: 'error',
@@ -479,6 +563,19 @@ export default {
             if (!this.dataVerify()) {
                 return
             }
+
+            if (this.listData.chargeBillConfigCode == 'QZSB') {
+                this.chargeRecords = []
+                if (JSON.stringify(this.QZSBrecords1) != '{}') {
+                    this.QZSBrecords1.chargeCode = 'QZDY'
+                    this.chargeRecordSave(this.QZSBrecords1)
+                }
+                if (JSON.stringify(this.QZSBrecords2) != '{}') {
+                    this.QZSBrecords2.chargeCode = 'QZKT'
+                    this.chargeRecordSave(this.QZSBrecords2)
+                }
+            }
+
             let activeChargeBill = _.find(this.chargeBillArr, {
                 code: this.listData.chargeBillConfigCode,
             })
@@ -508,6 +605,8 @@ export default {
             let charge = {
                 chargeRecordList: this.chargeRecords,
                 flightSupplementInfoList: supplementRecords,
+                aircraftNo: this.activeFlight.aircraftNo,
+                seat: this.activeFlight.seat,
             }
             this.$axios.post(url, charge).then((res) => {
                 this.listShow = false
@@ -575,6 +674,7 @@ export default {
             this.flight_no = ''
             this.flight_seat = ''
             this.flightNo_aircraftNo = ''
+            this.flightArr = []
             this.flightNoShow = true
         },
         flighNoSearch() {

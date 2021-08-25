@@ -728,9 +728,6 @@ table {
             height: 300px;
             overflow: auto;
             border: 1px solid #ccc;
-            display: flex;
-            flex-wrap: wrap;
-            flex-direction: column;
             li {
                 height: 30px;
                 border: 1px solid #3988ff;
@@ -739,7 +736,6 @@ table {
                 align-items: center;
                 padding: 0 10px;
                 cursor: pointer;
-                justify-content: center;
             }
         }
     }
