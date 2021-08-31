@@ -47,13 +47,16 @@
                         </template>
                     </el-table-column>
                     <el-table-column prop="flightNo" label="航班号" width="160">
-                        <template slot-scope="scope">
+                        <!-- <template slot-scope="scope">
                             {{getFlightNo(scope)}}
+                        </template> -->
+                        <template slot-scope="{row}">
+                            <div>{{row.flightNo}}({{row.relateFlightNo?row.relateFlightNo:'--'}})</div>
                         </template>
                     </el-table-column>
                     <el-table-column prop="movement" label="进/离">
-                        <template slot-scope="scope">
-                            {{getMovement(scope)}}
+                        <template slot-scope="{row}">
+                            <div>{{row.movement=='A'?'进':'离'}}</div>
                         </template>
                     </el-table-column>
                     <el-table-column prop="aircraftNo" label="机尾号"></el-table-column>
@@ -256,12 +259,6 @@ export default {
         },
         listSelectionChange(val) {
             this.selections = val
-        },
-        getFlightNo({ row }) {
-            let flgihtNo_A = (row.movement == 'A' ? row.flightNo : row.relateFlightNo) || '-'
-            let flgihtNo_D = (row.movement == 'D' ? row.flightNo : row.relateFlightNo) || '-'
-
-            return `${flgihtNo_A}/${flgihtNo_D}`
         },
         getMovement({ row }) {
             let flgihtNo_A = row.movement == 'A' ? row.flightNo : row.relateFlightNo

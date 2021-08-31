@@ -355,6 +355,10 @@ export default {
             }
             if (val == 'QZSB') {
                 this.getActiveChargeRecordTimeShow = true
+                if (this.activeFlight.seat) {
+                    this.QZSBrecords1.deviceCode = this.activeFlight.seat + '-QZDY'
+                    this.QZSBrecords2.deviceCode = this.activeFlight.seat + '-QZKT'
+                }
             }
         },
         'activeChargeRecord.chargeCode': function (val) {
@@ -374,6 +378,12 @@ export default {
 
             if (this.listData.chargeBillConfigCode == 'QZSB' && this.activeFlight.flightNo) {
                 this.activeChargeRecord.deviceCode = this.activeFlight.seat + '-' + val
+            }
+        },
+        activeFlight: function (val) {
+            if (this.listData.chargeBillConfigCode == 'QZSB' && this.activeFlight.seat) {
+                this.QZSBrecords1.deviceCode = val.seat + '-QZDY'
+                this.QZSBrecords2.deviceCode = val.seat + '-QZKT'
             }
         },
     },
@@ -403,6 +413,8 @@ export default {
             this.rowData = row
             this.flightArr = []
             this.activeFlight = {}
+            this.QZSBrecords1 = {}
+            this.QZSBrecords2 = {}
             this.listData = {
                 chargeBillConfigCode: '',
             }
@@ -438,7 +450,6 @@ export default {
             this.chargeRecordShow = true
         },
         recordVerify(activeChargeRecord) {
-            console.log(this.getActiveChargeRecordTimeShow)
             if (this.getActiveChargeRecordTimeShow) {
                 if (!activeChargeRecord.startTime) {
                     let msg = `${
@@ -511,7 +522,7 @@ export default {
         },
         chargeRecordSave(activeChargeRecord) {
             if (!this.recordVerify(activeChargeRecord)) {
-                return
+                return false
             }
 
             if (activeChargeRecord.chargeCode) {
@@ -543,11 +554,13 @@ export default {
                     return
                 }
                 this.chargeRecords.push(activeChargeRecord)
+                return true
             } else {
                 this.$alert('收费项不能为空！', '提示', {
                     type: 'error',
                     center: true,
                 })
+                return false
             }
         },
         editChargeRecord({ row, $index }) {
@@ -566,13 +579,25 @@ export default {
 
             if (this.listData.chargeBillConfigCode == 'QZSB') {
                 this.chargeRecords = []
-                if (JSON.stringify(this.QZSBrecords1) != '{}') {
+                if (
+                    this.QZSBrecords1.startTime ||
+                    this.QZSBrecords1.endTime ||
+                    this.QZSBrecords1.operatorId
+                ) {
                     this.QZSBrecords1.chargeCode = 'QZDY'
-                    this.chargeRecordSave(this.QZSBrecords1)
+                    if (!this.chargeRecordSave(this.QZSBrecords1)) {
+                        return
+                    }
                 }
-                if (JSON.stringify(this.QZSBrecords2) != '{}') {
+                if (
+                    this.QZSBrecords2.startTime ||
+                    this.QZSBrecords2.endTime ||
+                    this.QZSBrecords2.operatorId
+                ) {
                     this.QZSBrecords2.chargeCode = 'QZKT'
-                    this.chargeRecordSave(this.QZSBrecords2)
+                    if (!this.chargeRecordSave(this.QZSBrecords2)) {
+                        return
+                    }
                 }
             }
 
@@ -645,8 +670,6 @@ export default {
             let charge = _.cloneDeep(
                 _.find(this.chargeBillArr, { code: this.listData.chargeBillConfigCode })
             )
-            console.log(type)
-
             if (!charge) {
                 if (type == 'new') {
                     this.$alert('当前的收费单没有新增权限！', '提示', {

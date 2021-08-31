@@ -9,6 +9,9 @@
                     </div>
                 </li>
             </ul>
+            <el-button type="primary" size="mini" v-show="qzjyShow">
+                <el-link :href="qzsbUrl" target="_blank" :underline="false" style="color:#fff">桥载校验</el-link>
+            </el-button>
         </div>
         <div class="searchBox">
             <div class="leftBox">
@@ -339,17 +342,6 @@
                             <div>{{row.flight.movement=='A'?'进':'离'}}</div>
                         </template>
                     </el-table-column>
-
-                    <!-- <el-table-column label="计划起飞">
-                        <template slot-scope="scope">
-                            {{getTimeByFormat(getRowFlightLoading(scope.row)['D'].scheduleTime,'hh:mm(DD)')}}
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="实际起飞">
-                        <template slot-scope="scope">
-                            {{getTimeByFormat(getRowFlightLoading(scope.row)['D'].actualTime,'hh:mm(DD)')}}
-                        </template>
-                    </el-table-column> -->
                     <el-table-column label="汇总" width="120">
                         <template slot-scope="scope">
                             <el-popover placement="right" trigger="hover" v-if="size(scope.row.sum)>1">
@@ -488,6 +480,9 @@ export default {
             searchYesterdaySend: false,
             unsendCount: 0,
             unsendAlert: false,
+
+            qzsbUrl: '',
+            qzjyShow: false,
         }
     },
 
@@ -543,6 +538,13 @@ export default {
         getChargeBillArr() {
             this.$axios.get('/charge-bill-config/findChargeBillConfigWithAuth').then((res) => {
                 this.chargeBillArrs = res.data
+
+                this.qzjyShow =
+                    res.data.filter((list) => {
+                        return list.code == 'QZSB'
+                    }).length > 0
+                        ? true
+                        : false
 
                 if (this.pageSelf) {
                     this.getUserLists()
@@ -1211,11 +1213,17 @@ export default {
                             code: 'RULE_CHARGE_PUB',
                         },
                     }),
+                    this.$axios.get('/data-dictionary/findDataDictionaryByCode', {
+                        params: {
+                            code: 'qzjyym',
+                        },
+                    }),
                 ])
                 .then(
                     this.$axios.spread((res1, res2, res3) => {
                         this.unitLists = res1.data
                         this.reporLists = res2.data
+                        this.qzsbUrl = res3.data.length > 0 ? res3.data[0].name : ''
                         this.handleLists()
 
                         if (this.dataTimer) {
