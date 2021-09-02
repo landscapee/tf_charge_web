@@ -147,19 +147,27 @@
 
                                                 </template>
                                             </el-table-column>
-
                                         </template>
-
-                                        <el-table-column label="开始时间" align="center" v-if="scope.row.chargeBillConfigCode!='LANQ'">
+                                        <el-table-column label="开始时间" align="center" v-if="scope.row.chargeBillConfigCode!='LANQ'&&scope.row.chargeBillConfigCode!='QZSB'">
                                             <template slot-scope="scope1">
                                                 <div :title="getTimeByFormat(scope1.row.startTime,'YY年MM月DD日 hh时mm分ss秒')">{{getTimeByFormat(scope1.row.startTime,'hh:mm:ss(DD)')}}</div>
                                             </template>
                                         </el-table-column>
-                                        <el-table-column label="结束时间" align="center" v-if="scope.row.chargeBillConfigCode!='LANQ'">
+                                        <el-table-column label="结束时间" align="center" v-if="scope.row.chargeBillConfigCode!='LANQ'&&scope.row.chargeBillConfigCode!='QZSB'">
                                             <template slot-scope="scope1">
                                                 <div :title="getTimeByFormat(scope1.row.endTime,'YY年MM月DD日 hh时mm分ss秒')">{{getTimeByFormat(scope1.row.endTime,'hh:mm:ss(DD)')}}</div>
                                             </template>
                                         </el-table-column>
+                                        <el-table-column label="时间" align="center" v-if="scope.row.chargeBillConfigCode=='QZSB'">
+                                            <template slot-scope="scope1">
+                                                <div>
+                                                    <div :title="getTimeByFormat(scope1.row.startTime,'YY年MM月DD日 hh时mm分ss秒')">{{getTimeByFormat(scope1.row.startTime,'hh:mm:ss(DD)')}}</div>
+                                                    <div :title="getTimeByFormat(scope1.row.endTime,'YY年MM月DD日 hh时mm分ss秒')">{{getTimeByFormat(scope1.row.endTime,'hh:mm:ss(DD)')}}</div>
+                                                </div>
+
+                                            </template>
+                                        </el-table-column>
+
                                         <el-table-column prop="chargeData" label="收费数据" align="center">
                                             <template slot-scope="scope1">
                                                 <div>
