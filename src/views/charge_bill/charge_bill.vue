@@ -62,7 +62,7 @@
         <div id="tableBox">
             <div class="tableBox" ref="tableBox">
                 <!-- :span-method="arraySpanMethod" -->
-                <el-table :data="lists" border stripe style="width: 100%" :max-height="maxHeight" :highlight-current-row="true" :row-class-name="getRowClass" @selection-change="listSelectionChange" :expand-row-keys="expends" row-key="id" @sort-change="sortChange">
+                <el-table :data="lists" border stripe style="width: 100%" :max-height="maxHeight" :highlight-current-row="true" :row-class-name="getRowClass" @selection-change="listSelectionChange" :expand-row-keys="expends" row-key="id" @sort-change="sortChange" ref="ref_chargeBill">
                     <el-table-column type="expand">
                         <template slot-scope="scope">
                             <div class="bill_expand">
@@ -335,7 +335,7 @@
                     <el-table-column prop="seat" label="机位" sortable='custom' width="70"></el-table-column>
                     <el-table-column prop="flight.flightNo" label="航班号" sortable='custom'>
                         <template slot-scope="scope">
-                            <div>{{getActiveFlight(scope).flightNo}}({{getActiveFlight(scope).successionFlightNo?getActiveFlight(scope).successionFlightNo:'--'}})</div>
+                            <div @dblclick="openChargeRecord(scope)">{{getActiveFlight(scope).flightNo}}({{getActiveFlight(scope).successionFlightNo?getActiveFlight(scope).successionFlightNo:'--'}})</div>
                         </template>
                     </el-table-column>
 
@@ -526,6 +526,14 @@ export default {
         clearInterval(this.dataTimer)
     },
     methods: {
+        openChargeRecord({ row }) {
+            if (
+                (row.chargeRecords && row.chargeRecords.length > 0) ||
+                (row.flightSupplementInfos && row.flightSupplementInfos.length > 0)
+            ) {
+                this.$refs.ref_chargeBill.toggleRowExpansion(row)
+            }
+        },
         sendLog({ row }) {
             let origin = `http://${window.location.hostname}:6010`
 
