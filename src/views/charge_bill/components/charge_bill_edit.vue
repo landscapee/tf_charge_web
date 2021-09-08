@@ -1,11 +1,11 @@
 <template>
-    <el-dialog :visible.sync="listShow" id="addTask" center :width="pageType=='boarding-bridge'&&type=='edit'?'800px':'400px'" :show-close="false">
+    <el-dialog :visible.sync="listShow" id="addTask" center :width="rowData.chargeBillConfigCode == 'LANQ'&&type=='edit'?'800px':'400px'" :show-close="false">
         <div slot="title" class="head">
             <div></div>
             <span>{{type=='add'?'新增':'编辑'}}</span>
             <i class="el-icon-circle-close" @click="listShow=false"></i>
         </div>
-        <el-form label-position="right" :label-width="pageType=='boarding-bridge'?'110px':'80px'" ref="listData">
+        <el-form label-position="right" :label-width="rowData.chargeBillConfigCode == 'LANQ'?'110px':'80px'" ref="listData">
             <el-form-item label="航班号">
                 <el-input v-model="listData.flightNo" placeholder="航班号" :disabled="!!listData.id"></el-input>
             </el-form-item>
@@ -13,7 +13,7 @@
                 <el-input v-model="listData.chargeDataSource.chargeConfig.name" placeholder="收费项" :disabled="!!listData.id"></el-input>
             </el-form-item>
 
-            <template v-if="pageType=='boarding-bridge'&&type=='edit'">
+            <template v-if="rowData.chargeBillConfigCode == 'LANQ'&&type=='edit'">
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="接桥时间">
@@ -47,13 +47,13 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="航后开始时间">
-                            <time-picker @timePickerTime="timePickerTime" :value="listData.afterStartTime" :keyName="'afterStartTime'" />
+                            <time-picker @timePickerTime="timePickerTime" :value="listData.afterStartTime" :objectName="'listData'" :keyName="'afterStartTime'" />
                             <!-- <el-date-picker style="width:100%" v-model="listData.afterStartTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="航后结束时间">
-                            <time-picker @timePickerTime="timePickerTime" :value="listData.afterEndTime" :keyName="'afterEndTime'" />
+                            <time-picker @timePickerTime="timePickerTime" :value="listData.afterEndTime" :objectName="'listData'" :keyName="'afterEndTime'" />
                             <!-- <el-date-picker style="width:100%" v-model="listData.afterEndTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                         </el-form-item>
                     </el-col>
@@ -81,8 +81,18 @@
                 <el-form-item label="结束时间" v-if="timeShow&&type=='edit'">
                     <time-picker @timePickerTime="timePickerTime" :value="listData.endTime" :objectName="'listData'" :keyName="'endTime'" />
                 </el-form-item>
-                <el-form-item label="操作人" v-if="type=='edit'">
+                <el-form-item label="操作人" v-if="type=='edit'&&rowData.chargeBillConfigCode != 'QZSB'">
                     <el-select v-model="listData.operatorId" filterable clearable placeholder="请选择">
+                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="操作人1" v-if="type=='edit'&&rowData.chargeBillConfigCode == 'QZSB'">
+                    <el-select v-model="listData.operatorId" filterable clearable placeholder="请选择">
+                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="操作人2" v-if="type=='edit'&&rowData.chargeBillConfigCode == 'QZSB'">
+                    <el-select v-model="listData.startUserId" filterable clearable placeholder="请选择">
                         <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
                     </el-select>
                 </el-form-item>
@@ -119,7 +129,6 @@ export default {
             },
             type: '',
             timeShow: false,
-            pageType: '',
             rowData: {},
         }
     },
@@ -135,11 +144,6 @@ export default {
             this.type = type
             this.listShow = true
             this.rowData = row
-            if (data.chargeCode == 'LANQ') {
-                this.pageType = 'boarding-bridge'
-            } else {
-                this.pageType = ''
-            }
 
             this.listData = {
                 chargeBill: {},
@@ -176,12 +180,18 @@ export default {
                     id: this.listData.operatorId,
                 }) || {}
 
+            let startUserObj =
+                _.find(this.userDeptLists, {
+                    id: this.listData.startUserId,
+                }) || {}
+
             this.listData.startStaffName = startStaffObj.name || ''
             this.listData.endStaffName = endStaffObj.name || ''
             this.listData.operatorName = operatorObj.name || ''
+            this.listData.startUserName = startUserObj.name || ''
 
             let url =
-                this.pageType == 'boarding-bridge'
+                this.listData.chargeCode == 'LANQ'
                     ? '/boarding-bridge-charge-record/save'
                     : '/charge-record/save'
             this.$axios.post(url, this.listData).then((res) => {

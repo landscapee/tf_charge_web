@@ -221,7 +221,7 @@
                                         </el-table-column>
                                         <el-table-column label="操作人" align="center" v-if="scope.row.chargeBillConfigCode!='LANQ'">
                                             <template slot-scope="{row}">
-                                                <div>{{row.operatorName?row.operatorName:'--'}}</div>
+                                                <div>{{getOperatorName(row)}}</div>
                                             </template>
                                         </el-table-column>
                                         <el-table-column label="审核人" align="center">
@@ -323,7 +323,6 @@
                         <template slot-scope="scope">
                             <div>{{getTimeByFormat(getRowFlightLoading(scope.row)['A'].scheduleTime,'YY-MM-DD hh:mm')}}</div>
                             <div>{{getTimeByFormat(getRowFlightLoading(scope.row)['D'].scheduleTime,'YY-MM-DD hh:mm')}}</div>
-
                         </template>
                     </el-table-column>
                     <el-table-column label="实际时间">
@@ -526,6 +525,15 @@ export default {
         clearInterval(this.dataTimer)
     },
     methods: {
+        getOperatorName(row) {
+            let operatorName = row.operatorName
+            let startUserName = row.startUserName
+
+            if (operatorName && startUserName && operatorName != startUserName) {
+                return operatorName + ',' + startUserName
+            }
+            return operatorName ? operatorName : startUserName
+        },
         openChargeRecord({ row }) {
             if (
                 (row.chargeRecords && row.chargeRecords.length > 0) ||
@@ -663,11 +671,9 @@ export default {
                 this.lists,
                 (result, value) => {
                     let hasData = this.getRowClass({ row: value }) ? false : true
-
                     if (value.expandDefault && hasData) {
                         result.push(value.id)
                     }
-
                     return result
                 },
                 []

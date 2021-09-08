@@ -105,15 +105,24 @@
                         </el-row>
                         <el-row>
                             <el-col :span="12">
-                                <el-form-item label="设备编号">
-                                    <el-input v-model="QZSBrecords1.deviceCode" placeholder="设备编号"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="12">
-                                <el-form-item label="操作人">
+                                <el-form-item label="操作人1">
                                     <el-select v-model="QZSBrecords1.operatorId" filterable clearable placeholder="请选择">
                                         <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
                                     </el-select>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="操作人2">
+                                    <el-select v-model="QZSBrecords1.startUserId" filterable clearable placeholder="请选择">
+                                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="12">
+                                <el-form-item label="设备编号">
+                                    <el-input v-model="QZSBrecords1.deviceCode" placeholder="设备编号"></el-input>
                                 </el-form-item>
                             </el-col>
                         </el-row>
@@ -134,7 +143,7 @@
 
                             </el-col>
                         </el-row>
-                        <el-row>
+                        <!-- <el-row>
                             <el-col :span="12">
                                 <el-form-item label="设备编号">
                                     <el-input v-model="QZSBrecords2.deviceCode" placeholder="设备编号"></el-input>
@@ -145,6 +154,29 @@
                                     <el-select v-model="QZSBrecords2.operatorId" filterable clearable placeholder="请选择">
                                         <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
                                     </el-select>
+                                </el-form-item>
+                            </el-col>
+                        </el-row> -->
+                        <el-row>
+                            <el-col :span="12">
+                                <el-form-item label="操作人1">
+                                    <el-select v-model="QZSBrecords2.operatorId" filterable clearable placeholder="请选择">
+                                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="操作人2">
+                                    <el-select v-model="QZSBrecords2.startUserId" filterable clearable placeholder="请选择">
+                                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="12">
+                                <el-form-item label="设备编号">
+                                    <el-input v-model="QZSBrecords2.deviceCode" placeholder="设备编号"></el-input>
                                 </el-form-item>
                             </el-col>
                         </el-row>
@@ -543,10 +575,15 @@ export default {
                     _.find(this.userDeptLists, {
                         id: activeChargeRecord.operatorId,
                     }) || {}
+                let startUserObj =
+                    _.find(this.userDeptLists, {
+                        id: activeChargeRecord.startUserId,
+                    }) || {}
 
                 activeChargeRecord.startStaffName = startStaffObj.name || ''
                 activeChargeRecord.endStaffName = endStaffObj.name || ''
                 activeChargeRecord.operatorName = operatorObj.name || ''
+                activeChargeRecord.startUserName = startUserObj.name || ''
 
                 if (this.activeChargeRecordType == 'edit') {
                     this.chargeRecords[this.activeChargeRecordIndex] = activeChargeRecord

@@ -11,7 +11,10 @@ import './src/styles/elementReset.scss';
 import axios from "axios";
 import IconSvg from './src/components/Icon-svg';// svg组件
 import { RTCInit, getTimeByFormat,timeLength } from './src/lib/common';
-import moment  from "moment";
+import moment from "moment";
+
+
+
 
 
 Vue.component('icon-svg', IconSvg);

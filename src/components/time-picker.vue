@@ -285,8 +285,6 @@ export default {
                 })
                 return
             }
-            console.log(this.second === '', second)
-
             if (this.second !== null && this.second !== '' && second < 10 && second >= 0) {
                 this.second = '0' + second
             }
