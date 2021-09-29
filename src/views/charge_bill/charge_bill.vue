@@ -62,7 +62,7 @@
         <div id="tableBox">
             <div class="tableBox" ref="tableBox">
                 <!-- :span-method="arraySpanMethod" -->
-                <el-table :data="lists" border stripe style="width: 100%" :max-height="maxHeight" :highlight-current-row="true" :row-class-name="getRowClass" @selection-change="listSelectionChange" :expand-row-keys="expends" row-key="id" @sort-change="sortChange" ref="ref_chargeBill">
+                <el-table :data="lists" border stripe style="width: 100%" :max-height="maxHeight" :highlight-current-row="true" :row-class-name="getRowClass" @selection-change="listSelectionChange" :expand-row-keys="expends" row-key="id" @sort-change="sortChange" ref="ref_chargeBill" @row-dblclick="openChargeRecord">
                     <el-table-column type="expand">
                         <template slot-scope="scope">
                             <div class="bill_expand">
@@ -299,8 +299,8 @@
                                 <div class="bill_expand_Box1" v-show="scope.row.flightSupplementInfos&&scope.row.flightSupplementInfos.length>0">
                                     <el-form :inline="true" class="demo-form-inline">
                                         <el-form-item :label="item.supplementTitle+':'" v-for="(item,idx) in scope.row.flightSupplementInfos" :key="idx">
-                                            <el-input v-model="item.valueTitle" v-if="item.type===0||item.type===1" :type="item.type===0?'number':'text'" @change="saveSupplement(item)"></el-input>
-                                            <el-select v-model="item.valueCode" v-else placeholder="请选择" filterable :multiple="item.type===2?false:true" @change="saveSupplement(item)">
+                                            <el-input v-model="item.valueTitle" :disabled="!!scope.row.approvalStatus" v-if="item.type===0||item.type===1" :type="item.type===0?'number':'text'" @change="saveSupplement(item)"></el-input>
+                                            <el-select v-model="item.valueCode" :disabled="!!scope.row.approvalStatus" v-else placeholder="请选择" filterable :multiple="item.type===2?false:true" @change="saveSupplement(item)">
                                                 <el-option v-for="select in getSupplementOption(item.supplementInfoConfig)" :key="select.code" :label="select.describe" :value="select.code"></el-option>
                                             </el-select>
                                         </el-form-item>
@@ -334,7 +334,7 @@
                     <el-table-column prop="seat" label="机位" sortable='custom' width="70"></el-table-column>
                     <el-table-column prop="flight.flightNo" label="航班号" sortable='custom'>
                         <template slot-scope="scope">
-                            <div @dblclick="openChargeRecord(scope)">{{getActiveFlight(scope).flightNo}}({{getActiveFlight(scope).successionFlightNo?getActiveFlight(scope).successionFlightNo:'--'}})</div>
+                            <div>{{getActiveFlight(scope).flightNo}}({{getActiveFlight(scope).successionFlightNo?getActiveFlight(scope).successionFlightNo:'--'}})</div>
                         </template>
                     </el-table-column>
 
@@ -499,6 +499,7 @@ export default {
             window.addEventListener(
                 'message',
                 (event) => {
+                    console.log(1111111)
                     this.pageSelf = false
                     this.inIframeInit(event.data)
                 },
@@ -534,7 +535,8 @@ export default {
             }
             return operatorName ? operatorName : startUserName
         },
-        openChargeRecord({ row }) {
+        openChargeRecord(row) {
+            console.log(row)
             if (
                 (row.chargeRecords && row.chargeRecords.length > 0) ||
                 (row.flightSupplementInfos && row.flightSupplementInfos.length > 0)
@@ -854,29 +856,26 @@ export default {
                     lists.map((list) => {
                         list.chargeRecords = _.sortBy(list.chargeRecords, 'chargeCode')
 
-                        if (list.chargeBillConfigCode == 'QZSB') {
-                            list.flightSupplementInfos.map((list) => {
-                                if (_.includes(list.supplementTitle, '航班')) {
-                                    list.sort = 0
-                                }
-                                if (_.includes(list.supplementTitle, '飞机')) {
-                                    list.sort = 1
-                                }
-                                if (_.includes(list.supplementTitle, '电源')) {
-                                    list.sort = 2
-                                }
-                                if (_.includes(list.supplementTitle, '空调')) {
-                                    list.sort = 3
-                                }
-                                if (_.includes(list.supplementTitle, '备注')) {
-                                    list.sort = 4
-                                }
-                            })
-                            list.flightSupplementInfos = _.sortBy(
-                                list.flightSupplementInfos,
-                                'sort'
-                            )
-                        }
+                        // if (list.chargeBillConfigCode == 'QZSB') {
+                        // list.flightSupplementInfos.map((list) => {
+                        //     if (_.includes(list.supplementTitle, '航班')) {
+                        //         list.sort = 0
+                        //     }
+                        //     if (_.includes(list.supplementTitle, '飞机')) {
+                        //         list.sort = 1
+                        //     }
+                        //     if (_.includes(list.supplementTitle, '电源')) {
+                        //         list.sort = 2
+                        //     }
+                        //     if (_.includes(list.supplementTitle, '空调')) {
+                        //         list.sort = 3
+                        //     }
+                        //     if (_.includes(list.supplementTitle, '备注')) {
+                        //         list.sort = 4
+                        //     }
+                        // })
+                        // }
+                        list.flightSupplementInfos = _.sortBy(list.flightSupplementInfos, 'sort')
 
                         if (list.chargeBillConfigCode == 'LANQ') {
                             let newLists = []

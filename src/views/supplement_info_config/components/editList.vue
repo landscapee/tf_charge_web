@@ -18,6 +18,9 @@
                         <el-option v-for="item in serviceLists" :key="item.serviceCode" :label="item.serviceName" :value="item.serviceCode"></el-option>
                     </el-select>
                 </el-form-item>
+                <el-form-item label="排序" required>
+                    <el-input type="number" v-model="listData.sort" placeholder="排序"></el-input>
+                </el-form-item>
                 <el-form-item label="参数">
                     <el-button type="primary" size="small" @click="editParameter">查看</el-button>
                 </el-form-item>
@@ -101,7 +104,6 @@
                         <el-button class="addRowBox" type="primary" icon="el-icon-plus" @click="addRowValue" style="width:100%">增加</el-button>
                     </div>
                 </el-form-item>
-
             </el-form>
             <div slot="footer" class="footer">
                 <el-button @click="parameterShow=false">取 消</el-button>

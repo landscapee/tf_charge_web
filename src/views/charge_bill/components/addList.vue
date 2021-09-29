@@ -88,6 +88,52 @@
                         <el-button class="addRowBox" type="primary" icon="el-icon-plus" @click="addChargeRecord" style="width:100%">增加</el-button>
                     </div>
                 </el-form-item>
+                <el-form-item label="桥载空调" v-if="listData.chargeBillConfigCode=='QZSB'">
+                    <el-form label-position="right" ref="listData" label-width="80px">
+                        <el-row>
+                            <el-col :span="12">
+                                <el-form-item label="开始时间">
+                                    <time-picker @timePickerTime="timePickerTime" :value="QZSBrecords2.startTime" :objectName="'QZSBrecords2'" :keyName="'startTime'" />
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="结束时间">
+                                    <time-picker @timePickerTime="timePickerTime" :value="QZSBrecords2.endTime" :objectName="'QZSBrecords2'" :keyName="'endTime'" />
+                                </el-form-item>
+
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="12">
+                                <el-form-item label="设备编号">
+                                    <el-input v-model="QZSBrecords2.deviceCode" placeholder="设备编号"></el-input>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="使用时长">
+                                    <el-input v-model="QZSBrecords2Time" placeholder="使用时长"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="12">
+                                <el-form-item label="操作人1">
+                                    <el-select v-model="QZSBrecords2.operatorId" filterable clearable placeholder="请选择">
+                                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="操作人2">
+                                    <el-select v-model="QZSBrecords2.startUserId" filterable clearable placeholder="请选择">
+                                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+
+                    </el-form>
+                </el-form-item>
                 <el-form-item label="桥载电源" v-if="listData.chargeBillConfigCode=='QZSB'">
                     <el-form label-position="right" ref="listData" label-width="80px">
                         <el-row>
@@ -105,6 +151,18 @@
                         </el-row>
                         <el-row>
                             <el-col :span="12">
+                                <el-form-item label="设备编号">
+                                    <el-input v-model="QZSBrecords1.deviceCode" placeholder="设备编号"></el-input>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="使用时长">
+                                    <el-input v-model="QZSBrecords1Time" placeholder="使用时长"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="12">
                                 <el-form-item label="操作人1">
                                     <el-select v-model="QZSBrecords1.operatorId" filterable clearable placeholder="请选择">
                                         <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
@@ -116,67 +174,6 @@
                                     <el-select v-model="QZSBrecords1.startUserId" filterable clearable placeholder="请选择">
                                         <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
                                     </el-select>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="12">
-                                <el-form-item label="设备编号">
-                                    <el-input v-model="QZSBrecords1.deviceCode" placeholder="设备编号"></el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                    </el-form>
-                </el-form-item>
-                <el-form-item label="桥载空调" v-if="listData.chargeBillConfigCode=='QZSB'">
-                    <el-form label-position="right" ref="listData" label-width="80px">
-                        <el-row>
-                            <el-col :span="12">
-                                <el-form-item label="开始时间">
-                                    <time-picker @timePickerTime="timePickerTime" :value="QZSBrecords2.startTime" :objectName="'QZSBrecords2'" :keyName="'startTime'" />
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="12">
-                                <el-form-item label="结束时间">
-                                    <time-picker @timePickerTime="timePickerTime" :value="QZSBrecords2.endTime" :objectName="'QZSBrecords2'" :keyName="'endTime'" />
-                                </el-form-item>
-
-                            </el-col>
-                        </el-row>
-                        <!-- <el-row>
-                            <el-col :span="12">
-                                <el-form-item label="设备编号">
-                                    <el-input v-model="QZSBrecords2.deviceCode" placeholder="设备编号"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="12">
-                                <el-form-item label="操作人">
-                                    <el-select v-model="QZSBrecords2.operatorId" filterable clearable placeholder="请选择">
-                                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                        </el-row> -->
-                        <el-row>
-                            <el-col :span="12">
-                                <el-form-item label="操作人1">
-                                    <el-select v-model="QZSBrecords2.operatorId" filterable clearable placeholder="请选择">
-                                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="12">
-                                <el-form-item label="操作人2">
-                                    <el-select v-model="QZSBrecords2.startUserId" filterable clearable placeholder="请选择">
-                                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="12">
-                                <el-form-item label="设备编号">
-                                    <el-input v-model="QZSBrecords2.deviceCode" placeholder="设备编号"></el-input>
                                 </el-form-item>
                             </el-col>
                         </el-row>
@@ -374,6 +371,8 @@ export default {
             tableKey: 0,
             QZSBrecords1: {},
             QZSBrecords2: {},
+            QZSBrecords1Time: '',
+            QZSBrecords2Time: '',
         }
     },
     mounted() {},
@@ -420,8 +419,26 @@ export default {
         },
     },
     methods: {
+        getUseTime(obj) {
+            let time = ''
+
+            if (this[obj] && this[obj].startTime && this[obj].endTime) {
+                let endtimer = new Date(this[obj].endTime).getTime()
+                let starttimer = new Date(this[obj].startTime).getTime()
+                if (endtimer >= starttimer) {
+                    time = this.timeLength(endtimer - starttimer)
+                }
+            }
+            return time
+        },
         timePickerTime(objectName, keyName, time) {
             this[objectName][keyName] = time
+            if (objectName == 'QZSBrecords1') {
+                this.QZSBrecords1Time = this.getUseTime(objectName)
+            }
+            if (objectName == 'QZSBrecords2') {
+                this.QZSBrecords2Time = this.getUseTime(objectName)
+            }
         },
         getChargeBillArr(val) {
             let userData = JSON.parse(sessionStorage.userData)
@@ -651,8 +668,8 @@ export default {
             }
 
             let supplementRecords = []
-            this.supplementArr.map((list) => {
-                if (list.valueTitle) {
+            if (!this.rowData) {
+                this.supplementArr.map((list) => {
                     supplementRecords.push({
                         flightId: this.activeFlight.flightId,
                         type: list.params.type,
@@ -662,8 +679,9 @@ export default {
                         valueCode: list.valueCode,
                         chargeBillId: this.rowData.id,
                     })
-                }
-            })
+                })
+            }
+
             let charge = {
                 chargeRecordList: this.chargeRecords,
                 flightSupplementInfoList: supplementRecords,
@@ -725,7 +743,9 @@ export default {
                 list.params = JSON.parse(list.params)
             })
 
-            this.supplementArr = _.cloneDeep(charge.supplementInfoConfigs || [])
+            this.supplementArr = _.cloneDeep(_.sortBy(charge.supplementInfoConfigs || [], 'sort'))
+
+            // this.supplementArr = _.cloneDeep(charge.supplementInfoConfigs || [])
         },
         flightNoHandle(e) {
             this.$refs.ref_flightNo.blur()

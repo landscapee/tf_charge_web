@@ -66,6 +66,10 @@ router.beforeEach(function(to,from,next){
 router.afterEach(()=>{
     if(sessionStorage.token&&loginFlag==0){
         loginFlag = 1
+        if (timer) {
+            clearInterval(timer);
+            timer = null
+        }
         timer = setInterval(() => {//每10分钟更新一次token
             axios({
                 method:"post",
@@ -77,7 +81,8 @@ router.afterEach(()=>{
                     'Content-Type':'application/json;charset=utf-8'
                 }
             })
-            .then(res=>{
+                .then(res => {
+                console.log(res)
                 let newToken = 'Bearer '+res.data
                 sessionStorage.setItem("token",newToken)
             })
