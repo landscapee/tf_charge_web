@@ -263,13 +263,13 @@
                                                 <div :title="row.remark">{{row.remark?row.remark:'--'}}</div>
                                             </template>
                                         </el-table-column>
-                                        <el-table-column label="操作" align="center" v-if="!searchDel" class-name="optBox" width="130">
+                                        <el-table-column label="操作" align="center" v-if="!searchDel" class-name="optBox" width="100">
                                             <template slot-scope="scope1">
-                                                <el-button type="text" title="审批" @click="approval(scope1.row)" :disabled="!!(scope1.row.approvalStatus=='PASS'||scope1.row.dataSourceSort==1&&scope1.row.chargeBillConfigCode=='LANQ')" v-show="getPower(scope.row,'charge_approval')">审批</el-button>
-                                                <el-button type="text" title="编辑" @click="edit('edit',scope1.row,scope.row)" :disabled="!!scope1.row.send" v-show="getPower(scope1.row,'charge_edit')">编辑</el-button>
+                                                <el-button type="text" icon="el-icon-s-check" title="审批" @click="approval(scope1.row)" :disabled="!!(scope1.row.approvalStatus=='PASS'||scope1.row.dataSourceSort==1&&scope1.row.chargeBillConfigCode=='LANQ')" v-show="getPower(scope.row,'charge_approval')"></el-button>
+                                                <el-button type="text" icon="el-icon-edit-outline" title="编辑" @click="edit('edit',scope1.row,scope.row)" :disabled="!!scope1.row.send" v-show="getPower(scope1.row,'charge_edit')"></el-button>
                                                 <el-dropdown trigger="click" style="margin-left:.1rem;">
                                                     <el-button type="text" title="更多" class="el-dropdown-link">
-                                                        更多
+                                                        <i class="el-icon-more"></i>
                                                     </el-button>
                                                     <el-dropdown-menu slot="dropdown">
                                                         <el-dropdown-item>
@@ -288,7 +288,7 @@
                                                 </el-dropdown>
                                             </template>
                                         </el-table-column>
-                                        <el-table-column label="操作" align="center" v-else class-name="optBox" width="130">
+                                        <el-table-column label="操作" align="center" v-else class-name="optBox" width="100">
                                             <template slot-scope="scope1">
                                                 <el-button type="text" title="历史" @click="history(scope1.row)">历史</el-button>
                                             </template>
@@ -331,14 +331,21 @@
                             <div>{{getTimeByFormat(getRowFlightLoading(scope.row)['D'].actualTime,'YY-MM-DD hh:mm')}}</div>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="seat" label="机位" sortable='custom' width="70"></el-table-column>
+                    <el-table-column prop="seat" label="机位" sortable='custom' width="80">
+                        <template slot-scope="scope">
+                            <div>{{scope.row.seat==getActiveFlight(scope).seat?scope.row.seat:scope.row.seat+"("+getActiveFlight(scope).seat+")"}}</div>
+                        </template>
+                    </el-table-column>
                     <el-table-column prop="flight.flightNo" label="航班号" sortable='custom'>
                         <template slot-scope="scope">
                             <div>{{getActiveFlight(scope).flightNo}}({{getActiveFlight(scope).successionFlightNo?getActiveFlight(scope).successionFlightNo:'--'}})</div>
                         </template>
                     </el-table-column>
-
-                    <el-table-column prop="aircraftNo" label="机号" sortable='custom' width="80"></el-table-column>
+                    <el-table-column prop="aircraftNo" label="机号" sortable='custom' width="110">
+                        <template slot-scope="scope">
+                            <div>{{scope.row.aircraftNo==getActiveFlight(scope).aircraftNo?scope.row.aircraftNo:scope.row.aircraftNo+"("+getActiveFlight(scope).aircraftNo+")"}}</div>
+                        </template>
+                    </el-table-column>
                     <el-table-column prop="flight.aircraftType" label="机型" sortable='custom' width="80">
                         <template slot-scope="scope">
                             <div>{{getActiveFlight(scope).aircraftType}}</div>
@@ -387,13 +394,14 @@
                             </el-popover>
                         </template>
                     </el-table-column>
-                    <el-table-column label="操作" align="center" v-if="!searchDel" class-name="optBox" width="200">
+                    <el-table-column label="操作" align="center" v-if="!searchDel" class-name="optBox" width="180">
                         <template slot-scope="scope">
-                            <el-button type="text" title="新增" @click="add(scope.row)" v-show="powerData.charge_add" :disabled="!!scope.row.approvalStatus">新增</el-button>
-                            <el-button type="text" title="审批" @click="approval([scope.row],'arrs')" :disabled="!!scope.row.approvalStatus" v-show="powerData.charge_approval">审批</el-button>
-                            <el-button type="text" title="上报" @click="report(scope)" :disabled="scope.row.report" v-if="getReportShow(scope)">上报</el-button>
-                            <el-button type="text" title="下载" @click="download(scope.row)" v-show="powerData.charge_download">下载</el-button>
-                            <el-button type="text" title="删除" @click="delBill([scope.row])" v-show="powerData.charge_delete&&scope.row.chargeRecords.length==0">删除</el-button>
+                            <el-button type="text" icon="el-icon-circle-plus-outline" title="新增" @click="add(scope.row)" v-show="powerData.charge_add" :disabled="!!scope.row.approvalStatus"></el-button>
+                            <el-button type="text" icon="el-icon-edit-outline" title="编辑" @click="editBill(scope.row)" v-show="powerData.charge_edit" :disabled="!!scope.row.approvalStatus"></el-button>
+                            <el-button type="text" icon="el-icon-s-check" title="审批" @click="approval([scope.row],'arrs')" :disabled="!!scope.row.approvalStatus" v-show="powerData.charge_approval"></el-button>
+                            <el-button type="text" icon="el-icon-s-promotion" title="上报" @click="report(scope)" :disabled="scope.row.report" v-if="getReportShow(scope)"></el-button>
+                            <el-button type="text" icon="el-icon-download" title="下载" @click="download(scope.row)" v-show="powerData.charge_download"></el-button>
+                            <el-button type="text" icon="el-icon-delete" title="删除" @click="delBill([scope.row])" v-show="powerData.charge_delete&&scope.row.chargeRecords.length==0"></el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -402,8 +410,9 @@
                 </div>
             </div>
         </div>
-        <charge-bill-edit ref="ref_editList" @update="update" :userDeptLists="userDeptLists"></charge-bill-edit>
+        <charge-bill-edit ref="ref_chargeBillEdit" @update="update" :userDeptLists="userDeptLists"></charge-bill-edit>
         <add-list ref="ref_addList" @update="update" :userDeptLists="userDeptLists" :chargeBillArrs="chargeBillArrs"></add-list>
+        <edit-list ref="ref_editList" @update="update"></edit-list>
         <supplement-edit ref="ref_supplementEdit" @update="update"></supplement-edit>
         <history ref="ref_history"></history>
 
@@ -428,6 +437,7 @@
 <script>
 import ChargeBillEdit from './components/charge_bill_edit'
 import AddList from './components/addList'
+import editList from './components/editList'
 import SupplementEdit from './components/supplement_edit'
 import History from './components/history'
 export default {
@@ -435,6 +445,7 @@ export default {
     components: {
         'charge-bill-edit': ChargeBillEdit,
         'add-list': AddList,
+        'edit-list': editList,
         'supplement-edit': SupplementEdit,
         history: History,
     },
@@ -638,8 +649,13 @@ export default {
             let name = 'expandRow'
             let startTime = row.startTime ? new Date(row.startTime).getTime() : ''
             let endTime = row.endTime ? new Date(row.endTime).getTime() : ''
-            let atd = flight.atd ? new Date(flight.atd).getTime() : ''
-            let ata = flight.ata ? new Date(flight.ata).getTime() : ''
+            // let atd = flight.atd ? new Date(flight.atd).getTime() : ''
+            // let ata = flight.ata ? new Date(flight.ata).getTime() : ''
+
+            let filghtObj = this.getRowFlightLoading({ flight })
+
+            let atd = filghtObj['D'].actualTime ? new Date(filghtObj['D'].actualTime).getTime() : ''
+            let ata = filghtObj['A'].actualTime ? new Date(filghtObj['A'].actualTime).getTime() : ''
 
             if (
                 (atd && endTime && atd < endTime) ||
@@ -1062,9 +1078,20 @@ export default {
         },
         send(row, type) {
             let data = []
+            let index = _.findIndex(row, (list) => {
+                return list.chargeRecords.length == 0
+            })
+            if (index >= 0) {
+                this.$alert(`发送的收费单必须含有收费项才能发送！`, '提示', {
+                    type: 'error',
+                    center: true,
+                })
+                return
+            }
             row.map((list) => {
                 data.push(list.id)
             })
+
             let chargeBillIds = data.join(',')
             this.$confirm('确定发送?', '提示', {
                 confirmButtonText: '确定',
@@ -1172,10 +1199,13 @@ export default {
             })
         },
         edit(type, data, row) {
-            this.$refs.ref_editList.initData(type, _.cloneDeep(data), row)
+            this.$refs.ref_chargeBillEdit.initData(type, _.cloneDeep(data), row)
         },
         add(row) {
             this.$refs.ref_addList.initData(row, this.chargeBillArrs)
+        },
+        editBill(row) {
+            this.$refs.ref_editList.initData(row)
         },
         del(data) {
             this.$confirm('确定删除该数据?', '提示', {

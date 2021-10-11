@@ -512,6 +512,9 @@ table {
     .el-button {
         padding: 0;
     }
+    .cell {
+        justify-content: center;
+    }
 }
 .paginationBox {
     display: flex;

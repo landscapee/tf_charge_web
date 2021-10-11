@@ -19,6 +19,10 @@
     white-space: nowrap !important;
 }
 
+.el-button+.el-button {
+    margin-left: 5px;
+}
+
 .stepDialog {
     .el-dialog_header_step {
         height: 60px;
