@@ -43,6 +43,7 @@
                             {{scope.row.serviceName||scope.row.serviceCode}}
                         </template>
                     </el-table-column>
+                    <el-table-column prop="sort" label="排序" width="60"></el-table-column>
                     <el-table-column label="参数" width="120" align="center">
                         <template slot-scope="scope">
                             <el-popover placement="right" width="400" trigger="hover">

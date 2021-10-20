@@ -333,25 +333,25 @@
                     </el-table-column>
                     <el-table-column prop="seat" label="机位" sortable='custom' width="80">
                         <template slot-scope="scope">
-                            <div>{{scope.row.seat==getActiveFlight(scope).seat?scope.row.seat:scope.row.seat+"("+getActiveFlight(scope).seat+")"}}</div>
+                            <div>{{scope.row.seat==getActiveFlight(scope).seat?scope.row.seat:(scope.row.seat?scope.row.seat+"("+getActiveFlight(scope).seat+")":"("+getActiveFlight(scope).seat+")")}}</div>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="flight.flightNo" label="航班号" sortable='custom'>
+                    <el-table-column prop="flightNo" label="航班号" sortable='custom'>
                         <template slot-scope="scope">
                             <div>{{getActiveFlight(scope).flightNo}}({{getActiveFlight(scope).successionFlightNo?getActiveFlight(scope).successionFlightNo:'--'}})</div>
                         </template>
                     </el-table-column>
                     <el-table-column prop="aircraftNo" label="机号" sortable='custom' width="110">
                         <template slot-scope="scope">
-                            <div>{{scope.row.aircraftNo==getActiveFlight(scope).aircraftNo?scope.row.aircraftNo:scope.row.aircraftNo+"("+getActiveFlight(scope).aircraftNo+")"}}</div>
+                            <div>{{scope.row.aircraftNo==getActiveFlight(scope).aircraftNo?scope.row.aircraftNo:(scope.row.aircraftNo?scope.row.aircraftNo+"("+getActiveFlight(scope).aircraftNo+")":"("+getActiveFlight(scope).aircraftNo+")")}}</div>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="flight.aircraftType" label="机型" sortable='custom' width="80">
+                    <el-table-column prop="aircraftType" label="机型" sortable='custom' width="80">
                         <template slot-scope="scope">
                             <div>{{getActiveFlight(scope).aircraftType}}</div>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="" label="进/离" width="70">
+                    <el-table-column prop="movement" label="进/离" width="70" sortable='custom'>
                         <template slot-scope="{row}">
                             <div>{{row.flight.movement=='A'?'进':'离'}}</div>
                         </template>
@@ -547,7 +547,6 @@ export default {
             return operatorName ? operatorName : startUserName
         },
         openChargeRecord(row) {
-            console.log(row)
             if (
                 (row.chargeRecords && row.chargeRecords.length > 0) ||
                 (row.flightSupplementInfos && row.flightSupplementInfos.length > 0)
@@ -873,25 +872,30 @@ export default {
                         list.chargeRecords = _.sortBy(list.chargeRecords, 'chargeCode')
 
                         // if (list.chargeBillConfigCode == 'QZSB') {
-                        // list.flightSupplementInfos.map((list) => {
-                        //     if (_.includes(list.supplementTitle, '航班')) {
-                        //         list.sort = 0
-                        //     }
-                        //     if (_.includes(list.supplementTitle, '飞机')) {
-                        //         list.sort = 1
-                        //     }
-                        //     if (_.includes(list.supplementTitle, '电源')) {
-                        //         list.sort = 2
-                        //     }
-                        //     if (_.includes(list.supplementTitle, '空调')) {
-                        //         list.sort = 3
-                        //     }
-                        //     if (_.includes(list.supplementTitle, '备注')) {
-                        //         list.sort = 4
-                        //     }
-                        // })
+                        //     list.flightSupplementInfos.map((list) => {
+                        //         if (_.includes(list.supplementTitle, '航班')) {
+                        //             list.sort = 0
+                        //         }
+                        //         if (_.includes(list.supplementTitle, '飞机')) {
+                        //             list.sort = 1
+                        //         }
+                        //         if (_.includes(list.supplementTitle, '电源')) {
+                        //             list.sort = 2
+                        //         }
+                        //         if (_.includes(list.supplementTitle, '空调')) {
+                        //             list.sort = 3
+                        //         }
+                        //         if (_.includes(list.supplementTitle, '备注')) {
+                        //             list.sort = 4
+                        //         }
+                        //     })
                         // }
-                        list.flightSupplementInfos = _.sortBy(list.flightSupplementInfos, 'sort')
+                        list.flightSupplementInfos = _.sortBy(
+                            list.flightSupplementInfos,
+                            (item) => {
+                                return item.supplementInfoConfig.sort
+                            }
+                        )
 
                         if (list.chargeBillConfigCode == 'LANQ') {
                             let newLists = []
