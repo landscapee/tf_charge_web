@@ -263,13 +263,13 @@
                                                 <div :title="row.remark">{{row.remark?row.remark:'--'}}</div>
                                             </template>
                                         </el-table-column>
-                                        <el-table-column label="操作" align="center" v-if="!searchDel" class-name="optBox" width="100">
+                                        <el-table-column label="操作" align="center" v-if="!searchDel" class-name="optBox" width="140">
                                             <template slot-scope="scope1">
-                                                <el-button type="text" icon="el-icon-s-check" title="审批" @click="approval(scope1.row)" :disabled="!!(scope1.row.approvalStatus=='PASS'||scope1.row.dataSourceSort==1&&scope1.row.chargeBillConfigCode=='LANQ')" v-show="getPower(scope.row,'charge_approval')"></el-button>
-                                                <el-button type="text" icon="el-icon-edit-outline" title="编辑" @click="edit('edit',scope1.row,scope.row)" :disabled="!!scope1.row.send" v-show="getPower(scope1.row,'charge_edit')"></el-button>
+                                                <el-button type="text" :title="scope1.row.approvalStatus=='PASS'?'取消审批':'审批'" @click="approval(scope1.row)" :disabled="!!scope1.row.send" v-show="getPower(scope.row,'charge_approval')">{{scope1.row.approvalStatus=='PASS'?'取消审批':'审批'}}</el-button>
+                                                <el-button type="text" title="编辑" @click="edit('edit',scope1.row,scope.row)" :disabled="!!scope1.row.send" v-show="getPower(scope1.row,'charge_edit')">编辑</el-button>
                                                 <el-dropdown trigger="click" style="margin-left:.1rem;">
                                                     <el-button type="text" title="更多" class="el-dropdown-link">
-                                                        <i class="el-icon-more"></i>
+                                                        更多
                                                     </el-button>
                                                     <el-dropdown-menu slot="dropdown">
                                                         <el-dropdown-item>
@@ -394,14 +394,14 @@
                             </el-popover>
                         </template>
                     </el-table-column>
-                    <el-table-column label="操作" align="center" v-if="!searchDel" class-name="optBox" width="180">
+                    <el-table-column label="操作" align="center" v-if="!searchDel" class-name="optBox" width="240">
                         <template slot-scope="scope">
-                            <el-button type="text" icon="el-icon-circle-plus-outline" title="新增" @click="add(scope.row)" v-show="powerData.charge_add" :disabled="!!scope.row.approvalStatus"></el-button>
-                            <el-button type="text" icon="el-icon-edit-outline" title="编辑" @click="editBill(scope.row)" v-show="powerData.charge_edit" :disabled="!!scope.row.approvalStatus"></el-button>
-                            <el-button type="text" icon="el-icon-s-check" title="审批" @click="approval([scope.row],'arrs')" :disabled="!!scope.row.approvalStatus" v-show="powerData.charge_approval"></el-button>
-                            <el-button type="text" icon="el-icon-s-promotion" title="上报" @click="report(scope)" :disabled="scope.row.report" v-if="getReportShow(scope)"></el-button>
-                            <el-button type="text" icon="el-icon-download" title="下载" @click="download(scope.row)" v-show="powerData.charge_download"></el-button>
-                            <el-button type="text" icon="el-icon-delete" title="删除" @click="delBill([scope.row])" v-show="powerData.charge_delete&&scope.row.chargeRecords.length==0"></el-button>
+                            <el-button type="text" title="新增" @click="add(scope.row)" v-show="powerData.charge_add" :disabled="!!scope.row.approvalStatus">新增</el-button>
+                            <el-button type="text" title="编辑" @click="editBill(scope.row)" v-show="powerData.charge_edit" :disabled="!!scope.row.approvalStatus">编辑</el-button>
+                            <el-button type="text" title="审批" @click="approval([scope.row],'arrs')" :disabled="!!scope.row.approvalStatus" v-show="powerData.charge_approval">审批</el-button>
+                            <el-button type="text" title="上报" @click="report(scope)" :disabled="scope.row.report" v-if="getReportShow(scope)">上报</el-button>
+                            <el-button type="text" title="下载" @click="download(scope.row)" v-show="powerData.charge_download">下载</el-button>
+                            <el-button type="text" title="删除" @click="delBill([scope.row])" v-show="powerData.charge_delete&&scope.row.chargeRecords.length==0">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -996,7 +996,8 @@ export default {
         },
         approval(row, type) {
             let data = []
-
+            let approvalStatus = 'PASS'
+            let msg = '确定审批?'
             if (type) {
                 row.forEach((list, idx) => {
                     let chargeRecordIds = _.reduce(
@@ -1032,11 +1033,15 @@ export default {
                 })
             } else {
                 if (row.approvalStatus == 'PASS') {
-                    this.$alert('该收费记录已经审批！', '提示', {
-                        type: 'error',
-                        center: true,
-                    })
-                    return false
+                    // this.$alert('该收费记录已经审批！', '提示', {
+                    //     type: 'error',
+                    //     center: true,
+                    // })
+                    // return false
+                    approvalStatus = 'PENDING'
+                    msg = '确定取消审批?'
+                } else {
+                    approvalStatus = 'PASS'
                 }
                 if (!row.chargeData) {
                     this.$alert('该收费数据为空，不能审批！', '提示', {
@@ -1054,13 +1059,13 @@ export default {
                     },
                 ]
             }
-            this.$confirm('确定审批?', '提示', {
+            this.$confirm(msg, '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning',
             }).then(() => {
                 this.$axios
-                    .post('/charge-record/approval?approvalStatus=PASS', data)
+                    .post('/charge-record/approval?approvalStatus=' + approvalStatus, data)
                     .then((res) => {
                         this.update()
                         this.$alert(res.msg, '提示', {

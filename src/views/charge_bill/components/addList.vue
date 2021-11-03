@@ -88,52 +88,6 @@
                         <el-button class="addRowBox" type="primary" icon="el-icon-plus" @click="addChargeRecord" style="width:100%">增加</el-button>
                     </div>
                 </el-form-item>
-                <el-form-item label="桥载空调" v-if="listData.chargeBillConfigCode=='QZSB'">
-                    <el-form label-position="right" ref="listData" label-width="80px">
-                        <el-row>
-                            <el-col :span="12">
-                                <el-form-item label="开始时间">
-                                    <time-picker @timePickerTime="timePickerTime" :value="QZSBrecords2.startTime" :objectName="'QZSBrecords2'" :keyName="'startTime'" />
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="12">
-                                <el-form-item label="结束时间">
-                                    <time-picker @timePickerTime="timePickerTime" :value="QZSBrecords2.endTime" :objectName="'QZSBrecords2'" :keyName="'endTime'" />
-                                </el-form-item>
-
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="12">
-                                <el-form-item label="设备编号">
-                                    <el-input v-model="QZSBrecords2.deviceCode" placeholder="设备编号"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="12">
-                                <el-form-item label="使用时长">
-                                    <el-input v-model="QZSBrecords2Time" placeholder="使用时长"></el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="12">
-                                <el-form-item label="操作人1">
-                                    <el-select v-model="QZSBrecords2.operatorId" filterable clearable placeholder="请选择">
-                                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="12">
-                                <el-form-item label="操作人2">
-                                    <el-select v-model="QZSBrecords2.startUserId" filterable clearable placeholder="请选择">
-                                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-
-                    </el-form>
-                </el-form-item>
                 <el-form-item label="桥载电源" v-if="listData.chargeBillConfigCode=='QZSB'">
                     <el-form label-position="right" ref="listData" label-width="80px">
                         <el-row>
@@ -172,6 +126,52 @@
                             <el-col :span="12">
                                 <el-form-item label="操作人2">
                                     <el-select v-model="QZSBrecords1.startUserId" filterable clearable placeholder="请选择">
+                                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+
+                    </el-form>
+                </el-form-item>
+                <el-form-item label="桥载空调" v-if="listData.chargeBillConfigCode=='QZSB'">
+                    <el-form label-position="right" ref="listData" label-width="80px">
+                        <el-row>
+                            <el-col :span="12">
+                                <el-form-item label="开始时间">
+                                    <time-picker @timePickerTime="timePickerTime" :value="QZSBrecords2.startTime" :objectName="'QZSBrecords2'" :keyName="'startTime'" />
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="结束时间">
+                                    <time-picker @timePickerTime="timePickerTime" :value="QZSBrecords2.endTime" :objectName="'QZSBrecords2'" :keyName="'endTime'" />
+                                </el-form-item>
+
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="12">
+                                <el-form-item label="设备编号">
+                                    <el-input v-model="QZSBrecords2.deviceCode" placeholder="设备编号"></el-input>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="使用时长">
+                                    <el-input v-model="QZSBrecords2Time" placeholder="使用时长"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="12">
+                                <el-form-item label="操作人1">
+                                    <el-select v-model="QZSBrecords2.operatorId" filterable clearable placeholder="请选择">
+                                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="操作人2">
+                                    <el-select v-model="QZSBrecords2.startUserId" filterable clearable placeholder="请选择">
                                         <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
                                     </el-select>
                                 </el-form-item>
