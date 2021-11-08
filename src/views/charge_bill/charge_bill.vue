@@ -37,13 +37,18 @@
                     </ul>
                 </div>
                 <div>
-                    <el-input placeholder="机位查询" v-model="searchSeat" @keyup.enter.native="handleLists" style="width:100px" />
+                    <el-input placeholder="机位查询" v-model="searchSeat" @keyup.enter.native="handleLists" style="width:90px" />
                 </div>
                 <div>
-                    <el-input placeholder="机号查询" v-model="searchAircraftNo" @keyup.enter.native="handleLists" style="width:100px" />
+                    <el-input placeholder="机号查询" v-model="searchAircraftNo" @keyup.enter.native="handleLists" style="width:90px" />
                 </div>
                 <div>
-                    <el-input placeholder="航班号或航司查询" v-model="searchStr" @keyup.enter.native="handleLists" />
+                    <el-input placeholder="航班号/航司" v-model="searchStr" @keyup.enter.native="handleLists" style="width:110px" />
+                </div>
+                <div v-if="chargeBillArrs.length>1">
+                    <el-select v-model="searchBillCodes" clearable multiple collapse-tags placeholder="收费单选择" style="width:150px" @change="handleLists">
+                        <el-option v-for="item in chargeBillArrs" :key="item.code" :label="item.name" :value="item.code"></el-option>
+                    </el-select>
                 </div>
                 <div v-show="unsendCount>0">
                     <el-button type="danger" @click="getUnSendHandle">
@@ -52,11 +57,22 @@
                 </div>
             </div>
             <div class="rightBox">
-                <el-button type="primary" @click="add('')">补录</el-button>
+                <!-- <el-button type="primary" @click="add('')">补录</el-button>
                 <el-button type="primary" @click="sendSelect" v-show="searchSend===false" v-if="sendShow">发送</el-button>
                 <el-button type="primary" @click="approvalSelect" v-show="powerData.charge_approval">批量审批</el-button>
                 <el-button type="primary" @click="delBillSelect" v-show="powerData.charge_delete&&!searchDel">批量删除</el-button>
-                <el-button type="primary" @click="handleLists">刷新</el-button>
+                <el-button type="primary" @click="handleLists">刷新</el-button> -->
+
+                <el-dropdown size="medium" split-button type="primary" @command="pageCommand">
+                    操作
+                    <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item command="0">补录</el-dropdown-item>
+                        <el-dropdown-item command="1" v-show="searchSend===false" v-if="sendShow" divided>发送</el-dropdown-item>
+                        <el-dropdown-item command="2" divided>批量审批</el-dropdown-item>
+                        <el-dropdown-item command="3" divided>批量删除</el-dropdown-item>
+                        <el-dropdown-item command="4" divided>刷新</el-dropdown-item>
+                    </el-dropdown-menu>
+                </el-dropdown>
             </div>
         </div>
         <div id="tableBox">
@@ -462,6 +478,7 @@ export default {
             searchDel: false,
             searchAircraftNo: '',
             searchSeat: '',
+            searchBillCodes: [],
 
             lists: [],
             submitData: {
@@ -506,11 +523,15 @@ export default {
 
     created() {},
     mounted() {
+        this.searchTime = [
+            this.getTimeByFormat(new Date() - 3 * 24 * 60 * 60 * 1000, 'YY-MM-DD') + ' 00:00:00',
+            this.$moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'),
+        ]
+
         if (top != self) {
             window.addEventListener(
                 'message',
                 (event) => {
-                    console.log(1111111)
                     this.pageSelf = false
                     this.inIframeInit(event.data)
                 },
@@ -524,6 +545,8 @@ export default {
         if (this.power) {
             this.powerData = _.cloneDeep(this.power)
         }
+
+        console.log(this.$moment().day(-3).format('YYYY-MM-DD'))
     },
     watch: {
         searchApproval: function () {
@@ -537,6 +560,27 @@ export default {
         clearInterval(this.dataTimer)
     },
     methods: {
+        pageCommand(command) {
+            switch (command) {
+                case '0':
+                    this.add('')
+                    break
+                case '1':
+                    this.sendSelect()
+                    break
+                case '2':
+                    this.approvalSelect()
+                    break
+                case '3':
+                    this.delBillSelect()
+                    break
+                case '4':
+                    this.handleLists()
+                    break
+                default:
+                    break
+            }
+        },
         getOperatorName(row) {
             let operatorName = row.operatorName
             let startUserName = row.startUserName
@@ -643,7 +687,7 @@ export default {
                 this.getChargeBillArr()
             }
         },
-        getRowName({ row }) {
+        getRowName({ row, rowIndex }) {
             let flight = _.find(this.lists, { id: row.chargeBillId }).flight
             let name = 'expandRow'
             let startTime = row.startTime ? new Date(row.startTime).getTime() : ''
@@ -655,17 +699,27 @@ export default {
 
             let atd = filghtObj['D'].actualTime ? new Date(filghtObj['D'].actualTime).getTime() : ''
             let ata = filghtObj['A'].actualTime ? new Date(filghtObj['A'].actualTime).getTime() : ''
-
+            let minTime = 10
+            let maxTime = 6 * 60
+            if (row.chargeBillConfigCode == 'QZSB') {
+                minTime = 15
+                if (_.includes(row.flightNo, 'CA')) {
+                    maxTime = 3 * 60
+                } else {
+                    maxTime = 4 * 60
+                }
+            }
             if (
                 (atd && endTime && atd < endTime) ||
                 (ata && startTime && ata > startTime) ||
                 (endTime &&
                     startTime &&
-                    (endTime - startTime > 6 * 60 * 60 * 1000 ||
-                        endTime - startTime < 10 * 60 * 1000))
+                    (endTime - startTime > maxTime * 60 * 1000 ||
+                        endTime - startTime < minTime * 60 * 1000))
             ) {
                 name += ' timeBorder'
             }
+
             return name
         },
         getSumText(sum) {
@@ -740,6 +794,10 @@ export default {
             if (this.searchStr) {
                 data.params = this.searchStr
             }
+
+            if (this.searchBillCodes.length > 0) {
+                data.chargeBillCodes = this.searchBillCodes.join(',')
+            }
             if (this.searchSeat) {
                 data.seat = this.searchSeat
             }
@@ -748,6 +806,7 @@ export default {
             }
             data.approvalStatus = this.searchApproval
             data.send = this.searchSend
+            console.log(this.searchSend)
 
             this.searchYesterdaySend = false
             this.searchYesterdayTime = false
@@ -781,13 +840,11 @@ export default {
             if (this.sendShow) {
                 this.searchYesterdaySend = !this.searchYesterdaySend
                 this.searchYesterdayTime = false
-                this.searchSend = !this.searchYesterdaySend
+                this.searchSend = this.searchYesterdaySend === true ? false : ''
             } else {
                 this.searchYesterdaySend = false
                 this.searchYesterdayTime = !this.searchYesterdayTime
             }
-
-            this.searchTime = []
 
             this.searchDel = false
             this.searchStr = ''
@@ -803,6 +860,16 @@ export default {
                 linkedData: true,
                 approvalStatus: '',
                 send: '',
+            }
+
+            if (
+                this.searchTime &&
+                this.searchTime.length > 0 &&
+                !this.searchYesterdayTime &&
+                !this.searchYesterdaySend
+            ) {
+                data.startTime = this.searchTime[0]
+                data.endTime = this.searchTime[1]
             }
 
             data.yesterdaySend = this.searchYesterdaySend

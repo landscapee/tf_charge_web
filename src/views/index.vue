@@ -416,6 +416,9 @@ export default {
             .el-select {
                 width: 100px;
             }
+            i {
+                font-size: 14px;
+            }
         }
     }
     #tableBox {
