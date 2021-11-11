@@ -1,5 +1,5 @@
 <template>
-    <div id="project" class="rightBoxContent">
+    <div id="project" class="rightBoxContent" v-loading="loading" element-loading-text="加载中...">
         <div class="topBox">
             <ul class="navBox">
                 <li>
@@ -57,18 +57,18 @@
                 </div>
             </div>
             <div class="rightBox">
+                <el-button type="primary" @click="approvalSelect" v-show="powerData.charge_approval">批量审批</el-button>
+                <el-button type="primary" @click="sendSelect" v-show="searchSend===false" v-if="sendShow">发送</el-button>
                 <!-- <el-button type="primary" @click="add('')">补录</el-button>
                 <el-button type="primary" @click="sendSelect" v-show="searchSend===false" v-if="sendShow">发送</el-button>
                 <el-button type="primary" @click="approvalSelect" v-show="powerData.charge_approval">批量审批</el-button>
                 <el-button type="primary" @click="delBillSelect" v-show="powerData.charge_delete&&!searchDel">批量删除</el-button>
                 <el-button type="primary" @click="handleLists">刷新</el-button> -->
 
-                <el-dropdown size="medium" split-button type="primary" @command="pageCommand">
-                    操作
+                <el-dropdown size="medium" type="primary" @command="pageCommand">
+                    <el-button type="primary">更多<i class="el-icon-arrow-down el-icon--right"></i></el-button>
                     <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item command="0">补录</el-dropdown-item>
-                        <el-dropdown-item command="1" v-show="searchSend===false" v-if="sendShow" divided>发送</el-dropdown-item>
-                        <el-dropdown-item command="2" divided>批量审批</el-dropdown-item>
                         <el-dropdown-item command="3" divided>批量删除</el-dropdown-item>
                         <el-dropdown-item command="4" divided>刷新</el-dropdown-item>
                     </el-dropdown-menu>
@@ -284,9 +284,7 @@
                                                 <el-button type="text" :title="scope1.row.approvalStatus=='PASS'?'取消审批':'审批'" @click="approval(scope1.row)" :disabled="!!scope1.row.send" v-show="getPower(scope.row,'charge_approval')">{{scope1.row.approvalStatus=='PASS'?'取消审批':'审批'}}</el-button>
                                                 <el-button type="text" title="编辑" @click="edit('edit',scope1.row,scope.row)" :disabled="!!scope1.row.send" v-show="getPower(scope1.row,'charge_edit')">编辑</el-button>
                                                 <el-dropdown trigger="click" style="margin-left:.1rem;">
-                                                    <el-button type="text" title="更多" class="el-dropdown-link">
-                                                        更多
-                                                    </el-button>
+                                                    <el-button type="text" title="更多" class="el-dropdown-link">更多</el-button>
                                                     <el-dropdown-menu slot="dropdown">
                                                         <el-dropdown-item>
                                                             <el-button type="text" title="删除" @click="del(scope1.row)" :disabled="!!(scope1.row.approvalStatus=='PASS')" v-show="getPower(scope1.row,'charge_delete')">删除</el-button>
@@ -294,9 +292,6 @@
                                                         <el-dropdown-item>
                                                             <el-button type="text" title="历史" @click="history(scope1.row)">历史</el-button>
                                                         </el-dropdown-item>
-                                                        <!-- <el-dropdown-item>
-                                                            <el-button type="text" title="备注" @click="edit('remark',scope1.row)" :disabled="!!(scope1.row.approvalStatus=='PASS'||scope1.row.send)">备注</el-button>
-                                                        </el-dropdown-item> -->
                                                         <el-dropdown-item>
                                                             <el-button type="text" title="发送日志" @click="sendLog(scope1)">日志</el-button>
                                                         </el-dropdown-item>
@@ -410,14 +405,27 @@
                             </el-popover>
                         </template>
                     </el-table-column>
-                    <el-table-column label="操作" align="center" v-if="!searchDel" class-name="optBox" width="240">
+                    <el-table-column label="操作" align="center" v-if="!searchDel" class-name="optBox" width="140">
                         <template slot-scope="scope">
-                            <el-button type="text" title="新增" @click="add(scope.row)" v-show="powerData.charge_add" :disabled="!!scope.row.approvalStatus">新增</el-button>
                             <el-button type="text" title="编辑" @click="editBill(scope.row)" v-show="powerData.charge_edit" :disabled="!!scope.row.approvalStatus">编辑</el-button>
                             <el-button type="text" title="审批" @click="approval([scope.row],'arrs')" :disabled="!!scope.row.approvalStatus" v-show="powerData.charge_approval">审批</el-button>
-                            <el-button type="text" title="上报" @click="report(scope)" :disabled="scope.row.report" v-if="getReportShow(scope)">上报</el-button>
-                            <el-button type="text" title="下载" @click="download(scope.row)" v-show="powerData.charge_download">下载</el-button>
-                            <el-button type="text" title="删除" @click="delBill([scope.row])" v-show="powerData.charge_delete&&scope.row.chargeRecords.length==0">删除</el-button>
+                            <el-dropdown trigger="click" style="margin-left:.1rem;">
+                                <el-button type="text" title="更多" class="el-dropdown-link">更多</el-button>
+                                <el-dropdown-menu slot="dropdown">
+                                    <el-dropdown-item>
+                                        <el-button type="text" title="新增" @click="add(scope.row)" v-show="powerData.charge_add" :disabled="!!scope.row.approvalStatus">新增</el-button>
+                                    </el-dropdown-item>
+                                    <el-dropdown-item>
+                                        <el-button type="text" title="上报" @click="report(scope)" :disabled="scope.row.report" v-if="getReportShow(scope)">上报</el-button>
+                                    </el-dropdown-item>
+                                    <el-dropdown-item>
+                                        <el-button type="text" title="下载" @click="download(scope.row)" v-show="powerData.charge_download">下载</el-button>
+                                    </el-dropdown-item>
+                                    <el-dropdown-item>
+                                        <el-button type="text" title="删除" @click="delBill([scope.row])" v-show="powerData.charge_delete&&scope.row.chargeRecords.length==0">删除</el-button>
+                                    </el-dropdown-item>
+                                </el-dropdown-menu>
+                            </el-dropdown>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -515,16 +523,16 @@ export default {
             searchYesterdaySend: false,
             unsendCount: 0,
             unsendAlert: false,
-
             qzsbUrl: '',
             qzjyShow: false,
+            loading: false,
         }
     },
 
     created() {},
     mounted() {
         this.searchTime = [
-            this.getTimeByFormat(new Date() - 3 * 24 * 60 * 60 * 1000, 'YY-MM-DD') + ' 00:00:00',
+            this.getTimeByFormat(new Date() - 2 * 24 * 60 * 60 * 1000, 'YY-MM-DD') + ' 00:00:00',
             this.$moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'),
         ]
 
@@ -545,8 +553,6 @@ export default {
         if (this.power) {
             this.powerData = _.cloneDeep(this.power)
         }
-
-        console.log(this.$moment().day(-3).format('YYYY-MM-DD'))
     },
     watch: {
         searchApproval: function () {
@@ -881,6 +887,7 @@ export default {
         findChargeBillWhitPageAndPc(data, update, getCount) {
             if (!getCount) {
                 this.submitData = data
+                this.loading = true
             }
 
             let url =
@@ -934,6 +941,8 @@ export default {
                     }
                     let lists = res.data.records
                     this.total = res.data.total
+
+                    this.loading = false
 
                     lists.map((list) => {
                         list.chargeRecords = _.sortBy(list.chargeRecords, 'chargeCode')

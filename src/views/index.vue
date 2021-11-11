@@ -411,7 +411,7 @@ export default {
         .rightBox {
             display: flex;
             & > div {
-                margin-right: 10px;
+                margin-left: 5px;
             }
             .el-select {
                 width: 100px;
@@ -497,9 +497,6 @@ table {
 }
 
 .outtable {
-    .cell {
-        display: flex !important;
-    }
     th {
         background: none !important;
         color: #333 !important;
@@ -511,11 +508,13 @@ table {
         }
     }
 }
+
 .optBox {
     .el-button {
         padding: 0;
     }
     .cell {
+        display: flex !important;
         justify-content: center;
     }
 }
