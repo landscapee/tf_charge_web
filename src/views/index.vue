@@ -529,6 +529,16 @@ table {
     font-size: 12px;
     color: #fff;
 }
+.demo-form-inline {
+    display: flex;
+    .el-form-item.remarkItem {
+        flex: 1;
+        display: flex;
+        .el-form-item__content {
+            flex: 1;
+        }
+    }
+}
 .stateE {
     background: #ccc;
 }

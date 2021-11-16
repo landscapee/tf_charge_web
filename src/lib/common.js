@@ -151,28 +151,19 @@ export const getTimeByFormat = function(time,format){
     return format.replace(/YY/,YY).replace(/MM/,MM).replace(/DD/,DD).replace(/hh/,hh).replace(/mm/,mm).replace(/ss/,ss)
 }
 
-export const timeLength = function(time){
-    if (!time) { return '--' }
-    let timeLength = ''
-    let timeLengthObj = moment.duration(time)._data;
-    if (timeLengthObj.years > 0) {
-        timeLength+=`${timeLengthObj.years}年`
+export const timeLength = function(mss){
+    if (!mss) { return '--' }
+    var hours = parseInt(mss / (1000 * 60 * 60))
+    var minutes = parseInt((mss % (1000 * 60 * 60)) / (1000 * 60))
+    var seconds = parseInt((mss % (1000 * 60)) / 1000)
+
+    if (hours > 0) {
+        return `${hours}时${minutes }分${seconds}秒`
+    } else {
+        if (minutes > 0) {
+            return `${minutes}分${seconds}秒`
+        } else {
+            return `${seconds}秒`
+        }
     }
-    if (timeLengthObj.months > 0) {
-        timeLength+=`${timeLengthObj.months}月`
-    }
-    if (timeLengthObj.days > 0) {
-        timeLength+=`${timeLengthObj.days}日`
-    }
-    if (timeLengthObj.hours > 0) {
-        timeLength+=`${timeLengthObj.hours}时`
-    }
-    if (timeLengthObj.minutes > 0) {
-        timeLength+=`${timeLengthObj.minutes}分`
-    }
-    if (timeLengthObj.seconds > 0) {
-        timeLength+=`${timeLengthObj.seconds}秒`
-    }
-    return timeLength
-    
 }
