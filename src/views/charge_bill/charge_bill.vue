@@ -69,7 +69,7 @@
                     <el-button type="primary">更多<i class="el-icon-arrow-down el-icon--right"></i></el-button>
                     <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item command="0">补录</el-dropdown-item>
-                        <el-dropdown-item command="2" v-show="powerData.charge_approval">批量审批</el-dropdown-item>
+                        <el-dropdown-item command="2" v-show="powerData.charge_approval" divided>批量审批</el-dropdown-item>
                         <el-dropdown-item command="3" divided>批量删除</el-dropdown-item>
 
                     </el-dropdown-menu>
@@ -288,7 +288,7 @@
                                                     <el-button type="text" title="更多" class="el-dropdown-link">更多</el-button>
                                                     <el-dropdown-menu slot="dropdown">
                                                         <el-dropdown-item>
-                                                            <el-button type="text" :title="scope1.row.approvalStatus=='PASS'?'取消审批':'审批'" @click="approval(scope1.row)" :disabled="!!scope1.row.send" v-show="getPower(scope.row,'charge_approval')">{{scope1.row.approvalStatus=='PASS'?'取消审批':'审批'}}</el-button>
+                                                            <el-button type="text" :title="scope1.row.approvalStatus=='PASS'?'取消审批':'审批'" @click="approval(scope1.row,'sign',scope1.row.approvalStatus=='PASS')" :disabled="!!scope1.row.send" v-show="getPower(scope.row,'charge_approval')">{{scope1.row.approvalStatus=='PASS'?'取消审批':'审批'}}</el-button>
                                                         </el-dropdown-item>
                                                         <el-dropdown-item>
                                                             <el-button type="text" title="删除" @click="del(scope1.row)" :disabled="!!(scope1.row.approvalStatus=='PASS')" v-show="getPower(scope1.row,'charge_delete')">删除</el-button>
@@ -412,10 +412,15 @@
                     <el-table-column label="操作" align="center" v-if="!searchDel" class-name="optBox" width="90">
                         <template slot-scope="scope">
 
-                            <el-button type="text" title="审批" @click="approval([scope.row],'arrs')" :disabled="!!scope.row.approvalStatus" v-show="powerData.charge_approval">审批</el-button>
+                            <el-button type="text" title="审批" @click="approval([scope.row],'arrs',false)" :disabled="!!scope.row.approvalStatus" v-show="powerData.charge_approval">审批</el-button>
+
                             <el-dropdown trigger="click" style="margin-left:.1rem;">
                                 <el-button type="text" title="更多" class="el-dropdown-link">更多</el-button>
                                 <el-dropdown-menu slot="dropdown">
+
+                                    <el-dropdown-item>
+                                        <el-button type="text" title="取消审批" @click="approval([scope.row],'arrs',true)" :disabled="!!scope.row.sendAll||scope.row.chargeRecords.length==0" v-show="powerData.charge_approval">取消审批</el-button>
+                                    </el-dropdown-item>
                                     <el-dropdown-item>
                                         <el-button type="text" title="新增" @click="add(scope.row)" v-show="powerData.charge_add" :disabled="!!scope.row.approvalStatus">新增</el-button>
                                     </el-dropdown-item>
@@ -430,6 +435,9 @@
                                     </el-dropdown-item>
                                     <el-dropdown-item>
                                         <el-button type="text" title="删除" @click="delBill([scope.row])" v-show="powerData.charge_delete&&scope.row.chargeRecords.length==0">删除</el-button>
+                                    </el-dropdown-item>
+                                    <el-dropdown-item>
+                                        <el-button type="text" title="变更" @click="flightHistory(scope.row)">变更</el-button>
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </el-dropdown>
@@ -457,8 +465,24 @@
                 <li v-for="(item,idx) in logLists" :key="idx">
                     {{item.content}}
                 </li>
-
             </ul>
+        </el-dialog>
+        <el-dialog :visible.sync="flightHistoriesShow" id="addTask" class="codeDialog" center width="1000px" :show-close="false">
+            <div slot="title" class="head">
+                <div></div>
+                <span>历史变更记录</span>
+                <i class="el-icon-circle-close" @click="flightHistoriesShow=false"></i>
+            </div>
+            <el-table :data="flightHistories" style="width: 100%" size="mini" border height="260" :header-cell-style="{backgroundColor:'#3A3F43',fontSize:'14px'}" :cell-style="taskFlightHistoriesStyle">
+                <el-table-column rop="updateTime" label="变更时间">
+                    <template slot-scope="scope">{{ $moment(Number(scope.row.updateTime)).format('HH:mm(DD)') }}</template>
+                </el-table-column>
+                <el-table-column prop="flightNo" label="航班号"></el-table-column>
+                <el-table-column prop="relFlightNo" label="连班航班号"></el-table-column>
+                <el-table-column prop="seat" label="机位"></el-table-column>
+                <el-table-column prop="aircraftNo" label="机号"></el-table-column>
+                <el-table-column prop="aircraftType" label="机型"></el-table-column>
+            </el-table>
 
         </el-dialog>
     </div>
@@ -482,6 +506,8 @@ export default {
     },
     data() {
         return {
+            flightHistoriesShow: false,
+            flightHistories: [],
             logShow: false,
             logLists: [],
 
@@ -573,6 +599,15 @@ export default {
         clearInterval(this.dataTimer)
     },
     methods: {
+        taskFlightHistoriesStyle({ row, column, rowIndex, columnIndex }) {
+            let style = {
+                fontSize: '14px',
+            }
+            if (row.changed && row.changed.indexOf(column.property) >= 0) {
+                style.background = 'yellow'
+            }
+            return style
+        },
         getitemClass(item) {
             if (item.supplementCode == 'QZSB-BZ') {
                 return 'remarkItem'
@@ -697,8 +732,14 @@ export default {
                 this.sortObj = {}
             }
             this.submitData.current = 1
-            this.handleLists()
+
+            if (this.searchYesterdayTime == false || this.searchYesterdaySend == true) {
+                this.unsendHandle()
+            } else {
+                this.handleLists()
+            }
         },
+
         inIframeInit(data) {
             if (data.token) {
                 sessionStorage.setItem('token', data.token)
@@ -825,13 +866,12 @@ export default {
             }
             data.approvalStatus = this.searchApproval
             data.send = this.searchSend
-            console.log(this.searchSend)
 
             this.searchYesterdaySend = false
             this.searchYesterdayTime = false
 
-            data.yesterdayTime = false
-            data.yesterdaySend = false
+            data.yesterdayTime = this.searchYesterdaySend
+            data.yesterdaySend = this.searchYesterdayTime
 
             data = { ...data, orderBy: this.sortObj }
             this.findChargeBillWhitPageAndPc(data)
@@ -865,6 +905,9 @@ export default {
                 this.searchYesterdayTime = !this.searchYesterdayTime
             }
 
+            this.unsendHandle()
+        },
+        unsendHandle() {
             this.searchDel = false
             this.searchStr = ''
             this.searchSeat = ''
@@ -1073,7 +1116,6 @@ export default {
             let arrs = this.selections.filter((list) => {
                 return !list.chargeRecords || list.chargeRecords.length == 0
             })
-            console.log(arrs)
             if (arrs.length > 0) {
                 this.$alert('不能选择无收费项数据进行审批！', '提示', {
                     type: 'error',
@@ -1081,28 +1123,44 @@ export default {
                 })
                 return false
             }
-            this.approval(this.selections, 'arrs')
+            this.approval(this.selections, 'arrs', false)
         },
-        approval(row, type) {
+        approval(row, type, send) {
             let data = []
             let approvalStatus = 'PASS'
             let msg = '确定审批?'
-            if (type) {
+            let endHttp = false
+            if (type == 'arrs') {
+                if (send) {
+                    approvalStatus = 'PENDING'
+                    msg = '确定取消审批?'
+                } else {
+                    approvalStatus = 'PASS'
+                }
+
                 row.forEach((list, idx) => {
                     let chargeRecordIds = _.reduce(
                         list.chargeRecords || [],
                         function (result, value) {
-                            if (value.approvalStatus != 'PASS' && value.chargeData) {
+                            if (!send && value.approvalStatus != 'PASS' && value.chargeData) {
                                 result.push({ id: value.id })
                             }
+                            if (send && value.approvalStatus == 'PASS' && !value.send) {
+                                result.push({ id: value.id })
+                            }
+
                             return result
                         },
                         []
                     )
-
                     if (chargeRecordIds.length == 0) {
+                        endHttp = true
                         this.$alert(
-                            `勾选的第${idx + 1}二条收费单，收费记录以全部审批，不能重复审批！`,
+                            send
+                                ? `收费项未审批，或者已发送，不能取消审批`
+                                : `勾选的第${
+                                      idx + 1
+                                  }二条收费单，收费记录以全部审批，不能重复审批！`,
                             '提示',
                             {
                                 type: 'error',
@@ -1121,18 +1179,14 @@ export default {
                     }
                 })
             } else {
-                if (row.approvalStatus == 'PASS') {
-                    // this.$alert('该收费记录已经审批！', '提示', {
-                    //     type: 'error',
-                    //     center: true,
-                    // })
-                    // return false
+                if (send) {
                     approvalStatus = 'PENDING'
                     msg = '确定取消审批?'
                 } else {
                     approvalStatus = 'PASS'
                 }
                 if (!row.chargeData) {
+                    endHttp = true
                     this.$alert('该收费数据为空，不能审批！', '提示', {
                         type: 'error',
                         center: true,
@@ -1147,6 +1201,9 @@ export default {
                         chargeRecords: [{ id: row.id }],
                     },
                 ]
+            }
+            if (endHttp) {
+                return false
             }
             this.$confirm(msg, '提示', {
                 confirmButtonText: '确定',
@@ -1250,6 +1307,15 @@ export default {
                     })
                 })
             })
+        },
+        flightHistory(row) {
+            this.flightHistoriesShow = true
+            // 16947666
+            this.$axios
+                .get('/flightHistory/selectByFlightId?flightId=' + row.flightId)
+                .then((res) => {
+                    this.flightHistories = res.data
+                })
         },
         download(row) {
             var a = document.createElement('a')
