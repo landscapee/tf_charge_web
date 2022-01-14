@@ -34,7 +34,10 @@
 
 </template>
 
+
 <script>
+import VerifyMix from './verifyMix'
+
 export default {
     props: ['userDeptLists'],
     data() {
@@ -43,13 +46,11 @@ export default {
             rowData: {},
         }
     },
+    mixins:[VerifyMix],
     mounted() {},
     watch: {},
     methods: {
-        resetDom(dom){
-            dom.style.setProperty("left", '50%', "important");
-            dom.style.setProperty("top",    '50%', "important");
-        },
+
         initData(row) {
             let dom =this.$refs.edit.$el.querySelector('.el-dialog')
             this.resetDom(dom)

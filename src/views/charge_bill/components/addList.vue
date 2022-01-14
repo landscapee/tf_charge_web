@@ -24,6 +24,9 @@
                         </el-form-item>
                     </el-col>
                 </el-row>
+<!--                <el-form-item label="航班时间"  >-->
+<!--                    <div>{{getTimett}}</div>-->
+<!--                 </el-form-item>-->
                 <el-form-item label="收费单" required>
                     <el-select v-model="listData.chargeBillConfigCode" filterable clearable placeholder="请选择" @change="chargeBillChange" :disabled="flightDisable">
                         <el-option v-for="item in chargeBillArr" :key="item.id" :label="item.name" :value="item.code"></el-option>
@@ -338,11 +341,15 @@
 
 <script>
 import TimePicker from '../../../components/time-picker'
+import VerifyMix from './verifyMix'
+import {map} from 'lodash'
+
 export default {
     components: {
         'time-picker': TimePicker,
     },
     props: ['userDeptLists'],
+    mixins:[VerifyMix],
     data() {
         return {
             listShow: false,
@@ -374,6 +381,18 @@ export default {
             QZSBrecords1Time: '',
             QZSBrecords2Time: '',
         }
+    },
+    computed:{
+      getTimett(){
+          let time=''
+          if(this.activeFlight){
+              let time1=this.activeFlight.actualTime||''
+              let time2=(this.activeFlight.successionFlight&&this.activeFlight.successionFlight.actualTime||'')
+              console.log(22,time2,time1);
+              time=time1&&(time1+'-'+time2)
+          }
+          return time
+      }
     },
     mounted() {},
     watch: {
@@ -454,10 +473,7 @@ export default {
             })
             this.chargeBillArr = arrs
         },
-        resetDom(dom){
-            dom.style.setProperty("left", '50%', "important");
-            dom.style.setProperty("top",    '50%', "important");
-        },
+
         initData(row, chargeBillArrs) {
             let dom =this.$refs.add.$el.querySelector('.el-dialog')
             this.resetDom(dom)
@@ -478,12 +494,12 @@ export default {
                 this.listData.chargeBillConfigCode = this.chargeBillArr[0].code
                 this.chargeBillChange('new')
             }
-
             if (this.rowData) {
                 this.flightDisable = true
                 this.activeFlight = this.rowData.flight
                 this.listData.chargeBillConfigCode = this.rowData.chargeBillConfigCode
                 this.chargeBillChange('new')
+                this.flighNoSearch()
             } else {
                 this.flightDisable = false
             }
@@ -718,13 +734,47 @@ export default {
                 })
                 return false
             }
-            // if (this.chargeRecords.length == 0) {
-            //     this.$alert('收费项不能为空！', '提示', {
-            //         type: 'error',
-            //         center: true,
-            //     })
-            //     return false
-            // }
+            return true
+            
+             let scope={row: {fligt:this.activeFlight.successionFlight}}
+            let rowKT={...this.activeFlight,
+                startTime:this.QZSBrecords2.startTime,
+                endTime:this.QZSBrecords2.endTime,
+            }
+            let rowDY={...this.activeFlight,
+                startTime:this.QZSBrecords1.startTime,
+                endTime:this.QZSBrecords1.endTime,
+            }
+            let statusFRowObjDY =(this.QZSBrecords1.startTime&&this.dealStatus(rowDY,scope, {},'successionFlight'))
+            let statusFRowObjKT_all = (this.QZSBrecords2.startTime&&this.dealStatus(rowKT,scope, statusFRowObjDY||{},'successionFlight'))
+            console.log(statusFRowObjKT_all);
+            if(statusFRowObjKT_all){
+                let arr=[]
+                let textObj = {
+                    conditionerBlo: '桥载空调保障时间范围 大于 桥载电源 时间范围',
+                    QZDY: '桥载电源保障时间 超出 飞机起降时间范围',
+                    QZKT: '桥载空调保障时间 超出 飞机起降时间范围',
+                    QZDYC: '桥载电源超长保障',
+                    QZKTC:'桥载空调超长保障',
+                    QZDYD: '桥载电源过短保障',
+                    QZKTD:'桥载空调过短保障',
+                }
+
+                map(statusFRowObjKT_all,(val,key)=>{
+                    if(val){
+                        arr.push(textObj[key])
+                    }
+                })
+                if(arr.length){
+                    this.$alert(arr[0]+'！', '提示', {
+                        type: 'error',
+                        center: true,
+                    })
+                    return false
+                }
+             }
+
+
             return true
         },
         chargeBillChange(type) {
@@ -786,6 +836,7 @@ export default {
                 })
         },
         flightNoDbHandle(item) {
+            console.log(item);
             this.activeFlight = item
             this.flightNoShow = false
         },

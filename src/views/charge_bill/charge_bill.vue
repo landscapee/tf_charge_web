@@ -464,7 +464,6 @@
                                         </el-table-column>
                                     </el-table>
                                 </div>
-
                                 <div class="bill_expand_Box1"
                                      v-show="scope.row.flightSupplementInfos&&scope.row.flightSupplementInfos.length>0">
                                     <el-form :inline="true" class="demo-form-inline">
@@ -732,7 +731,7 @@ import editList from './components/editList'
 import SupplementEdit from './components/supplement_edit'
 import History from './components/history'
 import {map} from 'lodash'
-
+import VerifyMix from './components/verifyMix'
 export default {
     props: ['power', 'flagNav'],
     components: {
@@ -799,7 +798,7 @@ export default {
             loading: false,
         }
     },
-
+    mixins:[VerifyMix],
     created() {
     },
     computed: {
@@ -1037,23 +1036,7 @@ export default {
             let flightData = flightObj[movement]
             return flightData && flightData[key] ? flightData[key] : '--'
         },
-        getRowFlightLoading({flight}) {
-            let obj = {
-                A: {},
-                D: {},
-            }
-            if (!flight) {
-                return obj
-            }
-            if (flight.movement == 'A') {
-                obj['A'] = flight
-                obj['D'] = flight.flight || {}
-            } else {
-                obj['D'] = flight
-                obj['A'] = flight.flight || {}
-            }
-            return obj
-        },
+
         getActiveFlight({row}) {
             let flightId = row.flightId
             if (row.flight.flightId == flightId) {
@@ -1084,49 +1067,11 @@ export default {
                 this.getChargeBillArr()
             }
         },
-        dealStatus(row, scope,obj={}){
-            let flight = _.find(this.lists, {id: row.chargeBillId}).flight
-             let startTime = row.startTime ? new Date(row.startTime).getTime() : ''
-            let endTime = row.endTime ? new Date(row.endTime).getTime() : ''
-            let filghtObj = this.getRowFlightLoading({flight})
-            let atd = filghtObj['D'].actualTime ? new Date(filghtObj['D'].actualTime).getTime() : ''
-            let ata = filghtObj['A'].actualTime ? new Date(filghtObj['A'].actualTime).getTime() : ''
-            let minTime = 10
-            let maxTime = 6 * 60
-            let statusFRowObj =obj|| {conditionerBlo:null,
-                QZDY:null,QZKT:null,
-                QZDYC:null,QZKTC:null,
-                QZDYD:null,QZKTD:null,
-            }
 
-            if (row.chargeBillConfigCode == 'QZSB') {
-                minTime = 15
-                if (_.includes(row.flightNo, 'CA')) {
-                    maxTime = 3 * 60
-                } else {
-                    maxTime = 4 * 60
-                }
-            }
-            // 空调时间是否大于电源时间范围 conditionerBlo
-            if (row.chargeCode == 'QZKT') {
-                let data = (scope.row.chargeRecords || []).filter(k => k.chargeCode == 'QZDY') || {}
-                let startTimeKT = data.startTime ? new Date(data.startTime).getTime() : 0
-                let endTimeKY = data.endTime ? new Date(data.endTime).getTime() : 0
-                statusFRowObj.conditionerBlo =obj.conditionerBlo|| !(startTime > startTimeKT && endTime < endTimeKY)
-
-            }
-            // 电源 空调时间是否大于航班时间时间范围 KTDYFlightBlo
-            let KTDYFlightBlo = (atd && endTime && atd < endTime) || (ata && startTime && ata > startTime)
-            statusFRowObj[row.chargeCode] =obj[row.chargeCode]|| KTDYFlightBlo
-            statusFRowObj[row.chargeCode + 'D'] =obj[row.chargeCode+'D']|| endTime && startTime && (endTime - startTime < minTime * 60 * 1000)
-            statusFRowObj[row.chargeCode + 'C'] =obj[row.chargeCode+'C']|| endTime && startTime && (endTime - startTime > maxTime * 60 * 1000)
-
-            return statusFRowObj
-
-        },
         getRowName({row, rowIndex}, scope) {
             // 主表格状态标记使用
             let name = 'expandRow'
+            // dealStatus 来自 component/verifyMix
             let statusFRowObj =this.dealStatus(row,scope)
 
             if (
@@ -1957,7 +1902,8 @@ export default {
     }
     .blue{
         //background:#E6A23C!important;
-        background: #f19408 !important;
+        //background: #f19408 !important;
+        background: blue !important;
     }
 }
 </style>

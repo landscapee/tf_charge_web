@@ -1,5 +1,5 @@
 <template>
-    <el-dialog :visible.sync="listShow" id="addTask" center :width="rowData.chargeBillConfigCode == 'LANQ'&&type=='edit'?'800px':'400px'" :show-close="false">
+    <el-dialog v-drag-dialog ref="edit"  :visible.sync="listShow" id="addTask" center :width="rowData.chargeBillConfigCode == 'LANQ'&&type=='edit'?'800px':'400px'" :close-on-click-modal="false" :show-close="false">
         <div slot="title" class="head">
             <div></div>
             <span>{{type=='add'?'新增':'编辑'}}</span>
@@ -110,6 +110,8 @@
 
 <script>
 import TimePicker from '../../../components/time-picker'
+import VerifyMix from './verifyMix'
+
 export default {
     components: {
         'time-picker': TimePicker,
@@ -132,6 +134,7 @@ export default {
             rowData: {},
         }
     },
+    mixins:[VerifyMix],
     methods: {
         timePickerTime(objectName, keyName, time) {
             this[objectName][keyName] = time
@@ -139,7 +142,10 @@ export default {
         getSourceName(record) {
             return record.chargeDataSource.code ? record.chargeDataSource.code.split('-')[1] : ''
         },
+
         initData(type, data, row) {
+            let dom =this.$refs.edit.$el.querySelector('.el-dialog')
+            this.resetDom(dom)
             this.timeShow = false
             this.type = type
             this.listShow = true
@@ -154,7 +160,7 @@ export default {
                 endTime: '',
                 remark: '',
             }
-            if (data) {
+             if (data) {
                 // setTimeout(() => {
                 //     this.listData = _.cloneDeep(data)
                 // }, 1000)
