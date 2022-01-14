@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-dialog :visible.sync="listShow" id="addTask" center :width="'800px'" :show-close="false">
+        <el-dialog v-drag-dialog ref="edit" :visible.sync="listShow" id="addTask" center :width="'800px'" :close-on-click-modal="false" :show-close="false">
             <div slot="title" class="head">
                 <div></div>
                 <span>编辑</span>
@@ -46,7 +46,13 @@ export default {
     mounted() {},
     watch: {},
     methods: {
+        resetDom(dom){
+            dom.style.setProperty("left", '50%', "important");
+            dom.style.setProperty("top",    '50%', "important");
+        },
         initData(row) {
+            let dom =this.$refs.edit.$el.querySelector('.el-dialog')
+            this.resetDom(dom)
             this.listShow = true
             this.rowData = _.cloneDeep(row)
         },

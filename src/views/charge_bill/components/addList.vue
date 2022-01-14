@@ -1,7 +1,7 @@
 <template>
     <div>
-        <el-dialog :visible.sync="listShow" id="addTask" center :width="listData.chargeBillConfigCode=='LANQ'?'1200px':'800px'" :show-close="false">
-            <div slot="title" class="head">
+        <el-dialog v-drag-dialog ref="add" :visible.sync="listShow" id="addTask" center :width="listData.chargeBillConfigCode=='LANQ'?'1200px':'800px'" :close-on-click-modal="false" :show-close="false">
+            <div slot="title" class="head ">
                 <div></div>
                 <span>新增</span>
                 <i class="el-icon-circle-close" @click="listShow=false"></i>
@@ -197,7 +197,7 @@
                 <el-button type="primary" @click="save">提交</el-button>
             </div>
         </el-dialog>
-        <el-dialog :visible.sync="flightNoShow" id="addTask" center :show-close="false" width="">
+        <el-dialog ref="flightNo" :visible.sync="flightNoShow" id="addTask" center :show-close="false" width="">
             <div slot="title" class="head">
                 <div></div>
                 <span>航班号选择</span>
@@ -236,7 +236,7 @@
                 </div>
             </div>
         </el-dialog>
-        <el-dialog :visible.sync="chargeRecordShow" id="addTask" center :show-close="false" :width="chargeRecordPageType=='boarding-bridge'?'800px':'400px'">
+        <el-dialog ref="charge" :visible.sync="chargeRecordShow" id="addTask" center :show-close="false" :width="chargeRecordPageType=='boarding-bridge'?'800px':'400px'">
             <div slot="title" class="head">
                 <div></div>
                 <span>收费项选择</span>
@@ -454,7 +454,13 @@ export default {
             })
             this.chargeBillArr = arrs
         },
+        resetDom(dom){
+            dom.style.setProperty("left", '50%', "important");
+            dom.style.setProperty("top",    '50%', "important");
+        },
         initData(row, chargeBillArrs) {
+            let dom =this.$refs.add.$el.querySelector('.el-dialog')
+            this.resetDom(dom)
             this.getChargeBillArr(chargeBillArrs)
             this.chargeRecords = []
             this.supplementArr = []
@@ -803,3 +809,12 @@ export default {
     },
 }
 </script>
+<style scoped lang="scss">
+/deep/ .head{
+     span{
+        user-select: none;
+    }
+
+}
+
+</style>

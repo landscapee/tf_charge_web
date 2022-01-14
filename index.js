@@ -12,8 +12,8 @@ import axios from "axios";
 import IconSvg from './src/components/Icon-svg';// svg组件
 import { RTCInit, getTimeByFormat,timeLength } from './src/lib/common';
 import moment from "moment";
-
-
+import Drag from './src/lib/directive/el-drag-dialog/index'
+Vue.use(Drag)
 
 
 

@@ -4,7 +4,7 @@
             <ul class="navBox">
                 <li>
                     <div></div>
-                    <div class="mid one">{{flagNav?flagNav.name:'收费单'}}</div>
+                    <div class="mid one">{{ flagNav ? flagNav.name : '收费单' }}</div>
                     <div>
                     </div>
                 </li>
@@ -16,7 +16,10 @@
         <div class="searchBox">
             <div class="leftBox">
                 <div>
-                    <el-date-picker v-model="searchTime" type="datetimerange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" format="yyyy-MM-dd HH:mm:ss" value-format="yyyy-MM-dd HH:mm:ss" @change="handleLists" :default-time="['00:00:00', '23:59:59']"></el-date-picker>
+                    <el-date-picker v-model="searchTime" type="datetimerange" range-separator="至"
+                                    start-placeholder="开始日期" end-placeholder="结束日期" format="yyyy-MM-dd HH:mm:ss"
+                                    value-format="yyyy-MM-dd HH:mm:ss" @change="handleLists"
+                                    :default-time="['00:00:00', '23:59:59']"></el-date-picker>
                 </div>
                 <div>
                     <el-select v-model="searchDel" placeholder="请选择" @change="handleLists">
@@ -26,33 +29,46 @@
                 </div>
                 <div>
                     <ul class="radioApproval">
-                        <li :class="searchApproval===false?'active':''" @click="searchApproval=searchApproval===false?'':false">待审批</li>
-                        <li :class="searchApproval===true?'active':''" @click="searchApproval=searchApproval===true?'':true">审批完成</li>
+                        <li :class="searchApproval===false?'active':''"
+                            @click="searchApproval=searchApproval===false?'':false">待审批
+                        </li>
+                        <li :class="searchApproval===true?'active':''"
+                            @click="searchApproval=searchApproval===true?'':true">审批完成
+                        </li>
                     </ul>
                 </div>
                 <div>
                     <ul class="radioApproval" v-if="sendShow">
-                        <li :class="searchSend===false?'active':''" @click="searchSend=searchSend===false?'':false;handleLists()">未发送</li>
-                        <li :class="searchSend===true?'active':''" @click="searchSend=searchSend===true?'':true;handleLists()">已发送</li>
+                        <li :class="searchSend===false?'active':''"
+                            @click="searchSend=searchSend===false?'':false;handleLists()">未发送
+                        </li>
+                        <li :class="searchSend===true?'active':''"
+                            @click="searchSend=searchSend===true?'':true;handleLists()">已发送
+                        </li>
                     </ul>
                 </div>
                 <div>
-                    <el-input placeholder="机位查询" v-model="searchSeat" @keyup.enter.native="handleLists" style="width:90px" />
+                    <el-input placeholder="机位查询" v-model="searchSeat" @keyup.enter.native="handleLists"
+                              style="width:90px"/>
                 </div>
                 <div>
-                    <el-input placeholder="机号查询" v-model="searchAircraftNo" @keyup.enter.native="handleLists" style="width:90px" />
+                    <el-input placeholder="机号查询" v-model="searchAircraftNo" @keyup.enter.native="handleLists"
+                              style="width:90px"/>
                 </div>
                 <div>
-                    <el-input placeholder="航班号/航司" v-model="searchStr" @keyup.enter.native="handleLists" style="width:110px" />
+                    <el-input placeholder="航班号/航司" v-model="searchStr" @keyup.enter.native="handleLists"
+                              style="width:110px"/>
                 </div>
                 <div v-if="chargeBillArrs.length>1">
-                    <el-select v-model="searchBillCodes" clearable multiple collapse-tags placeholder="收费单选择" style="width:150px" @change="handleLists">
-                        <el-option v-for="item in chargeBillArrs" :key="item.code" :label="item.name" :value="item.code"></el-option>
+                    <el-select v-model="searchBillCodes" clearable multiple collapse-tags placeholder="收费单选择"
+                               style="width:150px" @change="handleLists">
+                        <el-option v-for="item in chargeBillArrs" :key="item.code" :label="item.name"
+                                   :value="item.code"></el-option>
                     </el-select>
                 </div>
                 <div v-show="unsendCount>0">
                     <el-button type="danger" @click="getUnSendHandle">
-                        {{sendShow?'昨日未发送'+unsendCount+'个':'昨日未审批'+unsendCount+'个'}}
+                        {{ sendShow ? '昨日未发送' + unsendCount + '个' : '昨日未审批' + unsendCount + '个' }}
                     </el-button>
                 </div>
             </div>
@@ -79,31 +95,53 @@
         <div id="tableBox">
             <div class="tableBox" ref="tableBox">
                 <!-- :span-method="arraySpanMethod" -->
-                <el-table :data="lists" border stripe style="width: 100%" :max-height="maxHeight" :highlight-current-row="true" :row-class-name="getRowClass" @selection-change="listSelectionChange" :expand-row-keys="expends" row-key="id" @sort-change="sortChange" ref="ref_chargeBill" @row-dblclick="openChargeRecord">
+                <el-table :data="lists" border stripe style="width: 100%" :max-height="maxHeight"
+                          :highlight-current-row="true" :row-class-name="getRowClass"
+                          @selection-change="listSelectionChange" :expand-row-keys="expends" row-key="id"
+                          @sort-change="sortChange" ref="ref_chargeBill" @row-dblclick="openChargeRecord">
                     <el-table-column type="expand">
                         <template slot-scope="scope">
                             <div class="bill_expand">
-                                <div class="bill_expand_Box" v-show="scope.row.chargeRecords&&scope.row.chargeRecords.length>0">
+                                <div class="bill_expand_Box"
+                                     v-show="scope.row.chargeRecords&&scope.row.chargeRecords.length>0">
                                     <div class="title">收费数据</div>
-                                    <el-table class="outtable" :data="scope.row.chargeRecords" border stripe style="width: 100%" :row-class-name="getRowName" :cell-class-name="getCellClassname">
-                                        <el-table-column label="收费项" align="center">
+                                    <el-table class="outtable" :data="scope.row.chargeRecords" border stripe
+                                              style="width: 100%"
+                                              :row-class-name="(data)=>{return getRowName(data,scope)}"
+                                              :cell-class-name="getCellClassname">
+                                        <el-table-column label="收费项" align="center" class-name="indexTd">
                                             <template slot-scope="scope1">
-                                                {{scope1.row.chargeDataSource&&scope1.row.chargeDataSource.chargeConfig?scope1.row.chargeDataSource.chargeConfig.name:''}}
+
+                                                    {{
+                                                        scope1.row.chargeDataSource && scope1.row.chargeDataSource.chargeConfig ? scope1.row.chargeDataSource.chargeConfig.name : ''
+                                                    }}
+                                                    <div class="blue"   v-for="(item,index) in getStatusChildMark__(scope1.row,scope)" :key="index+'C'">
+                                                        <el-tooltip  class="item" effect="dark"  :content="item.c" placement="top-start">
+                                                            <span>{{   item.d}}</span>
+                                                        </el-tooltip>
+                                                    </div>
+
                                             </template>
                                         </el-table-column>
-                                        <el-table-column prop="dataSourceSort" label="来源" align="center" v-if="scope.row.chargeBillConfigCode=='LANQ'" width="60">
+                                        <el-table-column prop="dataSourceSort" label="来源" align="center"
+                                                         v-if="scope.row.chargeBillConfigCode=='LANQ'" width="60">
                                             <template slot-scope="scope1">
                                                 <div>
-                                                    <div>{{getSourceName(scope1.row)}}</div>
-                                                    <div v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">{{getSourceName(scope1.row.relateRecord)}}</div>
+                                                    <div>{{ getSourceName(scope1.row) }}</div>
+                                                    <div v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">
+                                                        {{ getSourceName(scope1.row.relateRecord) }}
+                                                    </div>
                                                 </div>
                                             </template>
                                         </el-table-column>
-                                        <el-table-column prop="deviceCode" label="设备号" align="center" v-if="scope.row.showDevice">
+                                        <el-table-column prop="deviceCode" label="设备号" align="center"
+                                                         v-if="scope.row.showDevice">
                                             <template slot-scope="{row}">
                                                 <div>
-                                                    <div>{{row.deviceCode?row.deviceCode:'--'}}</div>
-                                                    <div v-if="row.dataSourceSort===0&&row.relateRecord">{{row.relateRecord.deviceCode}}</div>
+                                                    <div>{{ row.deviceCode ? row.deviceCode : '--' }}</div>
+                                                    <div v-if="row.dataSourceSort===0&&row.relateRecord">
+                                                        {{ row.relateRecord.deviceCode }}
+                                                    </div>
                                                 </div>
 
                                             </template>
@@ -113,8 +151,19 @@
                                             <el-table-column prop="afterStartTime" label="航后开始" align="center">
                                                 <template slot-scope="scope1">
                                                     <div>
-                                                        <div :title="getTimeByFormat(scope1.row.afterStartTime,'YY年MM月DD日 hh时mm分ss秒')">{{getTimeByFormat(scope1.row.afterStartTime,'hh:mm:ss(DD)')}}</div>
-                                                        <div :title="getTimeByFormat(scope1.row.relateRecord.afterStartTime,'YY年MM月DD日 hh时mm分ss秒')" v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">{{getTimeByFormat(scope1.row.relateRecord.afterStartTime,'hh:mm:ss(DD)')}}</div>
+                                                        <div
+                                                            :title="getTimeByFormat(scope1.row.afterStartTime,'YY年MM月DD日 hh时mm分ss秒')">
+                                                            {{
+                                                                getTimeByFormat(scope1.row.afterStartTime, 'hh:mm:ss(DD)')
+                                                            }}
+                                                        </div>
+                                                        <div
+                                                            :title="getTimeByFormat(scope1.row.relateRecord.afterStartTime,'YY年MM月DD日 hh时mm分ss秒')"
+                                                            v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">
+                                                            {{
+                                                                getTimeByFormat(scope1.row.relateRecord.afterStartTime, 'hh:mm:ss(DD)')
+                                                            }}
+                                                        </div>
                                                     </div>
 
                                                 </template>
@@ -122,8 +171,19 @@
                                             <el-table-column prop="afterEndTime" label="航后结束" align="center">
                                                 <template slot-scope="scope1">
                                                     <div>
-                                                        <div :title="getTimeByFormat(scope1.row.afterEndTime,'YY年MM月DD日 hh时mm分ss秒')">{{getTimeByFormat(scope1.row.afterEndTime,'hh:mm:ss(DD)')}}</div>
-                                                        <div :title="getTimeByFormat(scope1.row.relateRecord.afterEndTime,'YY年MM月DD日 hh时mm分ss秒')" v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">{{getTimeByFormat(scope1.row.relateRecord.afterEndTime,'hh:mm:ss(DD)')}}</div>
+                                                        <div
+                                                            :title="getTimeByFormat(scope1.row.afterEndTime,'YY年MM月DD日 hh时mm分ss秒')">
+                                                            {{
+                                                                getTimeByFormat(scope1.row.afterEndTime, 'hh:mm:ss(DD)')
+                                                            }}
+                                                        </div>
+                                                        <div
+                                                            :title="getTimeByFormat(scope1.row.relateRecord.afterEndTime,'YY年MM月DD日 hh时mm分ss秒')"
+                                                            v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">
+                                                            {{
+                                                                getTimeByFormat(scope1.row.relateRecord.afterEndTime, 'hh:mm:ss(DD)')
+                                                            }}
+                                                        </div>
                                                     </div>
 
                                                 </template>
@@ -131,8 +191,17 @@
                                             <el-table-column prop="startTime" label="接桥时间" align="center">
                                                 <template slot-scope="scope1">
                                                     <div>
-                                                        <div :title="getTimeByFormat(scope1.row.startTime,'YY年MM月DD日 hh时mm分ss秒')">{{getTimeByFormat(scope1.row.startTime,'hh:mm:ss(DD)')}}</div>
-                                                        <div :title="getTimeByFormat(scope1.row.relateRecord.startTime,'YY年MM月DD日 hh时mm分ss秒')" v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">{{getTimeByFormat(scope1.row.relateRecord.startTime,'hh:mm:ss(DD)')}}</div>
+                                                        <div
+                                                            :title="getTimeByFormat(scope1.row.startTime,'YY年MM月DD日 hh时mm分ss秒')">
+                                                            {{ getTimeByFormat(scope1.row.startTime, 'hh:mm:ss(DD)') }}
+                                                        </div>
+                                                        <div
+                                                            :title="getTimeByFormat(scope1.row.relateRecord.startTime,'YY年MM月DD日 hh时mm分ss秒')"
+                                                            v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">
+                                                            {{
+                                                                getTimeByFormat(scope1.row.relateRecord.startTime, 'hh:mm:ss(DD)')
+                                                            }}
+                                                        </div>
                                                     </div>
 
                                                 </template>
@@ -140,8 +209,17 @@
                                             <el-table-column prop="endTime" label="撤桥时间" align="center">
                                                 <template slot-scope="scope1">
                                                     <div>
-                                                        <div :title="getTimeByFormat(scope1.row.endTime,'YY年MM月DD日 hh时mm分ss秒')">{{getTimeByFormat(scope1.row.endTime,'hh:mm:ss(DD)')}}</div>
-                                                        <div :title="getTimeByFormat(scope1.row.relateRecord.endTime,'YY年MM月DD日 hh时mm分ss秒')" v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">{{getTimeByFormat(scope1.row.relateRecord.endTime,'hh:mm:ss(DD)')}}</div>
+                                                        <div
+                                                            :title="getTimeByFormat(scope1.row.endTime,'YY年MM月DD日 hh时mm分ss秒')">
+                                                            {{ getTimeByFormat(scope1.row.endTime, 'hh:mm:ss(DD)') }}
+                                                        </div>
+                                                        <div
+                                                            :title="getTimeByFormat(scope1.row.relateRecord.endTime,'YY年MM月DD日 hh时mm分ss秒')"
+                                                            v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">
+                                                            {{
+                                                                getTimeByFormat(scope1.row.relateRecord.endTime, 'hh:mm:ss(DD)')
+                                                            }}
+                                                        </div>
                                                     </div>
 
                                                 </template>
@@ -149,8 +227,15 @@
                                             <el-table-column prop="startStaffName" label="接桥人员" align="center">
                                                 <template slot-scope="scope1">
                                                     <div>
-                                                        <div>{{scope1.row.startStaffName?scope1.row.startStaffName:'--'}}</div>
-                                                        <div v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">{{scope1.row.relateRecord.startStaffName}}</div>
+                                                        <div>
+                                                            {{
+                                                                scope1.row.startStaffName ? scope1.row.startStaffName : '--'
+                                                            }}
+                                                        </div>
+                                                        <div
+                                                            v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">
+                                                            {{ scope1.row.relateRecord.startStaffName }}
+                                                        </div>
                                                     </div>
 
                                                 </template>
@@ -158,28 +243,49 @@
                                             <el-table-column prop="endStaffName" label="撤桥人员" align="center">
                                                 <template slot-scope="scope1">
                                                     <div>
-                                                        <div>{{scope1.row.endStaffName?scope1.row.endStaffName:'--'}}</div>
-                                                        <div v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">{{scope1.row.relateRecord.endStaffName}}</div>
+                                                        <div>
+                                                            {{
+                                                                scope1.row.endStaffName ? scope1.row.endStaffName : '--'
+                                                            }}
+                                                        </div>
+                                                        <div
+                                                            v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">
+                                                            {{ scope1.row.relateRecord.endStaffName }}
+                                                        </div>
                                                     </div>
 
                                                 </template>
                                             </el-table-column>
                                         </template>
-                                        <el-table-column label="开始时间" align="center" v-if="scope.row.chargeBillConfigCode!='LANQ'&&scope.row.chargeBillConfigCode!='QZSB'">
+                                        <el-table-column label="开始时间" align="center"
+                                                         v-if="scope.row.chargeBillConfigCode!='LANQ'&&scope.row.chargeBillConfigCode!='QZSB'">
                                             <template slot-scope="scope1">
-                                                <div :title="getTimeByFormat(scope1.row.startTime,'YY年MM月DD日 hh时mm分ss秒')">{{getTimeByFormat(scope1.row.startTime,'hh:mm:ss(DD)')}}</div>
+                                                <div
+                                                    :title="getTimeByFormat(scope1.row.startTime,'YY年MM月DD日 hh时mm分ss秒')">
+                                                    {{ getTimeByFormat(scope1.row.startTime, 'hh:mm:ss(DD)') }}
+                                                </div>
                                             </template>
                                         </el-table-column>
-                                        <el-table-column label="结束时间" align="center" v-if="scope.row.chargeBillConfigCode!='LANQ'&&scope.row.chargeBillConfigCode!='QZSB'">
+                                        <el-table-column label="结束时间" align="center"
+                                                         v-if="scope.row.chargeBillConfigCode!='LANQ'&&scope.row.chargeBillConfigCode!='QZSB'">
                                             <template slot-scope="scope1">
-                                                <div :title="getTimeByFormat(scope1.row.endTime,'YY年MM月DD日 hh时mm分ss秒')">{{getTimeByFormat(scope1.row.endTime,'hh:mm:ss(DD)')}}</div>
+                                                <div :title="getTimeByFormat(scope1.row.endTime,'YY年MM月DD日 hh时mm分ss秒')">
+                                                    {{ getTimeByFormat(scope1.row.endTime, 'hh:mm:ss(DD)') }}
+                                                </div>
                                             </template>
                                         </el-table-column>
-                                        <el-table-column label="时间" align="center" v-if="scope.row.chargeBillConfigCode=='QZSB'">
+                                        <el-table-column label="时间" align="center"
+                                                         v-if="scope.row.chargeBillConfigCode=='QZSB'">
                                             <template slot-scope="scope1">
                                                 <div>
-                                                    <div :title="getTimeByFormat(scope1.row.startTime,'YY年MM月DD日 hh时mm分ss秒')">{{getTimeByFormat(scope1.row.startTime,'hh:mm:ss(DD)')}}</div>
-                                                    <div :title="getTimeByFormat(scope1.row.endTime,'YY年MM月DD日 hh时mm分ss秒')">{{getTimeByFormat(scope1.row.endTime,'hh:mm:ss(DD)')}}</div>
+                                                    <div
+                                                        :title="getTimeByFormat(scope1.row.startTime,'YY年MM月DD日 hh时mm分ss秒')">
+                                                        {{ getTimeByFormat(scope1.row.startTime, 'hh:mm:ss(DD)') }}
+                                                    </div>
+                                                    <div
+                                                        :title="getTimeByFormat(scope1.row.endTime,'YY年MM月DD日 hh时mm分ss秒')">
+                                                        {{ getTimeByFormat(scope1.row.endTime, 'hh:mm:ss(DD)') }}
+                                                    </div>
                                                 </div>
 
                                             </template>
@@ -188,62 +294,74 @@
                                         <el-table-column prop="chargeData" label="收费数据" align="center">
                                             <template slot-scope="scope1">
                                                 <div>
-                                                    <div>{{getChargeData(scope1.row)}}</div>
-                                                    <div v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">{{getChargeData(scope1.row.relateRecord)}}</div>
+                                                    <div>{{ getChargeData(scope1.row) }}</div>
+                                                    <div v-if="scope1.row.dataSourceSort===0&&scope1.row.relateRecord">
+                                                        {{ getChargeData(scope1.row.relateRecord) }}
+                                                    </div>
                                                 </div>
                                             </template>
                                         </el-table-column>
-                                        <el-table-column label="航后签章" align="center" class-name="signBox" v-if="scope.row.chargeBillConfigCode=='LANQ'">
+                                        <el-table-column label="航后签章" align="center" class-name="signBox"
+                                                         v-if="scope.row.chargeBillConfigCode=='LANQ'">
                                             <template slot-scope="scope1">
                                                 <div class="signDiv">
                                                     <img :src="scope1.row.afterFlightSign" alt="">
                                                 </div>
                                             </template>
                                         </el-table-column>
-                                        <el-table-column label="航空公司" align="center" class-name="signBox" v-if="getSignColShow('hkgs',scope.row.chargeBillConfigCode)">
+                                        <el-table-column label="航空公司" align="center" class-name="signBox"
+                                                         v-if="getSignColShow('hkgs',scope.row.chargeBillConfigCode)">
                                             <template slot-scope="scope1">
                                                 <div>
-                                                    <div v-for="(item,idx) in getSingList(scope1.row,'hkgs')" :key="idx" class="signDiv">
+                                                    <div v-for="(item,idx) in getSingList(scope1.row,'hkgs')" :key="idx"
+                                                         class="signDiv">
                                                         <img :src="item.content" alt="">
                                                     </div>
                                                 </div>
                                             </template>
                                         </el-table-column>
-                                        <el-table-column label="操作人员" align="center" class-name="signBox" v-if="getSignColShow('czry',scope.row.chargeBillConfigCode)">
+                                        <el-table-column label="操作人员" align="center" class-name="signBox"
+                                                         v-if="getSignColShow('czry',scope.row.chargeBillConfigCode)">
                                             <template slot-scope="scope1">
                                                 <div>
-                                                    <div v-for="(item,idx) in getSingList(scope1.row,'czry')" :key="idx" class="signDiv">
+                                                    <div v-for="(item,idx) in getSingList(scope1.row,'czry')" :key="idx"
+                                                         class="signDiv">
                                                         <img class="signBox" :src="item.content" alt="">
                                                     </div>
                                                 </div>
                                             </template>
                                         </el-table-column>
-                                        <el-table-column label="机组人员" align="center" class-name="signBox" v-if="getSignColShow('jzry',scope.row.chargeBillConfigCode)">
+                                        <el-table-column label="机组人员" align="center" class-name="signBox"
+                                                         v-if="getSignColShow('jzry',scope.row.chargeBillConfigCode)">
                                             <template slot-scope="scope1">
                                                 <div>
-                                                    <div v-for="(item,idx) in getSingList(scope1.row,'jzry')" :key="idx" class="signDiv">
+                                                    <div v-for="(item,idx) in getSingList(scope1.row,'jzry')" :key="idx"
+                                                         class="signDiv">
                                                         <img :src="item.content" alt="">
                                                     </div>
                                                 </div>
                                             </template>
                                         </el-table-column>
-                                        <el-table-column label="调度人员" align="center" class-name="signBox" v-if="getSignColShow('ddry',scope.row.chargeBillConfigCode)">
+                                        <el-table-column label="调度人员" align="center" class-name="signBox"
+                                                         v-if="getSignColShow('ddry',scope.row.chargeBillConfigCode)">
                                             <template slot-scope="scope1">
                                                 <div>
-                                                    <div v-for="(item,idx) in getSingList(scope1.row,'ddry')" :key="idx" class="signDiv">
+                                                    <div v-for="(item,idx) in getSingList(scope1.row,'ddry')" :key="idx"
+                                                         class="signDiv">
                                                         <img :src="item.content" alt="">
                                                     </div>
                                                 </div>
                                             </template>
                                         </el-table-column>
-                                        <el-table-column label="操作人" align="center" v-if="scope.row.chargeBillConfigCode!='LANQ'">
+                                        <el-table-column label="操作人" align="center"
+                                                         v-if="scope.row.chargeBillConfigCode!='LANQ'">
                                             <template slot-scope="{row}">
-                                                <div>{{getOperatorName(row)}}</div>
+                                                <div>{{ getOperatorName(row) }}</div>
                                             </template>
                                         </el-table-column>
                                         <el-table-column label="审核人" align="center">
                                             <template slot-scope="{row}">
-                                                <div>{{row.approvalPersonnel?row.approvalPersonnel:'--'}}</div>
+                                                <div>{{ row.approvalPersonnel ? row.approvalPersonnel : '--' }}</div>
                                             </template>
                                         </el-table-column>
                                         <el-table-column label="其他数据" align="center" width="100">
@@ -252,71 +370,118 @@
                                                     <table class="sumTable" border="1">
                                                         <tr>
                                                             <td style="padding:10px 20px">发送人</td>
-                                                            <td style="padding:10px 20px">{{row.sendPersonnel?row.sendPersonnel:'--'}}</td>
+                                                            <td style="padding:10px 20px">
+                                                                {{ row.sendPersonnel ? row.sendPersonnel : '--' }}
+                                                            </td>
                                                         </tr>
                                                         <tr>
                                                             <td style="padding:10px 20px">发送时间</td>
-                                                            <td style="padding:10px 20px">{{getTimeByFormat(row.sendTime,'hh:mm:ss(DD)')}}</td>
+                                                            <td style="padding:10px 20px">
+                                                                {{ getTimeByFormat(row.sendTime, 'hh:mm:ss(DD)') }}
+                                                            </td>
                                                         </tr>
                                                         <tr>
                                                             <td style="padding:10px 20px">补录人</td>
-                                                            <td style="padding:10px 20px">{{row.supplementPersonnel?row.supplementPersonnel:'--'}}</td>
+                                                            <td style="padding:10px 20px">
+                                                                {{
+                                                                    row.supplementPersonnel ? row.supplementPersonnel : '--'
+                                                                }}
+                                                            </td>
                                                         </tr>
                                                         <tr>
                                                             <td style="padding:10px 20px">变更人</td>
-                                                            <td style="padding:10px 20px">{{row.changePersonnel?row.changePersonnel:'--'}}</td>
+                                                            <td style="padding:10px 20px">
+                                                                {{ row.changePersonnel ? row.changePersonnel : '--' }}
+                                                            </td>
                                                         </tr>
                                                         <tr>
                                                             <td style="padding:10px 20px">变更时间</td>
-                                                            <td style="padding:10px 20px">{{getTimeByFormat(row.changeTime,'hh:mm:ss(DD)')}}</td>
+                                                            <td style="padding:10px 20px">
+                                                                {{ getTimeByFormat(row.changeTime, 'hh:mm:ss(DD)') }}
+                                                            </td>
                                                         </tr>
                                                     </table>
-                                                    <el-button slot="reference" type="primary" size="mini">查看</el-button>
+                                                    <el-button slot="reference" type="primary" size="mini">查看
+                                                    </el-button>
                                                 </el-popover>
                                             </template>
                                         </el-table-column>
                                         <el-table-column prop="remark" label="备注" align="center">
                                             <template slot-scope="{row}">
-                                                <div :title="row.remark">{{row.remark?row.remark:'--'}}</div>
+                                                <div :title="row.remark">{{ row.remark ? row.remark : '--' }}</div>
                                             </template>
                                         </el-table-column>
-                                        <el-table-column label="操作" align="center" v-if="!searchDel" class-name="optBox" width="90">
+                                        <el-table-column label="操作" align="center" v-if="!searchDel" class-name="optBox"
+                                                         width="90">
                                             <template slot-scope="scope1">
 
-                                                <el-button type="text" title="编辑" @click="edit('edit',scope1.row,scope.row)" :disabled="!!scope1.row.send" v-show="getPower(scope1.row,'charge_edit')">编辑</el-button>
+                                                <el-button type="text" title="编辑"
+                                                           @click="edit('edit',scope1.row,scope.row)"
+                                                           :disabled="!!scope1.row.send"
+                                                           v-show="getPower(scope1.row,'charge_edit')">编辑
+                                                </el-button>
                                                 <el-dropdown trigger="click" style="margin-left:.1rem;">
-                                                    <el-button type="text" title="更多" class="el-dropdown-link">更多</el-button>
+                                                    <el-button type="text" title="更多" class="el-dropdown-link">更多
+                                                    </el-button>
                                                     <el-dropdown-menu slot="dropdown">
                                                         <el-dropdown-item>
-                                                            <el-button type="text" :title="scope1.row.approvalStatus=='PASS'?'取消审批':'审批'" @click="approval(scope1.row,'sign',scope1.row.approvalStatus=='PASS')" :disabled="!!scope1.row.send" v-show="getPower(scope.row,'charge_approval')">{{scope1.row.approvalStatus=='PASS'?'取消审批':'审批'}}</el-button>
+                                                            <el-button type="text"
+                                                                       :title="scope1.row.approvalStatus=='PASS'?'取消审批':'审批'"
+                                                                       @click="approval(scope1.row,'sign',scope1.row.approvalStatus=='PASS')"
+                                                                       :disabled="!!scope1.row.send"
+                                                                       v-show="getPower(scope.row,'charge_approval')">
+                                                                {{
+                                                                    scope1.row.approvalStatus == 'PASS' ? '取消审批' : '审批'
+                                                                }}
+                                                            </el-button>
                                                         </el-dropdown-item>
                                                         <el-dropdown-item>
-                                                            <el-button type="text" title="删除" @click="del(scope1.row)" :disabled="!!(scope1.row.approvalStatus=='PASS')" v-show="getPower(scope1.row,'charge_delete')">删除</el-button>
+                                                            <el-button type="text" title="删除" @click="del(scope1.row)"
+                                                                       :disabled="!!(scope1.row.approvalStatus=='PASS')"
+                                                                       v-show="getPower(scope1.row,'charge_delete')">删除
+                                                            </el-button>
                                                         </el-dropdown-item>
                                                         <el-dropdown-item>
-                                                            <el-button type="text" title="历史" @click="history(scope1.row)">历史</el-button>
+                                                            <el-button type="text" title="历史"
+                                                                       @click="history(scope1.row)">历史
+                                                            </el-button>
                                                         </el-dropdown-item>
                                                         <el-dropdown-item>
-                                                            <el-button type="text" title="发送日志" @click="sendLog(scope1)">日志</el-button>
+                                                            <el-button type="text" title="发送日志"
+                                                                       @click="sendLog(scope1)">日志
+                                                            </el-button>
                                                         </el-dropdown-item>
                                                     </el-dropdown-menu>
                                                 </el-dropdown>
                                             </template>
                                         </el-table-column>
-                                        <el-table-column label="操作" align="center" v-else class-name="optBox" width="100">
+                                        <el-table-column label="操作" align="center" v-else class-name="optBox"
+                                                         width="100">
                                             <template slot-scope="scope1">
-                                                <el-button type="text" title="历史" @click="history(scope1.row)">历史</el-button>
+                                                <el-button type="text" title="历史" @click="history(scope1.row)">历史
+                                                </el-button>
                                             </template>
                                         </el-table-column>
                                     </el-table>
                                 </div>
 
-                                <div class="bill_expand_Box1" v-show="scope.row.flightSupplementInfos&&scope.row.flightSupplementInfos.length>0">
+                                <div class="bill_expand_Box1"
+                                     v-show="scope.row.flightSupplementInfos&&scope.row.flightSupplementInfos.length>0">
                                     <el-form :inline="true" class="demo-form-inline">
-                                        <el-form-item :class="getitemClass(item)" :label="item.supplementTitle+':'" v-for="(item,idx) in scope.row.flightSupplementInfos" :key="idx">
-                                            <el-input v-model="item.valueTitle" :disabled="!!scope.row.approvalStatus" v-if="item.type===0||item.type===1" :type="item.type===0?'number':'text'" @change="saveSupplement(item)"></el-input>
-                                            <el-select v-model="item.valueCode" :disabled="!!scope.row.approvalStatus" v-else placeholder="请选择" filterable :multiple="item.type===2?false:true" @change="saveSupplement(item)">
-                                                <el-option v-for="select in getSupplementOption(item.supplementInfoConfig)" :key="select.code" :label="select.describe" :value="select.code"></el-option>
+                                        <el-form-item :class="getitemClass(item)" :label="item.supplementTitle+':'"
+                                                      v-for="(item,idx) in scope.row.flightSupplementInfos" :key="idx">
+                                            <el-input v-model="item.valueTitle" :disabled="!!scope.row.approvalStatus"
+                                                      v-if="item.type===0||item.type===1"
+                                                      :type="item.type===0?'number':'text'"
+                                                      @change="saveSupplement(item)"></el-input>
+                                            <el-select v-model="item.valueCode" :disabled="!!scope.row.approvalStatus"
+                                                       v-else placeholder="请选择" filterable
+                                                       :multiple="item.type===2?false:true"
+                                                       @change="saveSupplement(item)">
+                                                <el-option
+                                                    v-for="select in getSupplementOption(item.supplementInfoConfig)"
+                                                    :key="select.code" :label="select.describe"
+                                                    :value="select.code"></el-option>
                                             </el-select>
                                         </el-form-item>
                                     </el-form>
@@ -325,50 +490,83 @@
                             </div>
                         </template>
                     </el-table-column>
-                    <el-table-column type="index" label="序号" width="80" align="center" class-name="indexTd">
+                    <el-table-column type="index" label="序号" width="100" align="center" class-name="indexTd">
                         <template slot-scope="scope">
-                            {{(submitData.current-1)*submitData.size+scope.$index+1}}
+                            {{ (submitData.current - 1) * submitData.size + scope.$index + 1 }}
                             <div v-show="scope.row.chargeRecords&&scope.row.chargeRecords.length>0">费</div>
-                            <div v-show="scope.row.flightSupplementInfos&&scope.row.flightSupplementInfos.length>0">补</div>
+                            <div v-show="scope.row.flightSupplementInfos&&scope.row.flightSupplementInfos.length>0">补
+
+                            </div>
+                            <div class="blue"   v-for="(item,index) in getStatusMark__(scope.row)" :key="index+'q'">
+                                <el-tooltip  class="item" effect="dark"  :content="item.c" placement="top-start">
+                                    <span>{{   item.d}}</span>
+                                </el-tooltip>
+                            </div>
                         </template>
                     </el-table-column>
                     <el-table-column type="selection" width="55" align="center"></el-table-column>
                     <el-table-column prop="chargeBillConfigName" label="名称" sortable='custom'></el-table-column>
                     <el-table-column label="计划时间">
                         <template slot-scope="scope">
-                            <div>{{getTimeByFormat(getRowFlightLoading(scope.row)['A'].scheduleTime,'YY-MM-DD hh:mm')}}</div>
-                            <div>{{getTimeByFormat(getRowFlightLoading(scope.row)['D'].scheduleTime,'YY-MM-DD hh:mm')}}</div>
+                            <div>
+                                {{
+                                    getTimeByFormat(getRowFlightLoading(scope.row)['A'].scheduleTime, 'YY-MM-DD hh:mm')
+                                }}
+                            </div>
+                            <div>
+                                {{
+                                    getTimeByFormat(getRowFlightLoading(scope.row)['D'].scheduleTime, 'YY-MM-DD hh:mm')
+                                }}
+                            </div>
                         </template>
                     </el-table-column>
                     <el-table-column label="实际时间">
                         <template slot-scope="scope">
-                            <div>{{getTimeByFormat(getRowFlightLoading(scope.row)['A'].actualTime,'YY-MM-DD hh:mm')}}</div>
-                            <div>{{getTimeByFormat(getRowFlightLoading(scope.row)['D'].actualTime,'YY-MM-DD hh:mm')}}</div>
+                            <div>
+                                {{ getTimeByFormat(getRowFlightLoading(scope.row)['A'].actualTime, 'YY-MM-DD hh:mm') }}
+                            </div>
+                            <div>
+                                {{ getTimeByFormat(getRowFlightLoading(scope.row)['D'].actualTime, 'YY-MM-DD hh:mm') }}
+                            </div>
                         </template>
                     </el-table-column>
                     <el-table-column prop="seat" label="机位" sortable='custom' width="80">
                         <template slot-scope="scope">
-                            <div>{{scope.row.seat==getActiveFlight(scope).seat?scope.row.seat:(scope.row.seat?scope.row.seat+"("+getActiveFlight(scope).seat+")":"("+getActiveFlight(scope).seat+")")}}</div>
+                            <div>
+                                {{
+                                    scope.row.seat == getActiveFlight(scope).seat ? scope.row.seat : (scope.row.seat ? scope.row.seat + "(" + getActiveFlight(scope).seat + ")" : "(" + getActiveFlight(scope).seat + ")")
+                                }}
+                            </div>
                         </template>
                     </el-table-column>
                     <el-table-column prop="flightNo" label="航班号" sortable='custom'>
                         <template slot-scope="scope">
-                            <div>{{getActiveFlight(scope).flightNo}}({{getActiveFlight(scope).successionFlightNo?getActiveFlight(scope).successionFlightNo:'--'}})</div>
+                            <div>
+                                {{
+                                    getActiveFlight(scope).flightNo
+                                }}({{
+                                    getActiveFlight(scope).successionFlightNo ? getActiveFlight(scope).successionFlightNo : '--'
+                                }})
+                            </div>
                         </template>
                     </el-table-column>
                     <el-table-column prop="aircraftNo" label="机号" sortable='custom' width="110">
                         <template slot-scope="scope">
-                            <div>{{scope.row.aircraftNo==getActiveFlight(scope).aircraftNo?scope.row.aircraftNo:(scope.row.aircraftNo?scope.row.aircraftNo+"("+getActiveFlight(scope).aircraftNo+")":"("+getActiveFlight(scope).aircraftNo+")")}}</div>
+                            <div>
+                                {{
+                                    scope.row.aircraftNo == getActiveFlight(scope).aircraftNo ? scope.row.aircraftNo : (scope.row.aircraftNo ? scope.row.aircraftNo + "(" + getActiveFlight(scope).aircraftNo + ")" : "(" + getActiveFlight(scope).aircraftNo + ")")
+                                }}
+                            </div>
                         </template>
                     </el-table-column>
                     <el-table-column prop="aircraftType" label="机型" sortable='custom' width="80">
                         <template slot-scope="scope">
-                            <div>{{getActiveFlight(scope).aircraftType}}</div>
+                            <div>{{ getActiveFlight(scope).aircraftType }}</div>
                         </template>
                     </el-table-column>
                     <el-table-column prop="movement" label="进/离" width="70" sortable='custom'>
                         <template slot-scope="{row}">
-                            <div>{{row.flight.movement=='A'?'进':'离'}}</div>
+                            <div>{{ row.flight.movement == 'A' ? '进' : '离' }}</div>
                         </template>
                     </el-table-column>
                     <el-table-column label="汇总" width="120">
@@ -376,19 +574,23 @@
                             <el-popover placement="right" trigger="hover" v-if="size(scope.row.sum)>1">
                                 <table class="sumTable" border="1">
                                     <tr v-for="(value,key) in scope.row.sum" :key="key">
-                                        <td style="padding:10px 20px">{{key=='秒'?timeLength(parseInt(value*1000)):`${value}${key}`}}</td>
+                                        <td style="padding:10px 20px">
+                                            {{ key == '秒' ? timeLength(parseInt(value * 1000)) : `${value}${key}` }}
+                                        </td>
                                     </tr>
                                 </table>
-                                <el-button slot="reference" type="primary" size="mini" v-if="scope.row.sum&&JSON.stringify(scope.row.sum) != '{}'">查看</el-button>
+                                <el-button slot="reference" type="primary" size="mini"
+                                           v-if="scope.row.sum&&JSON.stringify(scope.row.sum) != '{}'">查看
+                                </el-button>
                             </el-popover>
                             <span v-else>
-                                {{getSumText(scope.row.sum)}}
+                                {{ getSumText(scope.row.sum) }}
                             </span>
                         </template>
                     </el-table-column>
                     <el-table-column prop="flight.aircraftType" label="是否发送" width="80">
                         <template slot-scope="scope">
-                            {{scope.row.sendAll?'已发送':'未发送'}}
+                            {{ scope.row.sendAll ? '已发送' : '未发送' }}
                         </template>
                     </el-table-column>
                     <el-table-column label="其他数据" align="center" width="100">
@@ -398,11 +600,15 @@
 
                                     <tr>
                                         <td style="padding:10px 20px">变更人</td>
-                                        <td style="padding:10px 20px">{{row.changePersonnel?row.changePersonnel:'--'}}</td>
+                                        <td style="padding:10px 20px">
+                                            {{ row.changePersonnel ? row.changePersonnel : '--' }}
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td style="padding:10px 20px">变更时间</td>
-                                        <td style="padding:10px 20px">{{getTimeByFormat(row.changeTime,'hh:mm:ss(DD)')}}</td>
+                                        <td style="padding:10px 20px">
+                                            {{ getTimeByFormat(row.changeTime, 'hh:mm:ss(DD)') }}
+                                        </td>
                                     </tr>
                                 </table>
                                 <el-button slot="reference" type="primary" size="mini">查看</el-button>
@@ -412,32 +618,51 @@
                     <el-table-column label="操作" align="center" v-if="!searchDel" class-name="optBox" width="90">
                         <template slot-scope="scope">
 
-                            <el-button type="text" title="审批" @click="approval([scope.row],'arrs',false)" :disabled="!!scope.row.approvalStatus" v-show="powerData.charge_approval">审批</el-button>
+                            <el-button type="text" title="审批" @click="approval([scope.row],'arrs',false)"
+                                       :disabled="!!scope.row.approvalStatus" v-show="powerData.charge_approval">审批
+                            </el-button>
 
                             <el-dropdown trigger="click" style="margin-left:.1rem;">
                                 <el-button type="text" title="更多" class="el-dropdown-link">更多</el-button>
                                 <el-dropdown-menu slot="dropdown">
 
                                     <el-dropdown-item>
-                                        <el-button type="text" title="取消审批" @click="approval([scope.row],'arrs',true)" :disabled="!!scope.row.sendAll||scope.row.chargeRecords.length==0" v-show="powerData.charge_approval">取消审批</el-button>
+                                        <el-button type="text" title="取消审批" @click="approval([scope.row],'arrs',true)"
+                                                   :disabled="!!scope.row.sendAll||scope.row.chargeRecords.length==0"
+                                                   v-show="powerData.charge_approval">取消审批
+                                        </el-button>
                                     </el-dropdown-item>
                                     <el-dropdown-item>
-                                        <el-button type="text" title="新增" @click="add(scope.row)" v-show="powerData.charge_add" :disabled="!!scope.row.approvalStatus">新增</el-button>
+                                        <el-button type="text" title="新增" @click="add(scope.row)"
+                                                   v-show="powerData.charge_add" :disabled="!!scope.row.approvalStatus">
+                                            新增
+                                        </el-button>
                                     </el-dropdown-item>
                                     <el-dropdown-item>
-                                        <el-button type="text" title="编辑" @click="editBill(scope.row)" v-show="powerData.charge_edit" :disabled="!!scope.row.approvalStatus">编辑</el-button>
+                                        <el-button type="text" title="编辑" @click="editBill(scope.row)"
+                                                   v-show="powerData.charge_edit"
+                                                   :disabled="!!scope.row.approvalStatus">编辑
+                                        </el-button>
                                     </el-dropdown-item>
                                     <el-dropdown-item>
-                                        <el-button type="text" title="上报" @click="report(scope)" :disabled="scope.row.report" v-if="getReportShow(scope)">上报</el-button>
+                                        <el-button type="text" title="上报" @click="report(scope)"
+                                                   :disabled="scope.row.report" v-if="getReportShow(scope)">上报
+                                        </el-button>
                                     </el-dropdown-item>
                                     <el-dropdown-item>
-                                        <el-button type="text" title="下载" @click="download(scope.row)" v-show="powerData.charge_download">下载</el-button>
+                                        <el-button type="text" title="下载" @click="download(scope.row)"
+                                                   v-show="powerData.charge_download">下载
+                                        </el-button>
                                     </el-dropdown-item>
                                     <el-dropdown-item>
-                                        <el-button type="text" title="删除" @click="delBill([scope.row])" v-show="powerData.charge_delete&&scope.row.chargeRecords.length==0">删除</el-button>
+                                        <el-button type="text" title="删除" @click="delBill([scope.row])"
+                                                   v-show="powerData.charge_delete&&scope.row.chargeRecords.length==0">
+                                            删除
+                                        </el-button>
                                     </el-dropdown-item>
                                     <el-dropdown-item>
-                                        <el-button type="text" title="变更" @click="flightHistory(scope.row)">变更</el-button>
+                                        <el-button type="text" title="变更" @click="flightHistory(scope.row)">变更
+                                        </el-button>
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </el-dropdown>
@@ -445,17 +670,22 @@
                     </el-table-column>
                 </el-table>
                 <div class="paginationBox">
-                    <el-pagination background @size-change="handleSizeChange" @current-change="pageBC" :current-page="submitData.current" :page-sizes="[10,20, 30, 50, 100]" :page-size="submitData.size" layout="total, sizes, prev, pager, next, jumper" :total="total"></el-pagination>
+                    <el-pagination background @size-change="handleSizeChange" @current-change="pageBC"
+                                   :current-page="submitData.current" :page-sizes="[10,20, 30, 50, 100]"
+                                   :page-size="submitData.size" layout="total, sizes, prev, pager, next, jumper"
+                                   :total="total"></el-pagination>
                 </div>
             </div>
         </div>
         <charge-bill-edit ref="ref_chargeBillEdit" @update="update" :userDeptLists="userDeptLists"></charge-bill-edit>
-        <add-list ref="ref_addList" @update="update" :userDeptLists="userDeptLists" :chargeBillArrs="chargeBillArrs"></add-list>
+        <add-list ref="ref_addList" @update="update" :userDeptLists="userDeptLists"
+                  :chargeBillArrs="chargeBillArrs"></add-list>
         <edit-list ref="ref_editList" @update="update"></edit-list>
         <supplement-edit ref="ref_supplementEdit" @update="update"></supplement-edit>
         <history ref="ref_history"></history>
 
-        <el-dialog :visible.sync="logShow" id="addTask" class="codeDialog" center width="1000px" :show-close="false">
+        <el-dialog dialog-drag :visible.sync="logShow" id="addTask" class="codeDialog" center width="1000px"
+                   :show-close="false">
             <div slot="title" class="head">
                 <div></div>
                 <span>日志</span>
@@ -463,19 +693,25 @@
             </div>
             <ul>
                 <li v-for="(item,idx) in logLists" :key="idx">
-                    {{item.content}}
+                    {{ item.content }}
                 </li>
             </ul>
         </el-dialog>
-        <el-dialog :visible.sync="flightHistoriesShow" id="addTask" class="codeDialog" center width="1000px" :show-close="false">
+        <el-dialog dialog-drag :visible.sync="flightHistoriesShow" id="addTask" class="codeDialog" center width="1000px"
+                   :show-close="false">
             <div slot="title" class="head">
                 <div></div>
                 <span>历史变更记录</span>
                 <i class="el-icon-circle-close" @click="flightHistoriesShow=false"></i>
             </div>
-            <el-table :data="flightHistories" style="width: 100%" size="mini" border height="260" :header-cell-style="{backgroundColor:'#3A3F43',fontSize:'14px'}" :cell-style="taskFlightHistoriesStyle">
+            <el-table :data="flightHistories" style="width: 100%" size="mini" border height="260"
+                      :header-cell-style="{backgroundColor:'#3A3F43',fontSize:'14px'}"
+                      :cell-style="taskFlightHistoriesStyle">
                 <el-table-column rop="updateTime" label="变更时间">
-                    <template slot-scope="scope">{{ $moment(Number(scope.row.updateTime)).format('HH:mm(DD)') }}</template>
+                    <template slot-scope="scope">{{
+                            $moment(Number(scope.row.updateTime)).format('HH:mm(DD)')
+                        }}
+                    </template>
                 </el-table-column>
                 <el-table-column prop="flightNo" label="航班号"></el-table-column>
                 <el-table-column prop="relFlightNo" label="连班航班号"></el-table-column>
@@ -495,6 +731,8 @@ import AddList from './components/addList'
 import editList from './components/editList'
 import SupplementEdit from './components/supplement_edit'
 import History from './components/history'
+import {map} from 'lodash'
+
 export default {
     props: ['power', 'flagNav'],
     components: {
@@ -562,7 +800,106 @@ export default {
         }
     },
 
-    created() {},
+    created() {
+    },
+    computed: {
+        getStatusMark__() {
+            return (row) => {
+                 let obj={}
+
+                let textObj1 = {
+                    conditionerBlo: {
+                        d: '电',
+                        c: '桥载空调保障时间范围 大于 桥载电源 时间范围',
+                    },
+                    QZDY: {
+                        d: '超',
+                        c: '桥载电源保障时间 超出 飞机起降时间范围',
+                    },
+                    QZKT: {
+                        d: '超',
+                        c: '桥载空调保障时间 超出 飞机起降时间范围',
+                    },
+                    QZDYC: {
+                        d: '长',
+                        c: '桥载电源超长保障',
+                    },
+                    QZKTC: {
+                        d: '长',
+                        c: '桥载空调超长保障',
+                    },
+                    QZDYD: {
+                        d: '短',
+                        c: '桥载电源过短保障',
+                    },
+                    QZKTD: {
+                        d: '短',
+                        c: '桥载空调过短保障',
+                    },
+                }
+                map(row.chargeRecords||[],k=>{
+                      obj = this.dealStatus(k, {row},obj)
+                })
+                let arr = []
+                let recordsObj = {}
+                 map(obj, (val, key) => {
+                    let textObj = textObj1[key]
+                    if (val && !recordsObj[textObj.d]) {
+                        arr.push(textObj)
+                        recordsObj[textObj.d] = 1
+                    }
+                })
+                 return arr
+            }
+        },
+        getStatusChildMark__() {
+            return (row,scope) => {
+                let obj =   {}
+                obj = this.dealStatus(row, scope,obj)
+                let textObj = {
+                    conditionerBlo: {
+                        d: '电',
+                        c: '桥载空调保障时间范围 大于 桥载电源 时间范围',
+                    },
+                    QZDY: {
+                        d: '超',
+                        c: '桥载电源保障时间 超出 飞机起降时间范围',
+                    },
+                    QZKT: {
+                        d: '超',
+                        c: '桥载空调保障时间 超出 飞机起降时间范围',
+                    },
+                }
+                let textObj1 = {
+                    ...textObj,
+                    QZDYC: {
+                        d: '长',
+                        c: '桥载电源超长保障',
+                    },
+                    QZKTC: {
+                        d: '长',
+                        c: '桥载空调超长保障',
+                    },
+                    QZDYD: {
+                        d: '短',
+                        c: '桥载电源过短保障',
+                    },
+                    QZKTD: {
+                        d: '短',
+                        c: '桥载空调过短保障',
+                    },
+                }
+                let arr = []
+                 map(obj, (val, key) => {
+                    let textObj = textObj1[key]
+                    if (val  ) {
+                        arr.push(textObj)
+                     }
+                })
+                return arr
+            }
+        },
+    },
     mounted() {
         this.searchTime = [
             this.getTimeByFormat(new Date() - 1 * 24 * 60 * 60 * 1000, 'YY-MM-DD') + ' 00:00:00',
@@ -599,7 +936,7 @@ export default {
         clearInterval(this.dataTimer)
     },
     methods: {
-        taskFlightHistoriesStyle({ row, column, rowIndex, columnIndex }) {
+        taskFlightHistoriesStyle({row, column, rowIndex, columnIndex}) {
             let style = {
                 fontSize: '14px',
             }
@@ -652,7 +989,7 @@ export default {
                 this.$refs.ref_chargeBill.toggleRowExpansion(row)
             }
         },
-        sendLog({ row }) {
+        sendLog({row}) {
             let origin = `http://${window.location.hostname}:6010`
 
             if (
@@ -700,7 +1037,7 @@ export default {
             let flightData = flightObj[movement]
             return flightData && flightData[key] ? flightData[key] : '--'
         },
-        getRowFlightLoading({ flight }) {
+        getRowFlightLoading({flight}) {
             let obj = {
                 A: {},
                 D: {},
@@ -717,7 +1054,7 @@ export default {
             }
             return obj
         },
-        getActiveFlight({ row }) {
+        getActiveFlight({row}) {
             let flightId = row.flightId
             if (row.flight.flightId == flightId) {
                 return row.flight
@@ -725,7 +1062,7 @@ export default {
                 return row.flight.flight
             }
         },
-        sortChange({ prop, order }) {
+        sortChange({prop, order}) {
             this.sortObj = {}
             this.sortObj[prop] = order
             if (!order) {
@@ -747,20 +1084,21 @@ export default {
                 this.getChargeBillArr()
             }
         },
-        getRowName({ row, rowIndex }) {
-            let flight = _.find(this.lists, { id: row.chargeBillId }).flight
-            let name = 'expandRow'
-            let startTime = row.startTime ? new Date(row.startTime).getTime() : ''
+        dealStatus(row, scope,obj={}){
+            let flight = _.find(this.lists, {id: row.chargeBillId}).flight
+             let startTime = row.startTime ? new Date(row.startTime).getTime() : ''
             let endTime = row.endTime ? new Date(row.endTime).getTime() : ''
-            // let atd = flight.atd ? new Date(flight.atd).getTime() : ''
-            // let ata = flight.ata ? new Date(flight.ata).getTime() : ''
-
-            let filghtObj = this.getRowFlightLoading({ flight })
-
+            let filghtObj = this.getRowFlightLoading({flight})
             let atd = filghtObj['D'].actualTime ? new Date(filghtObj['D'].actualTime).getTime() : ''
             let ata = filghtObj['A'].actualTime ? new Date(filghtObj['A'].actualTime).getTime() : ''
             let minTime = 10
             let maxTime = 6 * 60
+            let statusFRowObj =obj|| {conditionerBlo:null,
+                QZDY:null,QZKT:null,
+                QZDYC:null,QZKTC:null,
+                QZDYD:null,QZKTD:null,
+            }
+
             if (row.chargeBillConfigCode == 'QZSB') {
                 minTime = 15
                 if (_.includes(row.flightNo, 'CA')) {
@@ -769,16 +1107,35 @@ export default {
                     maxTime = 4 * 60
                 }
             }
+            // 空调时间是否大于电源时间范围 conditionerBlo
+            if (row.chargeCode == 'QZKT') {
+                let data = (scope.row.chargeRecords || []).filter(k => k.chargeCode == 'QZDY') || {}
+                let startTimeKT = data.startTime ? new Date(data.startTime).getTime() : 0
+                let endTimeKY = data.endTime ? new Date(data.endTime).getTime() : 0
+                statusFRowObj.conditionerBlo =obj.conditionerBlo|| !(startTime > startTimeKT && endTime < endTimeKY)
+
+            }
+            // 电源 空调时间是否大于航班时间时间范围 KTDYFlightBlo
+            let KTDYFlightBlo = (atd && endTime && atd < endTime) || (ata && startTime && ata > startTime)
+            statusFRowObj[row.chargeCode] =obj[row.chargeCode]|| KTDYFlightBlo
+            statusFRowObj[row.chargeCode + 'D'] =obj[row.chargeCode+'D']|| endTime && startTime && (endTime - startTime < minTime * 60 * 1000)
+            statusFRowObj[row.chargeCode + 'C'] =obj[row.chargeCode+'C']|| endTime && startTime && (endTime - startTime > maxTime * 60 * 1000)
+
+            return statusFRowObj
+
+        },
+        getRowName({row, rowIndex}, scope) {
+            // 主表格状态标记使用
+            let name = 'expandRow'
+            let statusFRowObj =this.dealStatus(row,scope)
+
             if (
-                (atd && endTime && atd < endTime) ||
-                (ata && startTime && ata > startTime) ||
-                (endTime &&
-                    startTime &&
-                    (endTime - startTime > maxTime * 60 * 1000 ||
-                        endTime - startTime < minTime * 60 * 1000))
+                statusFRowObj.conditionerBlo || statusFRowObj[row.chargeCode] ||
+                statusFRowObj[row.chargeCode + 'D'] || statusFRowObj[row.chargeCode + 'C']
             ) {
                 name += ' timeBorder'
             }
+            // this.$set(scope.row, 'rowSatusMark__', statusFRowObj)
 
             return name
         },
@@ -801,7 +1158,7 @@ export default {
             var arrs = _.reduce(
                 this.lists,
                 (result, value) => {
-                    let hasData = this.getRowClass({ row: value }) ? false : true
+                    let hasData = this.getRowClass({row: value}) ? false : true
                     if (value.expandDefault && hasData) {
                         result.push(value.id)
                     }
@@ -873,7 +1230,7 @@ export default {
             data.yesterdayTime = this.searchYesterdaySend
             data.yesterdaySend = this.searchYesterdayTime
 
-            data = { ...data, orderBy: this.sortObj }
+            data = {...data, orderBy: this.sortObj}
             this.findChargeBillWhitPageAndPc(data)
         },
         getunSendCount() {
@@ -937,7 +1294,7 @@ export default {
             data.yesterdaySend = this.searchYesterdaySend
             data.yesterdayTime = this.searchYesterdayTime
 
-            data = { ...data, orderBy: this.sortObj }
+            data = {...data, orderBy: this.sortObj}
             this.findChargeBillWhitPageAndPc(data)
         },
         findChargeBillWhitPageAndPc(data, update, getCount) {
@@ -1036,6 +1393,7 @@ export default {
                                     newLists.push(record)
                                 }
                             })
+                            
                             list.chargeRecords.map((record) => {
                                 if (record.dataSourceSort === 1) {
                                     let relateRecord = _.find(newLists, {
@@ -1077,7 +1435,7 @@ export default {
             data.map((list) => {
                 let chargeRecords = list.chargeRecords || []
                 if (chargeRecords.length == 0) {
-                    records.push({ data: list })
+                    records.push({data: list})
                 } else {
                     chargeRecords.map((record) => {
                         let newData = _.omit(list, 'chargeRecords')
@@ -1089,7 +1447,7 @@ export default {
             })
             this.lists = records
         },
-        arraySpanMethod({ row, column, rowIndex, columnIndex }) {
+        arraySpanMethod({row, column, rowIndex, columnIndex}) {
             if (columnIndex === 0 || columnIndex === 1 || columnIndex == 2) {
                 if (rowIndex === 0) {
                     return {
@@ -1143,10 +1501,10 @@ export default {
                         list.chargeRecords || [],
                         function (result, value) {
                             if (!send && value.approvalStatus != 'PASS' && value.chargeData) {
-                                result.push({ id: value.id })
+                                result.push({id: value.id})
                             }
                             if (send && value.approvalStatus == 'PASS' && !value.send) {
-                                result.push({ id: value.id })
+                                result.push({id: value.id})
                             }
 
                             return result
@@ -1159,8 +1517,8 @@ export default {
                             send
                                 ? `收费项未审批，或者已发送，不能取消审批`
                                 : `勾选的第${
-                                      idx + 1
-                                  }二条收费单，收费记录以全部审批，不能重复审批！`,
+                                    idx + 1
+                                }二条收费单，收费记录以全部审批，不能重复审批！`,
                             '提示',
                             {
                                 type: 'error',
@@ -1198,7 +1556,7 @@ export default {
                     {
                         id: row.chargeBillId,
                         chargeBillConfigCode: row.chargeBillConfigCode,
-                        chargeRecords: [{ id: row.id }],
+                        chargeRecords: [{id: row.id}],
                     },
                 ]
             }
@@ -1330,7 +1688,7 @@ export default {
             a.click()
             $(a).remove()
         },
-        report({ row }) {
+        report({row}) {
             if (!row.chargeRecords || row.chargeRecords.length == 0) {
                 this.$alert('当前没有收费项，不能上报！', '提示', {
                     type: 'warning',
@@ -1453,7 +1811,7 @@ export default {
                 )
         },
         getName(item, lists, key) {
-            let obj = _.find(lists, { code: item })
+            let obj = _.find(lists, {code: item})
             return obj ? obj[key] : item
         },
         getChargeData(row) {
@@ -1464,17 +1822,17 @@ export default {
             }
         },
         getSingSrc(row, type) {
-            let obj = _.find(row.chargeBillSigns, { type: type })
+            let obj = _.find(row.chargeBillSigns, {type: type})
             return obj ? obj.content : ''
         },
         getSingList(row, type) {
-            let lists = _.filter(row.chargeBillSigns, { type: type })
+            let lists = _.filter(row.chargeBillSigns, {type: type})
             return lists
         },
         getSignColShow(type, code) {
-            let charge = _.find(this.chargeBillArrs, { code })
+            let charge = _.find(this.chargeBillArrs, {code})
             if (charge) {
-                let sign = _.find(charge.chargeBillConfigSignList, { dataCode: type })
+                let sign = _.find(charge.chargeBillConfigSignList, {dataCode: type})
                 if (sign) {
                     return true
                 }
@@ -1490,8 +1848,8 @@ export default {
             }
         },
         getPower(row, power) {
-            let role = _.find(this.userData.roles, { code: row.chargeBillConfigCode })
-            let obj = role ? _.find(role.menus, { code: power }) : ''
+            let role = _.find(this.userData.roles, {code: row.chargeBillConfigCode})
+            let obj = role ? _.find(role.menus, {code: power}) : ''
             return obj ? true : false
         },
         getSetButtonShow() {
@@ -1528,9 +1886,9 @@ export default {
             }
             return result
         },
-        getReportShow({ row }) {
-            let airline = _.find(this.reporLists, { code: 'RULE_CHARGE_PUB_AL' })
-            let charge = _.find(this.reporLists, { code: 'RULE_CHARGE_PUB_BILL' })
+        getReportShow({row}) {
+            let airline = _.find(this.reporLists, {code: 'RULE_CHARGE_PUB_AL'})
+            let charge = _.find(this.reporLists, {code: 'RULE_CHARGE_PUB_BILL'})
             if (
                 airline &&
                 row.flight &&
@@ -1542,7 +1900,7 @@ export default {
             }
             return false
         },
-        getCellClassname({ row, column }) {
+        getCellClassname({row, column}) {
             if (column.property == 'dataSourceSort') {
                 if (row.dataSourceSort === 0 && row.relateRecordId && row.relateRecord) {
                     return 'hasRelateRecord el-table__expanded-cell'
@@ -1564,14 +1922,14 @@ export default {
             let data = _.cloneDeep(item)
             if (item.type == 2) {
                 let options = this.getSupplementOption(item.supplementInfoConfig)
-                let option = _.find(options, { code: item.valueCode })
+                let option = _.find(options, {code: item.valueCode})
                 data.valueTitle = option.describe
             } else if (item.type == 3) {
                 let title = []
                 let code = []
                 let options = this.getSupplementOption(item.supplementInfoConfig)
                 item.valueCode.map((list) => {
-                    let option = _.find(options, { code: list })
+                    let option = _.find(options, {code: list})
                     title.push(option.describe)
                     code.push(option.code)
                 })
@@ -1592,3 +1950,14 @@ export default {
     },
 }
 </script>
+<style scoped lang="scss">
+/deep/ .indexTd{
+    .cell{
+        flex-wrap: wrap!important;
+    }
+    .blue{
+        //background:#E6A23C!important;
+        background: #f19408 !important;
+    }
+}
+</style>
