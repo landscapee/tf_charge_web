@@ -67,7 +67,8 @@
                     </el-select>
                 </div>
                 <div v-show="unsendCount>0">
-                    <el-button type="danger" @click="getUnSendHandle">
+
+                    <el-button :class="getSendS?'':'sendClassSelect'" :type="getSendS?'danger':''"  @click="getUnSendHandle">
                         {{ sendShow ? '昨日未发送' + unsendCount + '个' : '昨日未审批' + unsendCount + '个' }}
                     </el-button>
                 </div>
@@ -112,14 +113,17 @@
                                         <el-table-column label="收费项" align="center" class-name="indexTd">
                                             <template slot-scope="scope1">
 
-                                                    {{
-                                                        scope1.row.chargeDataSource && scope1.row.chargeDataSource.chargeConfig ? scope1.row.chargeDataSource.chargeConfig.name : ''
-                                                    }}
-                                                    <div class="blue"   v-for="(item,index) in getStatusChildMark__(scope1.row,scope)" :key="index+'C'">
-                                                        <el-tooltip  class="item" effect="dark"  :content="item.c" placement="top-start">
-                                                            <span>{{   item.d}}</span>
-                                                        </el-tooltip>
-                                                    </div>
+                                                {{
+                                                    scope1.row.chargeDataSource && scope1.row.chargeDataSource.chargeConfig ? scope1.row.chargeDataSource.chargeConfig.name : ''
+                                                }}
+                                                <div class="blue"
+                                                     v-for="(item,index) in getStatusChildMark__(scope1.row,scope)"
+                                                     :key="index+'C'">
+                                                    <el-tooltip class="item" effect="dark" :content="item.c"
+                                                                placement="top-start">
+                                                        <span>{{ item.d }}</span>
+                                                    </el-tooltip>
+                                                </div>
 
                                             </template>
                                         </el-table-column>
@@ -465,14 +469,21 @@
                                     </el-table>
                                 </div>
                                 <div class="bill_expand_Box1"
-                                     v-show="scope.row.flightSupplementInfos&&scope.row.flightSupplementInfos.length>0">
+                                     v-show="getChargeBill(scope.row)&&getChargeBill(scope.row).length>0">
                                     <el-form :inline="true" class="demo-form-inline">
                                         <el-form-item :class="getitemClass(item)" :label="item.supplementTitle+':'"
-                                                      v-for="(item,idx) in scope.row.flightSupplementInfos" :key="idx">
-                                            <el-input v-model="item.valueTitle" :disabled="!!scope.row.approvalStatus"
-                                                      v-if="item.type===0||item.type===1"
-                                                      :type="item.type===0?'number':'text'"
-                                                      @change="saveSupplement(item)"></el-input>
+                                                      v-for="(item,idx) in getChargeBill(scope.row) " :key="idx+'qwe'">
+                                            <!--                                                      v-for="(item,idx) in scope.row.flightSupplementInfos " :key="idx">-->
+
+<!--                                            <el-input v-model="item.valueTitle" :disabled="!!scope.row.approvalStatus"-->
+<!--                                                      v-if="item.type===0||item.type===1"-->
+<!--                                                      :type="item.type===0?'number':'text'"-->
+<!--                                                      @input="saveSupplement(item)"></el-input>-->
+                                            <input class="myChargeInput__" v-model="item.valueTitle" :disabled="!!scope.row.approvalStatus"
+                                                   v-if="item.type===0||item.type===1"
+                                                   :type="item.type===0?'number':'text'"
+                                                   @keyup.enter="saveSupplement(item)"
+                                            >
                                             <el-select v-model="item.valueCode" :disabled="!!scope.row.approvalStatus"
                                                        v-else placeholder="请选择" filterable
                                                        :multiple="item.type===2?false:true"
@@ -496,9 +507,9 @@
                             <div v-show="scope.row.flightSupplementInfos&&scope.row.flightSupplementInfos.length>0">补
 
                             </div>
-                            <div class="blue"   v-for="(item,index) in getStatusMark__(scope.row)" :key="index+'q'">
-                                <el-tooltip  class="item" effect="dark"  :content="item.c" placement="top-start">
-                                    <span>{{   item.d}}</span>
+                            <div class="blue" v-for="(item,index) in getStatusMark__(scope.row)" :key="index+'q'">
+                                <el-tooltip class="item" effect="dark" :content="item.c" placement="top-start">
+                                    <span>{{ item.d }}</span>
                                 </el-tooltip>
                             </div>
                         </template>
@@ -730,8 +741,9 @@ import AddList from './components/addList'
 import editList from './components/editList'
 import SupplementEdit from './components/supplement_edit'
 import History from './components/history'
-import {map} from 'lodash'
+import {map, filter} from 'lodash'
 import VerifyMix from './components/verifyMix'
+
 export default {
     props: ['power', 'flagNav'],
     components: {
@@ -798,13 +810,13 @@ export default {
             loading: false,
         }
     },
-    mixins:[VerifyMix],
+    mixins: [VerifyMix],
     created() {
     },
     computed: {
         getStatusMark__() {
             return (row) => {
-                 let obj={}
+                let obj = {}
 
                 let textObj1 = {
                     conditionerBlo: {
@@ -836,25 +848,25 @@ export default {
                         c: '桥载空调过短保障',
                     },
                 }
-                map(row.chargeRecords||[],k=>{
-                      obj = this.dealStatus(k, {row},obj)
+                map(row.chargeRecords || [], k => {
+                    obj = this.dealStatus(k, {row}, obj)
                 })
                 let arr = []
                 let recordsObj = {}
-                 map(obj, (val, key) => {
+                map(obj, (val, key) => {
                     let textObj = textObj1[key]
-                    if (val && !recordsObj[textObj.d]) {
+                    if (val && textObj&&!recordsObj[textObj.d]) {
                         arr.push(textObj)
                         recordsObj[textObj.d] = 1
                     }
                 })
-                 return arr
+                return arr
             }
         },
         getStatusChildMark__() {
-            return (row,scope) => {
-                let obj =   {}
-                obj = this.dealStatus(row, scope,obj)
+            return (row, scope) => {
+                let obj = {}
+                obj = this.dealStatus(row, scope, obj)
                 let textObj = {
                     conditionerBlo: {
                         d: '电',
@@ -889,15 +901,107 @@ export default {
                     },
                 }
                 let arr = []
-                 map(obj, (val, key) => {
+                map(obj, (val, key) => {
                     let textObj = textObj1[key]
-                    if (val  ) {
+                    if (val&&textObj) {
                         arr.push(textObj)
-                     }
+                    }
                 })
                 return arr
             }
         },
+        getChargeBillArrCom() {
+            return (val)=>{
+                let userData = JSON.parse(sessionStorage.userData)
+                let arrs = []
+                userData.roles.map((role) => {
+                    let charge = _.find(val, { code: role.code })
+                    if (charge && role.menus && role.menus.length > 0) {
+                        let menuadd = _.find(role.menus, { code: 'charge_add' })
+                        if (menuadd) {
+                            arrs.push(charge)
+                        }
+                    }
+                })
+                return arrs
+            }
+
+
+        },
+        getChargeBill() {
+            return (row) => {
+                let codeObj = {}
+                 map(row.flightSupplementInfos, item => {
+                     codeObj[item.supplementCode] = _.cloneDeep(item)
+                })
+                let arr=this.getChargeBillArrCom(this.chargeBillArrs)
+                 let charge= null;
+                filter(arr, k => {
+                    if (row.chargeBillConfigCode == k.code) {
+                        charge=_.cloneDeep(k)
+                        return true;
+                     }
+                })
+               let supplementInfoConfigs=    map(charge&&charge.supplementInfoConfigs||[],(list) => {
+
+                   let obj=codeObj[list.code]
+                   let params1=list.params
+                   if(typeof list.params=='string'){
+                       params1=JSON.parse(list.params)
+                   }
+                   if(obj){
+                       if(typeof obj.supplementInfoConfig.params=='string'){
+                           params1=JSON.parse(list.params)
+                       }
+                       console.log(1121,obj);
+                        return {...obj,
+                           type:params1.type||obj.type,
+                           valueCode:obj.valueCode|| null,
+                           valueTitle: obj.valueTitle||(params1.type==1?'': null),
+                       }
+                    }else{
+                       return {
+                            supplementInfoConfig:{
+                                ...list,
+                                "flightId":row.flightId,
+                                "taskId":row.taskId,
+                                "chargeBillId":row.id,
+                                type:list.type,
+                                valueCode: null,
+                                valueTitle: null,
+                                "createrId":list.createrId,
+                                "createrName":list.createrName,
+                                "supplementCode":list.code,
+                                "supplementTitle":list.name,
+                            },
+                            "flightId":row.flightId,
+                            "taskId":row.taskId,
+                            "chargeBillId":row.id,
+                             type:params1.type,
+                            valueCode: null,
+                            valueTitle: null,
+                             "createrId":list.createrId,
+                            "createrName":list.createrName,
+                             "supplementCode":list.code,
+                            "supplementTitle":list.name,
+
+                        }
+                    }
+                })
+                let supplementArr = _.cloneDeep(_.sortBy(supplementInfoConfigs || [], 'sort'))
+                console.log(1,supplementArr);
+                return supplementArr
+            }
+        },
+        getSendS(){
+            let s=false
+            if((this.sendShow&&this.searchYesterdaySend)||(!this.sendShow&&this.searchYesterdayTime)){
+                s=true
+            }
+            return s
+        } ,
+
+
     },
     mounted() {
         this.searchTime = [
@@ -935,6 +1039,9 @@ export default {
         clearInterval(this.dataTimer)
     },
     methods: {
+        dealChargeBill(data) {
+
+        },
         taskFlightHistoriesStyle({row, column, rowIndex, columnIndex}) {
             let style = {
                 fontSize: '14px',
@@ -1052,9 +1159,10 @@ export default {
                 this.sortObj = {}
             }
             this.submitData.current = 1
-
+            this.handleLists()
+            return
             if (this.searchYesterdayTime == false || this.searchYesterdaySend == true) {
-                this.unsendHandle()
+                 this.unsendHandle()
             } else {
                 this.handleLists()
             }
@@ -1072,7 +1180,8 @@ export default {
             // 主表格状态标记使用
             let name = 'expandRow'
             // dealStatus 来自 component/verifyMix
-            let statusFRowObj =this.dealStatus(row,scope)
+            let statusFRowObj = this.dealStatus(row, scope)
+
 
             if (
                 statusFRowObj.conditionerBlo || statusFRowObj[row.chargeCode] ||
@@ -1080,7 +1189,6 @@ export default {
             ) {
                 name += ' timeBorder'
             }
-            // this.$set(scope.row, 'rowSatusMark__', statusFRowObj)
 
             return name
         },
@@ -1338,7 +1446,7 @@ export default {
                                     newLists.push(record)
                                 }
                             })
-                            
+
                             list.chargeRecords.map((record) => {
                                 if (record.dataSourceSort === 1) {
                                     let relateRecord = _.find(newLists, {
@@ -1865,15 +1973,17 @@ export default {
         },
         saveSupplement(item) {
             let data = _.cloneDeep(item)
-            if (item.type == 2) {
-                let options = this.getSupplementOption(item.supplementInfoConfig)
-                let option = _.find(options, {code: item.valueCode})
+            console.log(data);
+             if (item.type == 2) {
+                let options = this.getSupplementOption(data.supplementInfoConfig)
+                console.log(options);
+                let option = _.find(options, {code: data.valueCode})
                 data.valueTitle = option.describe
             } else if (item.type == 3) {
                 let title = []
                 let code = []
-                let options = this.getSupplementOption(item.supplementInfoConfig)
-                item.valueCode.map((list) => {
+                let options = this.getSupplementOption(data.supplementInfoConfig)
+                data.valueCode.map((list) => {
                     let option = _.find(options, {code: list})
                     title.push(option.describe)
                     code.push(option.code)
@@ -1883,7 +1993,7 @@ export default {
             } else {
                 data.valueCode = data.valueTitle
             }
-
+            console.log(data);
             this.$axios.post('/flight-supplement-info/save', data).then((res) => {
                 this.$message({
                     message: res.msg,
@@ -1896,14 +2006,38 @@ export default {
 }
 </script>
 <style scoped lang="scss">
-/deep/ .indexTd{
-    .cell{
-        flex-wrap: wrap!important;
+/deep/ .indexTd {
+    .cell {
+        flex-wrap: wrap !important;
     }
-    .blue{
+
+    .blue {
         //background:#E6A23C!important;
         //background: #f19408 !important;
         background: blue !important;
     }
 }
+.myChargeInput__{
+    outline: none;
+    height: 40px;
+    width: 100%;
+    padding-left:3px;
+    border-radius: 5px;
+    border: 1px solid #DCDFE6;
+}
+//:not(.myChargeInput__[disabled='disabled'])
+.myChargeInput__:hover{
+    border-color: #b6b9c0;
+}
+.myChargeInput__:focus{
+    border-color: #409EFF;
+}
+/deep/ .sendClassSelect{
+     background: #e5dada !important;
+    border-color: #e5dada;
+    span{
+        color: #222;
+    }
+}
+
 </style>

@@ -735,7 +735,7 @@ export default {
                 return false
             }
             return true
-            
+
              let scope={row: {fligt:this.activeFlight.successionFlight}}
             let rowKT={...this.activeFlight,
                 startTime:this.QZSBrecords2.startTime,
@@ -801,8 +801,7 @@ export default {
 
             this.supplementArr = _.cloneDeep(_.sortBy(charge.supplementInfoConfigs || [], 'sort'))
 
-            // this.supplementArr = _.cloneDeep(charge.supplementInfoConfigs || [])
-        },
+         },
         flightNoHandle(e) {
             this.$refs.ref_flightNo.blur()
             let time = this.getTimeByFormat(new Date(), 'YY-MM-DD')

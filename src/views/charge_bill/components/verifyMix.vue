@@ -8,6 +8,16 @@ export default {
     data() {
         return {}
     },
+    computed:{
+        getUserDataCOM:{
+            get(){
+                return  sessionStorage.getItem('userData')
+            },
+            set(v){
+
+            }
+        }
+    },
     methods: {
         resetDom(dom){
             dom.style.setProperty("left", '50%', "important");
@@ -53,6 +63,7 @@ export default {
                     maxTime = 4 * 60
                 }
             }
+
             // 空调时间是否大于电源时间范围 conditionerBlo
             if (row.chargeCode == 'QZKT') {
                 let data = (scope.row.chargeRecords || []).filter(k => k.chargeCode == 'QZDY') || {}
@@ -61,6 +72,12 @@ export default {
                 statusFRowObj.conditionerBlo =obj.conditionerBlo|| !(startTime > startTimeKT && endTime < endTimeKY)
 
             }
+            // let userData=this.getUserDataCOM
+
+            // userData=userData&&JSON.parse(userData)
+            // if( userData.deptCode=="MaintenanceLoadBridge"){
+            //
+            // }
             // 电源 空调时间是否大于航班时间时间范围 KTDYFlightBlo
             let KTDYFlightBlo = (atd && endTime && atd < endTime) || (ata && startTime && ata > startTime)
             statusFRowObj[row.chargeCode] =obj[row.chargeCode]|| KTDYFlightBlo
