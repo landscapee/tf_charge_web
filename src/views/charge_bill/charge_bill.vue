@@ -475,10 +475,10 @@
                                                       v-for="(item,idx) in getChargeBill(scope.row) " :key="idx+'qwe'">
                                             <!--                                                      v-for="(item,idx) in scope.row.flightSupplementInfos " :key="idx">-->
 
-<!--                                            <el-input v-model="item.valueTitle" :disabled="!!scope.row.approvalStatus"-->
-<!--                                                      v-if="item.type===0||item.type===1"-->
-<!--                                                      :type="item.type===0?'number':'text'"-->
-<!--                                                      @input="saveSupplement(item)"></el-input>-->
+                                            <!--                                            <el-input v-model="item.valueTitle" :disabled="!!scope.row.approvalStatus"-->
+                                            <!--                                                      v-if="item.type===0||item.type===1"-->
+                                            <!--                                                      :type="item.type===0?'number':'text'"-->
+                                            <!--                                                      @input="saveSupplement(item)"></el-input>-->
                                             <input class="myChargeInput__" v-model="item.valueTitle" :disabled="!!scope.row.approvalStatus"
                                                    v-if="item.type===0||item.type===1"
                                                    :type="item.type===0?'number':'text'"
@@ -931,36 +931,36 @@ export default {
         getChargeBill() {
             return (row) => {
                 let codeObj = {}
-                 map(row.flightSupplementInfos, item => {
-                     codeObj[item.supplementCode] = _.cloneDeep(item)
+                map(row.flightSupplementInfos, item => {
+                    codeObj[item.supplementCode] = _.cloneDeep(item)
                 })
                 let arr=this.getChargeBillArrCom(this.chargeBillArrs)
-                 let charge= null;
+                let charge= null;
                 filter(arr, k => {
                     if (row.chargeBillConfigCode == k.code) {
                         charge=_.cloneDeep(k)
                         return true;
-                     }
+                    }
                 })
-               let supplementInfoConfigs=    map(charge&&charge.supplementInfoConfigs||[],(list) => {
+                let supplementInfoConfigs=    map(charge&&charge.supplementInfoConfigs||[],(list) => {
 
-                   let obj=codeObj[list.code]
-                   let params1=list.params
-                   if(typeof list.params=='string'){
-                       params1=JSON.parse(list.params)
-                   }
-                   if(obj){
-                       if(typeof obj.supplementInfoConfig.params=='string'){
-                           params1=JSON.parse(list.params)
-                       }
-                       console.log(1121,obj);
+                    let obj=codeObj[list.code]
+                    let params1=list.params
+                    if(typeof list.params=='string'){
+                        params1=JSON.parse(list.params)
+                    }
+                    if(obj){
+                        if(typeof obj.supplementInfoConfig.params=='string'){
+                            params1=JSON.parse(list.params)
+                        }
+                        console.log(1121,obj);
                         return {...obj,
-                           type:params1.type||obj.type,
-                           valueCode:obj.valueCode|| null,
-                           valueTitle: obj.valueTitle||(params1.type==1?'': null),
-                       }
+                            type:params1.type||obj.type,
+                            valueCode:obj.valueCode|| null,
+                            valueTitle: obj.valueTitle||(params1.type==1?'': null),
+                        }
                     }else{
-                       return {
+                        return {
                             supplementInfoConfig:{
                                 ...list,
                                 "flightId":row.flightId,
@@ -977,12 +977,12 @@ export default {
                             "flightId":row.flightId,
                             "taskId":row.taskId,
                             "chargeBillId":row.id,
-                             type:params1.type,
+                            type:params1.type,
                             valueCode: null,
                             valueTitle: null,
-                             "createrId":list.createrId,
+                            "createrId":list.createrId,
                             "createrName":list.createrName,
-                             "supplementCode":list.code,
+                            "supplementCode":list.code,
                             "supplementTitle":list.name,
 
                         }
@@ -1169,7 +1169,7 @@ export default {
             this.handleLists()
             return
             if (this.searchYesterdayTime == false || this.searchYesterdaySend == true) {
-                 this.unsendHandle()
+                this.unsendHandle()
             } else {
                 this.handleLists()
             }
@@ -1290,8 +1290,8 @@ export default {
                 data.aircraftNo = this.searchAircraftNo
             }
 
-            data.yesterdayTime = this.searchYesterdaySend
-            data.yesterdaySend = this.searchYesterdayTime
+            data.yesterdayTime = this.searchYesterdayTime
+            data.yesterdaySend = this.searchYesterdaySend
 
             data = {...data, orderBy: this.sortObj}
             this.findChargeBillWhitPageAndPc(data)
@@ -1984,7 +1984,7 @@ export default {
         saveSupplement(item) {
             let data = _.cloneDeep(item)
             console.log(data);
-             if (item.type == 2) {
+            if (item.type == 2) {
                 let options = this.getSupplementOption(data.supplementInfoConfig)
                 console.log(options);
                 let option = _.find(options, {code: data.valueCode})
@@ -2043,7 +2043,7 @@ export default {
     border-color: #409EFF;
 }
 /deep/ .sendClassSelect{
-     background: #e5dada !important;
+    background: #e5dada !important;
     border-color: #e5dada;
     span{
         color: #222;
