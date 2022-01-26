@@ -66,10 +66,11 @@ export default {
 
             // 空调时间是否大于电源时间范围 conditionerBlo
             if (row.chargeCode == 'QZKT') {
-                let data = (scope.row.chargeRecords || []).filter(k => k.chargeCode == 'QZDY') || {}
-                let startTimeKT = data.startTime ? new Date(data.startTime).getTime() : 0
-                let endTimeKY = data.endTime ? new Date(data.endTime).getTime() : 0
-                statusFRowObj.conditionerBlo =obj.conditionerBlo|| !(startTime > startTimeKT && endTime < endTimeKY)
+                let data = (scope.row.chargeRecords || []).filter(k => k.chargeCode == 'QZDY')[0] || {}
+                let startTimeDY = data.startTime ? new Date(data.startTime).getTime() : 0
+                let endTimeDY = data.endTime ? new Date(data.endTime).getTime() : 0
+                // console.log(data,data.startTime,new Date(data.startTime),scope.row.chargeRecords);
+                statusFRowObj.conditionerBlo =obj.conditionerBlo|| (startTime < startTimeDY || endTime > endTimeDY)
 
             }
             // let userData=this.getUserDataCOM
