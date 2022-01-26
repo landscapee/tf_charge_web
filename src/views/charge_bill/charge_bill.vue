@@ -43,7 +43,7 @@
                             @click="searchSend=searchSend===false?'':false;handleLists()">未发送
                         </li>
                         <li :class="searchSend===true?'active':''"
-                            @click="searchSend=searchSend===true?'':true;handleLists()">已发送
+                            @click="dealSend">已发送
                         </li>
                     </ul>
                 </div>
@@ -1039,6 +1039,13 @@ export default {
         clearInterval(this.dataTimer)
     },
     methods: {
+        dealSend(){
+            this.searchSend=this.searchSend?'':true
+            this.searchYesterdaySend = false
+            this.searchYesterdayTime = false
+            this.handleLists()
+
+        },
         dealChargeBill(data) {
 
         },
@@ -1153,7 +1160,7 @@ export default {
             }
         },
         sortChange({prop, order}) {
-            this.sortObj = {}
+            // this.sortObj = {}
             this.sortObj[prop] = order
             if (!order) {
                 this.sortObj = {}
@@ -1276,10 +1283,6 @@ export default {
             }
             data.approvalStatus = this.searchApproval
             data.send = this.searchSend
-
-            this.searchYesterdaySend = false
-            this.searchYesterdayTime = false
-
             data.yesterdayTime = this.searchYesterdaySend
             data.yesterdaySend = this.searchYesterdayTime
 

@@ -71,7 +71,6 @@ export default {
                 let endTimeDY = data.endTime ? new Date(data.endTime).getTime() : 0
                 // console.log(data,data.startTime,new Date(data.startTime),scope.row.chargeRecords);
                 statusFRowObj.conditionerBlo =obj.conditionerBlo|| (startTime < startTimeDY || endTime > endTimeDY)
-
             }
             // let userData=this.getUserDataCOM
 
