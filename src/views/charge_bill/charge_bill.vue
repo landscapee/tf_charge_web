@@ -1260,11 +1260,19 @@ export default {
                 deleted: false,
                 linkedData: true,
             }
+            if(!this.searchYesterdaySend&&!this.searchYesterdayTime){
+                if (this.searchTime && this.searchTime.length > 0) {
+                    data.startTime = this.searchTime[0]
+                    data.endTime = this.searchTime[1]
+                }
+                data.send = this.searchSend
+                data.approvalStatus = this.searchApproval
 
-            if (this.searchTime && this.searchTime.length > 0) {
-                data.startTime = this.searchTime[0]
-                data.endTime = this.searchTime[1]
+            }else{
+                data.send = ''
+                data.approvalStatus = ''
             }
+
             if (this.searchDel) {
                 data.deleted = this.searchDel
             }
@@ -1281,8 +1289,7 @@ export default {
             if (this.searchAircraftNo) {
                 data.aircraftNo = this.searchAircraftNo
             }
-            data.approvalStatus = this.searchApproval
-            data.send = this.searchSend
+
             data.yesterdayTime = this.searchYesterdaySend
             data.yesterdaySend = this.searchYesterdayTime
 
