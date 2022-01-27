@@ -473,13 +473,7 @@
                                     <el-form :inline="true" class="demo-form-inline">
                                         <el-form-item :class="getitemClass(item)" :label="item.supplementTitle+':'"
                                                       v-for="(item,idx) in getChargeBill(scope.row) " :key="idx+'qwe'">
-                                            <!--                                                      v-for="(item,idx) in scope.row.flightSupplementInfos " :key="idx">-->
-
-                                            <!--                                            <el-input v-model="item.valueTitle" :disabled="!!scope.row.approvalStatus"-->
-                                            <!--                                                      v-if="item.type===0||item.type===1"-->
-                                            <!--                                                      :type="item.type===0?'number':'text'"-->
-                                            <!--                                                      @input="saveSupplement(item)"></el-input>-->
-                                            <input class="myChargeInput__" v-model="item.valueTitle" :disabled="!!scope.row.approvalStatus"
+                                             <input class="myChargeInput__" v-model="item.valueTitle" :disabled="!!scope.row.approvalStatus"
                                                    v-if="item.type===0||item.type===1"
                                                    :type="item.type===0?'number':'text'"
                                                    @keyup.enter="saveSupplement(item)"
@@ -487,7 +481,7 @@
                                             <el-select v-model="item.valueCode" :disabled="!!scope.row.approvalStatus"
                                                        v-else placeholder="请选择" filterable
                                                        :multiple="item.type===2?false:true"
-                                                       @change="saveSupplement(item)">
+                                                       @change="saveSupplement(item,scope.row)">
                                                 <el-option
                                                     v-for="select in getSupplementOption(item.supplementInfoConfig)"
                                                     :key="select.code" :label="select.describe"
@@ -741,7 +735,7 @@ import AddList from './components/addList'
 import editList from './components/editList'
 import SupplementEdit from './components/supplement_edit'
 import History from './components/history'
-import {map, filter} from 'lodash'
+import {map, filter,sortBy} from 'lodash'
 import VerifyMix from './components/verifyMix'
 
 export default {
@@ -942,7 +936,8 @@ export default {
                         return true;
                     }
                 })
-                let supplementInfoConfigs=    map(charge&&charge.supplementInfoConfigs||[],(list) => {
+                let formData=sortBy(charge&&charge.supplementInfoConfigs||[],'sort')
+                let supplementInfoConfigs=    map(formData,(list) => {
 
                     let obj=codeObj[list.code]
                     let params1=list.params
@@ -953,8 +948,7 @@ export default {
                         if(typeof obj.supplementInfoConfig.params=='string'){
                             params1=JSON.parse(list.params)
                         }
-                        console.log(1121,obj);
-                        return {...obj,
+                         return {...obj,
                             type:params1.type||obj.type,
                             valueCode:obj.valueCode|| null,
                             valueTitle: obj.valueTitle||(params1.type==1?'': null),
@@ -1981,13 +1975,32 @@ export default {
                 return []
             }
         },
-        saveSupplement(item) {
+
+        saveSupplement(data,row) {
+
+             if(data.supplementCode=="QZSB-FJLX"){
+                let objType={
+                    KTJ:'2',
+                    ZTJ:'1'
+                }
+                map(this.getChargeBill(  row),k=>{
+                    if(k.supplementCode=="QZSB-DYLX"||k.supplementCode=="QZSB-KTLX"){
+                        let obj={...k,valueCode:objType[data.valueCode]}
+                        this.saveSupplementC(obj,true)
+                    }
+                })
+
+            }
+            this.saveSupplementC(data)
+
+        },
+        saveSupplementC(item,isUpdate) {
+
             let data = _.cloneDeep(item)
-            console.log(data);
-            if (item.type == 2) {
+
+             if (item.type == 2) {
                 let options = this.getSupplementOption(data.supplementInfoConfig)
-                console.log(options);
-                let option = _.find(options, {code: data.valueCode})
+                 let option = _.find(options, {code: data.valueCode})
                 data.valueTitle = option.describe
             } else if (item.type == 3) {
                 let title = []
@@ -2003,13 +2016,14 @@ export default {
             } else {
                 data.valueCode = data.valueTitle
             }
-            console.log(data);
-            this.$axios.post('/flight-supplement-info/save', data).then((res) => {
-                this.$message({
-                    message: res.msg,
-                    type: 'success',
-                })
-                this.update()
+             this.$axios.post('/flight-supplement-info/save', data).then((res) => {
+               if(!isUpdate){
+                   this.$message({
+                       message: res.msg,
+                       type: 'success',
+                   })
+                   this.update()
+               }
             })
         },
     },
