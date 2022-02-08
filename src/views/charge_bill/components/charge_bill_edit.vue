@@ -5,12 +5,12 @@
             <span>{{type=='add'?'新增':'编辑'}}</span>
             <i class="el-icon-circle-close" @click="listShow=false"></i>
         </div>
-        <el-form label-position="right" :label-width="rowData.chargeBillConfigCode == 'LANQ'?'110px':'80px'" ref="listData">
+        <el-form @keyup.enter.native="keydownEnter"  label-position="right" :label-width="rowData.chargeBillConfigCode == 'LANQ'?'110px':'80px'" ref="listData">
             <el-form-item label="航班号">
-                <el-input v-model="listData.flightNo" placeholder="航班号" :disabled="!!listData.id"></el-input>
+                <el-input  v-model="listData.flightNo" placeholder="航班号" :disabled="!!listData.id"></el-input>
             </el-form-item>
             <el-form-item label="收费项">
-                <el-input v-model="listData.chargeDataSource.chargeConfig.name" placeholder="收费项" :disabled="!!listData.id"></el-input>
+                <el-input  v-model="listData.chargeDataSource.chargeConfig.name" placeholder="收费项" :disabled="!!listData.id"></el-input>
             </el-form-item>
 
             <template v-if="rowData.chargeBillConfigCode == 'LANQ'&&type=='edit'">
@@ -73,32 +73,35 @@
             </template>
             <template v-else>
                 <el-form-item label="收费数据" required v-if="!timeShow&&type=='edit'">
-                    <el-input v-model="listData.chargeData" placeholder="收费数据"></el-input>
+                    <el-input   v-model="listData.chargeData" placeholder="收费数据"></el-input>
                 </el-form-item>
-                <el-form-item label="开始时间" v-if="timeShow&&type=='edit'">
+                <el-form-item   label="开始时间" v-if="timeShow&&type=='edit'">
                     <time-picker @timePickerTime="timePickerTime" :value="listData.startTime" :objectName="'listData'" :keyName="'startTime'" />
                 </el-form-item>
-                <el-form-item label="结束时间" v-if="timeShow&&type=='edit'">
+                <el-form-item   label="结束时间" v-if="timeShow&&type=='edit'">
                     <time-picker @timePickerTime="timePickerTime" :value="listData.endTime" :objectName="'listData'" :keyName="'endTime'" />
                 </el-form-item>
-                <el-form-item label="操作人" v-if="type=='edit'&&rowData.chargeBillConfigCode != 'QZSB'">
+                <el-form-item  @keyup.enter.native.stop="()=>{ }" label="操作人" v-if="type=='edit'&&rowData.chargeBillConfigCode != 'QZSB'">
                     <el-select v-model="listData.operatorId" filterable clearable placeholder="请选择">
                         <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="操作人1" v-if="type=='edit'&&rowData.chargeBillConfigCode == 'QZSB'">
-                    <el-select v-model="listData.operatorId" filterable clearable placeholder="请选择">
-                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="操作人2" v-if="type=='edit'&&rowData.chargeBillConfigCode == 'QZSB'">
+                <!--                开始人-->
+                <el-form-item  @keyup.enter.native.stop="()=>{ }" label="开始人员" v-if="type=='edit'&&rowData.chargeBillConfigCode == 'QZSB'">
                     <el-select v-model="listData.startUserId" filterable clearable placeholder="请选择">
                         <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
                     </el-select>
                 </el-form-item>
+                <!--                结束人员-->
+                <el-form-item label="结束人员" v-if="type=='edit'&&rowData.chargeBillConfigCode == 'QZSB'">
+                    <el-select @keyup.enter.native.stop="()=>{ }" v-model="listData.operatorId" filterable clearable placeholder="请选择">
+                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                    </el-select>
+                </el-form-item>
+
             </template>
             <el-form-item label="备注">
-                <el-input v-model="listData.remark" placeholder="备注"></el-input>
+                <el-input    v-model="listData.remark" placeholder="备注"></el-input>
             </el-form-item>
         </el-form>
         <div slot="footer" class="footer">
@@ -135,7 +138,18 @@ export default {
         }
     },
     mixins:[VerifyMix],
+    mounted(){
+        // addEventListener('keydown',this.keydownEnter)
+    },
+    beforeDestroy() {
+        // removeEventListener('keydown',this.keydownEnter)
+
+    },
     methods: {
+        keydownEnter(e){
+            // console.log(e,1);
+            this.save()
+        },
         timePickerTime(objectName, keyName, time) {
             this[objectName][keyName] = time
         },

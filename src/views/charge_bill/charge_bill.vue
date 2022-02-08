@@ -501,11 +501,17 @@
                             <div v-show="scope.row.flightSupplementInfos&&scope.row.flightSupplementInfos.length>0">补
 
                             </div>
+                            <div   >
+                                <el-tooltip class="item" effect="dark" :content="getBuildModeMark(scope.row).c" placement="top-start">
+                                    <span>{{ getBuildModeMark(scope.row).d }}</span>
+                                </el-tooltip>
+                            </div>
                             <div class="blue" v-for="(item,index) in getStatusMark__(scope.row)" :key="index+'q'">
                                 <el-tooltip class="item" effect="dark" :content="item.c" placement="top-start">
                                     <span>{{ item.d }}</span>
                                 </el-tooltip>
                             </div>
+
                         </template>
                     </el-table-column>
                     <el-table-column type="selection" width="55" align="center"></el-table-column>
@@ -622,7 +628,7 @@
                     <el-table-column label="操作" align="center" v-if="!searchDel" class-name="optBox" width="90">
                         <template slot-scope="scope">
 
-                            <el-button type="text" title="审批" @click="approval([scope.row],'arrs',false)"
+                            <el-button type="text" title="审批" @click="approval([scope.row],'arrs',false,'row')"
                                        :disabled="!!scope.row.approvalStatus" v-show="powerData.charge_approval">审批
                             </el-button>
 
@@ -675,7 +681,7 @@
                 </el-table>
                 <div class="paginationBox">
                     <el-pagination background @size-change="handleSizeChange" @current-change="pageBC"
-                                   :current-page="submitData.current" :page-sizes="[10,20, 30, 50, 100]"
+                                   :current-page="submitData.current" :page-sizes="[10,20, 30, 50, 100,200,300,400,500]"
                                    :page-size="submitData.size" layout="total, sizes, prev, pager, next, jumper"
                                    :total="total"></el-pagination>
                 </div>
@@ -808,6 +814,25 @@ export default {
     created() {
     },
     computed: {
+        getBuildModeMark(){
+          return (row)=>{
+               let textObj= {
+                  null: {
+                      d: '无',
+                      c: '无任务',
+                  },
+                  auto: {
+                      d: '例',
+                      c: '例行保障任务',
+                  },
+                  manual: {
+                      d: '临',
+                      c: '临时任务',
+                  },
+              }
+              return textObj[String(row.buildMode||'null')]
+          }
+        },
         getStatusMark__() {
             return (row) => {
                 let obj = {}
@@ -983,8 +1008,7 @@ export default {
                     }
                 })
                 let supplementArr = _.cloneDeep(_.sortBy(supplementInfoConfigs || [], 'sort'))
-                console.log(1,supplementArr);
-                return supplementArr
+                 return supplementArr
             }
         },
         getSendS(){
@@ -998,6 +1022,8 @@ export default {
 
     },
     mounted() {
+        let size=localStorage.getItem('chargePageSize__')
+         this.submitData.size=size&&Number(size)||this.submitData.size
         this.searchTime = [
             this.getTimeByFormat(new Date() - 1 * 24 * 60 * 60 * 1000, 'YY-MM-DD') + ' 00:00:00',
             this.$moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'),
@@ -1084,7 +1110,7 @@ export default {
             let startUserName = row.startUserName
 
             if (operatorName && startUserName && operatorName != startUserName) {
-                return operatorName + ',' + startUserName
+                return startUserName   + ',' + operatorName
             }
             return operatorName ? operatorName : startUserName
         },
@@ -1291,6 +1317,8 @@ export default {
             this.findChargeBillWhitPageAndPc(data)
         },
         getunSendCount() {
+            // let size=localStorage.getItem('chargePageSize__')
+            // console.log('size',size);
             let data = {
                 current: 1,
                 size: this.submitData.size,
@@ -1528,28 +1556,54 @@ export default {
                 return false
             }
 
-            let arrs = this.selections.filter((list) => {
-                return !list.chargeRecords || list.chargeRecords.length == 0
-            })
-            if (arrs.length > 0) {
-                this.$alert('不能选择无收费项数据进行审批！', '提示', {
-                    type: 'error',
-                    center: true,
-                })
-                return false
-            }
+            // let arrs = this.selections.filter((list) => {
+            //     return !list.chargeRecords || list.chargeRecords.length == 0
+            // })
+            // if (arrs.length > 0) {
+            //     this.$alert('不能选择无收费项数据进行审批！', '提示', {
+            //         type: 'error',
+            //         center: true,
+            //     })
+            //     return false
+            // }
             this.approval(this.selections, 'arrs', false)
         },
-        approval(row, type, send) {
+        chargeDataHasValue(row){
+             let itemArr =row.chargeRecords||[]
+            let blo=!itemArr.length||itemArr.some(k=>{
+                return !k.chargeData||k.chargeData==='0'
+            })
+            return blo
+        },
+        approval(row, type, send,isRow) {
+
             let data = []
             let approvalStatus = 'PASS'
             let msg = '确定审批?'
             let endHttp = false
             if (type == 'arrs') {
+
                 if (send) {
                     approvalStatus = 'PENDING'
                     msg = '确定取消审批?'
                 } else {
+                    let arr=[]
+                    map(row,(k,i)=>{
+                        let blo =this.chargeDataHasValue(k)
+                        blo &&arr.push(i+1)
+                    })
+                    let s=`勾选的第 ${arr.join('、')} 条收费单，有收费数据为空或无收费项，不能审批！`
+                    if(isRow=='row'){
+                         s='该收费单有收费数据为空或无收费项，不能审批！'
+                    }
+                    if(arr.length){
+                        this.$alert(s, '提示', {
+                            type: 'error',
+                            center: true,
+                        })
+                        return
+                    }
+
                     approvalStatus = 'PASS'
                 }
 
@@ -1824,6 +1878,7 @@ export default {
         handleSizeChange(pageSize) {
             this.submitData.current = 1
             this.submitData.size = pageSize
+            localStorage.setItem('chargePageSize__',pageSize)
             this.findChargeBillWhitPageAndPc(this.submitData)
         },
         pageBC(pageNo) {

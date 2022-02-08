@@ -6,7 +6,7 @@
                 <span>编辑</span>
                 <i class="el-icon-circle-close" @click="listShow=false"></i>
             </div>
-            <el-form label-position="right" label-width="80px" ref="listData">
+            <el-form @keyup.enter.native="keydownEnter" label-position="right" label-width="80px" ref="listData">
                 <el-row>
                     <el-col :span="8">
                         <el-form-item label="航班号" required>
@@ -50,7 +50,9 @@ export default {
     mounted() {},
     watch: {},
     methods: {
-
+        keydownEnter(e){
+             this.save()
+        },
         initData(row) {
             let dom =this.$refs.edit.$el.querySelector('.el-dialog')
             this.resetDom(dom)

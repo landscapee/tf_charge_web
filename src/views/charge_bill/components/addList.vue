@@ -6,7 +6,7 @@
                 <span>新增</span>
                 <i class="el-icon-circle-close" @click="listShow=false"></i>
             </div>
-            <el-form label-position="right" label-width="80px" ref="listData">
+            <el-form @keyup.enter.native="keydownEnter" label-position="right" label-width="80px" ref="listData">
                 <el-row>
                     <el-col :span="8">
                         <el-form-item label="航班号" required>
@@ -28,7 +28,7 @@
 <!--                    <div>{{getTimett}}</div>-->
 <!--                 </el-form-item>-->
                 <el-form-item label="收费单" required>
-                    <el-select v-model="listData.chargeBillConfigCode" filterable clearable placeholder="请选择" @change="chargeBillChange" :disabled="flightDisable">
+                    <el-select v-model="listData.chargeBillConfigCode"  @keyup.enter.native.stop="()=>{ }"  filterable  clearable placeholder="请选择" @change="chargeBillChange" :disabled="flightDisable">
                         <el-option v-for="item in chargeBillArr" :key="item.id" :label="item.name" :value="item.code"></el-option>
                     </el-select>
                 </el-form-item>
@@ -120,19 +120,20 @@
                         </el-row>
                         <el-row>
                             <el-col :span="12">
-                                <el-form-item label="操作人1">
-                                    <el-select v-model="QZSBrecords1.operatorId" filterable clearable placeholder="请选择">
+                                <el-form-item label="开始人员">
+                                    <el-select v-model="QZSBrecords1.startUserId"  @keyup.enter.native.stop="()=>{ }"  filterable clearable placeholder="请选择">
                                         <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
                                     </el-select>
                                 </el-form-item>
                             </el-col>
                             <el-col :span="12">
-                                <el-form-item label="操作人2">
-                                    <el-select v-model="QZSBrecords1.startUserId" filterable clearable placeholder="请选择">
+                                <el-form-item label="结束人员">
+                                    <el-select v-model="QZSBrecords1.operatorId"  @keyup.enter.native.stop="()=>{ }"  filterable clearable placeholder="请选择">
                                         <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
                                     </el-select>
                                 </el-form-item>
                             </el-col>
+
                         </el-row>
 
                     </el-form>
@@ -166,19 +167,20 @@
                         </el-row>
                         <el-row>
                             <el-col :span="12">
-                                <el-form-item label="操作人1">
-                                    <el-select v-model="QZSBrecords2.operatorId" filterable clearable placeholder="请选择">
+                                <el-form-item label="开始人员">
+                                    <el-select v-model="QZSBrecords2.startUserId" @keyup.enter.native.stop="()=>{ }" filterable clearable placeholder="请选择">
                                         <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
                                     </el-select>
                                 </el-form-item>
                             </el-col>
                             <el-col :span="12">
-                                <el-form-item label="操作人2">
-                                    <el-select v-model="QZSBrecords2.startUserId" filterable clearable placeholder="请选择">
+                                <el-form-item label="结束人员">
+                                    <el-select v-model="QZSBrecords2.operatorId" @keyup.enter.native.stop="()=>{ }" filterable clearable placeholder="请选择">
                                         <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
                                     </el-select>
                                 </el-form-item>
                             </el-col>
+
                         </el-row>
 
                     </el-form>
@@ -188,7 +190,9 @@
                     <el-form label-width="80px" style="width:500px">
                         <el-form-item :label="item.name+':'" v-for="(item,idx) in supplementArr" :key="idx">
                             <el-input v-model="item.valueTitle" v-if="item.params.type===0||item.params.type===1" :type="item.params.type===0?'number':'text'" @change="saveSupplement(item)"></el-input>
-                            <el-select v-model="item.valueCode" v-else placeholder="请选择" filterable :multiple="item.params.type===2?false:true" @change="saveSupplement(item)">
+                            <el-select v-model="item.valueCode" v-else placeholder="请选择"
+                                       @keyup.enter.native.stop="()=>{ }"
+                                       filterable :multiple="item.params.type===2?false:true" @change="saveSupplement(item)">
                                 <el-option v-for="select in item.params.selects" :key="select.code" :label="select.describe" :value="select.code"></el-option>
                             </el-select>
                         </el-form-item>
@@ -207,7 +211,7 @@
                 <i class="el-icon-circle-close" @click="flightNoShow=false"></i>
             </div>
             <div class="flightNoBox">
-                <el-form label-position="right" label-width="80px" ref="listData">
+                <el-form @keyup.enter.native="keydownEnter1"  label-position="right" label-width="80px" ref="listData">
                     <el-form-item label="时间范围">
                         <el-date-picker v-model="flight_time" format="yyyy-MM-dd HH:mm:ss" :default-time="['00:00:00', '23:59:59']" value-format="yyyy-MM-dd HH:mm:ss" type="datetimerange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" clearable></el-date-picker>
                     </el-form-item>
@@ -245,9 +249,9 @@
                 <span>收费项选择</span>
                 <i class="el-icon-circle-close" @click="chargeRecordShow=false"></i>
             </div>
-            <el-form label-position="right" :label-width="chargeRecordPageType=='boarding-bridge'?'110px':'80px'" ref="listData">
+            <el-form @keyup.enter.native="keydownEnter2"  label-position="right" :label-width="chargeRecordPageType=='boarding-bridge'?'110px':'80px'" ref="listData">
                 <el-form-item label="收费项">
-                    <el-select v-model="activeChargeRecord.chargeCode" filterable clearable placeholder="请选择">
+                    <el-select v-model="activeChargeRecord.chargeCode" @keyup.enter.native.stop="()=>{ }" filterable clearable placeholder="请选择">
                         <el-option v-for="item in chargeArr" :key="item.id" :label="item.code+'-'+item.name+'('+item.unit+')'" :value="item.code"></el-option>
                     </el-select>
                 </el-form-item>
@@ -262,7 +266,7 @@
                             </el-col>
                             <el-col :span="12">
                                 <el-form-item label="接桥人">
-                                    <el-select v-model="activeChargeRecord.startStaffId" filterable clearable placeholder="请选择">
+                                    <el-select v-model="activeChargeRecord.startStaffId" @keyup.enter.native.stop="()=>{ }" filterable clearable placeholder="请选择">
                                         <el-option v-for="item in userDeptLists" :key="'0'+item.id" :label="item.name" :value="item.id"></el-option>
                                     </el-select>
                                 </el-form-item>
@@ -277,7 +281,7 @@
                             </el-col>
                             <el-col :span="12">
                                 <el-form-item label="撤侨人">
-                                    <el-select v-model="activeChargeRecord.endStaffId" filterable clearable placeholder="请选择">
+                                    <el-select v-model="activeChargeRecord.endStaffId" @keyup.enter.native.stop="()=>{ }" filterable clearable placeholder="请选择">
                                         <el-option v-for="item in userDeptLists" :key="'1'+item.id" :label="item.name" :value="item.id"></el-option>
                                     </el-select>
                                 </el-form-item>
@@ -321,7 +325,7 @@
                             <el-input v-model="activeChargeRecord.deviceCode" placeholder="设备编号"></el-input>
                         </el-form-item>
                         <el-form-item label="操作人">
-                            <el-select v-model="activeChargeRecord.operatorId" filterable clearable placeholder="请选择">
+                            <el-select v-model="activeChargeRecord.operatorId" @keyup.enter.native.stop="()=>{ }" filterable clearable placeholder="请选择">
                                 <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
                             </el-select>
                         </el-form-item>
@@ -438,6 +442,18 @@ export default {
         },
     },
     methods: {
+        keydownEnter(e){
+            // console.log(0);
+            this.save()
+        },
+        keydownEnter1(e){
+            // console.log(1);
+            this.flighNoSearch()
+        },
+        keydownEnter2(e){
+            // console.log(2);
+            this.chargeRecordSave(this.activeChargeRecord)
+        },
         getUseTime(obj) {
             let time = ''
 
