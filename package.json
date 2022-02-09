@@ -10,6 +10,8 @@
     "dev:tianfu": "webpack-dev-server --config webpack.dev.js --Program bvc.dev --type tianfu",
     "dev:shuangliu": "webpack-dev-server --config webpack.dev.js --Program bvc.dev --type shuangliu",
     "build": "webpack --config webpack.prod.js --Program bvc.website --type tianfu",
+    "test.deploy": "yarn build:shuangliu&&yarn deploy",
+    "deploy": "scp -r website/* root@173.101.4.18:/var/www/com.charge.module.website/website",
     "build:tianfu": "webpack --config webpack.prod.js --Program bvc.website --type tianfu",
     "build:shuangliu": "webpack --config webpack.prod.js --Program bvc.website --type shuangliu"
   },
