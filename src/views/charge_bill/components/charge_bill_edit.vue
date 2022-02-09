@@ -2,7 +2,7 @@
     <el-dialog v-drag-dialog ref="edit"  :visible.sync="listShow" id="addTask" center :width="rowData.chargeBillConfigCode == 'LANQ'&&type=='edit'?'800px':'400px'" :close-on-click-modal="false" :show-close="false">
         <div slot="title" class="head">
             <div></div>
-            <span>{{type=='add'?'新增':'编辑'}}</span>
+            <span>121{{type=='add'?'新增':'编辑'}}</span>
             <i class="el-icon-circle-close" @click="listShow=false"></i>
         </div>
         <el-form @keyup.enter.native="keydownEnter"  label-position="right" :label-width="rowData.chargeBillConfigCode == 'LANQ'?'110px':'80px'" ref="listData">
@@ -146,8 +146,9 @@ export default {
 
     },
     methods: {
-        keydownEnter(e){
-            // console.log(e,1);
+        keydownEnter( e){
+            console.log(111,e.target);
+            e.target.blur()
             this.save()
         },
         timePickerTime(objectName, keyName, time) {

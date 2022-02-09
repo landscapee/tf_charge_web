@@ -51,6 +51,7 @@ export default {
     watch: {},
     methods: {
         keydownEnter(e){
+            e.target&&e.target.blur()
              this.save()
         },
         initData(row) {

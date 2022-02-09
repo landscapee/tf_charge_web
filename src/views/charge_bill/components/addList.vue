@@ -444,14 +444,17 @@ export default {
     methods: {
         keydownEnter(e){
             // console.log(0);
+            e.target&&e.target.blur()
             this.save()
         },
         keydownEnter1(e){
             // console.log(1);
+            e.target&&e.target.blur()
             this.flighNoSearch()
         },
         keydownEnter2(e){
             // console.log(2);
+            e.target&&e.target.blur()
             this.chargeRecordSave(this.activeChargeRecord)
         },
         getUseTime(obj) {
