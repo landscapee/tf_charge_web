@@ -1,15 +1,23 @@
 <template>
     <div class="timePicker">
-        <input ref="ref_year" placeholder="年" type="text" maxlength=4 v-model="year" class="yearInput" @keyup="inputKeyup($event,'year','month','')" @blur="yeaBlur">-
-        <input ref="ref_month" placeholder="月" type="text" maxlength=2 v-model="month" @keyup="inputKeyup($event,'month','day','year')" @blur="monthBlur">-
-        <input ref="ref_day" placeholder="日" type="text" maxlength=2 v-model="day" @keyup="inputKeyup($event,'day','hours','month')" @blur="dayBlur">
-        <input ref="ref_hours" placeholder="时" type="text" maxlength=2 v-model="hours" @keyup="inputKeyup($event,'hours','minute','day')" @blur="hoursBlur">:
-        <input ref="ref_minute" placeholder="分" type="text" maxlength=2 v-model="minute" @keyup="inputKeyup($event,'minute','second','hours')" @blur="minuteBlur">:
-        <input ref="ref_second" placeholder="秒" type="text" maxlength=2 v-model="second" @keyup="inputKeyup($event,'second','','minute')" @blur="secondBlur">
+        <input ref="ref_year" placeholder="年" type="text" maxlength=4 v-model="year" class="yearInput"
+               @keyup="inputKeyup($event,'year','month','')" @blur="yeaBlur">-
+        <input ref="ref_month" placeholder="月" type="text" maxlength=2 v-model="month"
+               @keyup="inputKeyup($event,'month','day','year')" @blur="monthBlur">-
+        <input ref="ref_day" placeholder="日" type="text" maxlength=2 v-model="day"
+               @keyup="inputKeyup($event,'day','hours','month')" @blur="dayBlur">
+        <input ref="ref_hours" placeholder="时" type="text" maxlength=2 v-model="hours"
+               @keyup="inputKeyup($event,'hours','minute','day')" @blur="hoursBlur">:
+        <input ref="ref_minute" placeholder="分" type="text" maxlength=2 v-model="minute"
+               @keyup="inputKeyup($event,'minute','second','hours')" @blur="minuteBlur">:
+        <input ref="ref_second" placeholder="秒" type="text" maxlength=2 v-model="second"
+               @keyup="inputKeyup($event,'second','','minute')" @blur="secondBlur">
     </div>
 </template>
 
 <script>
+import {map} from 'lodash'
+
 export default {
     // props: ['keyName', 'value'],
     props: {
@@ -38,9 +46,21 @@ export default {
     },
     watch: {
         value: function (val) {
-            console.log(val)
+            console.log(121, val)
 
             if (val) {
+                let riqishijian = (val || '').split(' ')
+                let riqi = riqishijian[0] && riqishijian[0].split('-')
+                let shijian = riqishijian[1] && riqishijian[1].split(':')
+                let riqiMap = ['year', 'month', 'day']
+                let shijianMap = ['hours', 'minute', 'second']
+                map(riqi, (k, i) => {
+                    this[riqiMap[i]] = k
+                });
+                map(shijian, (k, i) => {
+                    this[shijianMap[i]] = k
+                })
+                return
                 let date = new Date(val)
                 this.year = date.getFullYear()
                 let month = date.getMonth() + 1
@@ -333,6 +353,7 @@ export default {
     padding: 0 5px;
     height: 40px;
     font-weight: 600;
+
     input {
         height: 38px;
         border: none !important;
@@ -341,6 +362,7 @@ export default {
         font-weight: 400;
         outline: none;
     }
+
     .yearInput {
         width: 40px;
     }

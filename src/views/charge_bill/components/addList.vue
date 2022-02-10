@@ -471,7 +471,7 @@ export default {
             return time
         },
         timePickerTime(objectName, keyName, time) {
-            this[objectName][keyName] = time
+             this[objectName][keyName] = time
             if (objectName == 'QZSBrecords1') {
                 this.QZSBrecords1Time = this.getUseTime(objectName)
             }
@@ -857,18 +857,23 @@ export default {
         flightNoDbHandle(item) {
             this.activeFlight = item
             this.flightNoShow = false
-            console.log(item,item.estimateTime,item.scheduleTime,);
-            let {successionFlight,estimateTime,scheduleTime}=item
+             let {successionFlight,estimateTime,scheduleTime}=item
             let {estimateTime: estimateTime1,scheduleTime:scheduleTime1}=successionFlight||{}
-           let transTime=(time)=>moment( moment(time).format('yyyy-MM-DD')).format('yyyy-MM-DD HH:mm:ss')
+           let transTime=(time)=> moment(time).format('yyyy-MM-DD')
             let obj={}
             obj[item.movement]=transTime(estimateTime||scheduleTime)
-            obj[item.successionFlight.movement]=transTime(estimateTime1||scheduleTime1)
-            console.log(112233,obj);
-            this.$set(this.QZSBrecords1,'startTime',obj.A )
+            if(item.successionFlight){
+                obj[item.successionFlight.movement]=transTime(estimateTime1||scheduleTime1)
+                this.$set(this.QZSBrecords1,'endTime', obj.D)
+                this.$set(this.QZSBrecords2,'endTime',obj.D )
+            }else{
+                this.$set(this.QZSBrecords1,'endTime', '')
+                this.$set(this.QZSBrecords2,'endTime','')
+            }
+             this.$set(this.QZSBrecords1,'startTime',obj.A )
             this.$set(this.QZSBrecords2,'startTime',obj.A )
-            this.$set(this.QZSBrecords1,'endTime', obj.D)
-            this.$set(this.QZSBrecords2,'endTime',obj.D )
+
+
 
         },
         saveSupplement(item) {
