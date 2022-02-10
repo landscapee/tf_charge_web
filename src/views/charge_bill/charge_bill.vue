@@ -830,7 +830,7 @@ export default {
                       c: '临时任务',
                   },
               }
-              return textObj[String(row.buildMode||'null')]
+              return textObj[String((row.taskInfo&&row.taskInfo.buildMode)||'null')]
           }
         },
         getStatusMark__() {
@@ -1591,10 +1591,10 @@ export default {
                     let arr=[]
                     map(row,(k,i)=>{
                         let blo =this.chargeDataHasValue(k)
-                        blo &&arr.push(i+dataNum+1)
+                        blo &&arr.push(k.flightNo)
                     })
-                    console.log(2211,dataNum,arr,current,size);
-                    let s=`序号为 ${arr.join('、')} 的收费单，有收费数据为空或无收费项，不能审批！`
+                    // console.log(2211,dataNum,arr,current,size);
+                    let s=`航班号为${arr.join('、')} 的收费单，有收费数据为空或无收费项，不能审批！`
                     if(isRow=='row'){
                          s='该收费单有收费数据为空或无收费项，不能审批！'
                     }
@@ -1629,9 +1629,9 @@ export default {
                         this.$alert(
                             send
                                 ? `收费项未审批，或者已发送，不能取消审批`
-                                : `序号为${
-                                    idx +dataNum+ 1
-                                }的收费单，收费项以全部审批，不能重复审批！`,
+                                : `勾选的第${
+                                    idx + 1
+                                }二条收费单，收费记录以全部审批，不能重复审批！`,
                             '提示',
                             {
                                 type: 'error',

@@ -347,6 +347,7 @@
 import TimePicker from '../../../components/time-picker'
 import VerifyMix from './verifyMix'
 import {map} from 'lodash'
+import moment from 'moment'
 
 export default {
     components: {
@@ -854,9 +855,21 @@ export default {
                 })
         },
         flightNoDbHandle(item) {
-            console.log(item);
             this.activeFlight = item
             this.flightNoShow = false
+            console.log(item,item.estimateTime,item.scheduleTime,);
+            let {successionFlight,estimateTime,scheduleTime}=item
+            let {estimateTime: estimateTime1,scheduleTime:scheduleTime1}=successionFlight||{}
+           let transTime=(time)=>moment( moment(time).format('yyyy-MM-DD')).format('yyyy-MM-DD HH:mm:ss')
+            let obj={}
+            obj[item.movement]=transTime(estimateTime||scheduleTime)
+            obj[item.successionFlight.movement]=transTime(estimateTime1||scheduleTime1)
+            console.log(112233,obj);
+            this.$set(this.QZSBrecords1,'startTime',obj.A )
+            this.$set(this.QZSBrecords2,'startTime',obj.A )
+            this.$set(this.QZSBrecords1,'endTime', obj.D)
+            this.$set(this.QZSBrecords2,'endTime',obj.D )
+
         },
         saveSupplement(item) {
             if (item.params.type == 2) {
