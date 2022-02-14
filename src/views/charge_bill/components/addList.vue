@@ -1,6 +1,8 @@
 <template>
     <div>
-        <el-dialog v-drag-dialog ref="add" :visible.sync="listShow" id="addTask" center :width="listData.chargeBillConfigCode=='LANQ'?'1200px':'800px'" :close-on-click-modal="false" :show-close="false">
+        <el-dialog v-drag-dialog ref="add" :visible.sync="listShow" id="addTask" center
+                   :width="listData.chargeBillConfigCode=='LANQ'?'1200px':'800px'" :close-on-click-modal="false"
+                   :show-close="false">
             <div slot="title" class="head ">
                 <div></div>
                 <span>新增</span>
@@ -10,7 +12,8 @@
                 <el-row>
                     <el-col :span="8">
                         <el-form-item label="航班号" required>
-                            <el-input v-model="activeFlight.flightNo" placeholder="航班号" @focus="flightNoHandle" ref="ref_flightNo" :disabled="flightDisable"></el-input>
+                            <el-input v-model="activeFlight.flightNo" placeholder="航班号" @focus="flightNoHandle"
+                                      ref="ref_flightNo" :disabled="flightDisable"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="8">
@@ -24,12 +27,14 @@
                         </el-form-item>
                     </el-col>
                 </el-row>
-<!--                <el-form-item label="航班时间"  >-->
-<!--                    <div>{{getTimett}}</div>-->
-<!--                 </el-form-item>-->
+                <!--                <el-form-item label="航班时间"  >-->
+                <!--                    <div>{{getTimett}}</div>-->
+                <!--                 </el-form-item>-->
                 <el-form-item label="收费单" required>
-                    <el-select v-model="listData.chargeBillConfigCode"  @keyup.enter.native.stop="()=>{ }"  filterable  clearable placeholder="请选择" @change="chargeBillChange" :disabled="flightDisable">
-                        <el-option v-for="item in chargeBillArr" :key="item.id" :label="item.name" :value="item.code"></el-option>
+                    <el-select v-model="listData.chargeBillConfigCode" @keyup.enter.native.stop="()=>{ }" filterable
+                               clearable placeholder="请选择" @change="chargeBillChange" :disabled="flightDisable">
+                        <el-option v-for="item in chargeBillArr" :key="item.id" :label="item.name"
+                                   :value="item.code"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="收费项" v-if="listData.chargeBillConfigCode!='QZSB'">
@@ -39,37 +44,37 @@
                             <el-table-column prop="deviceCode" label="设备号"></el-table-column>
                             <el-table-column prop="afterStartTime" label="航后开始时间">
                                 <template slot-scope="scope">
-                                    {{getTimeByFormat(scope.row.afterStartTime,'hh:mm:ss(DD)')}}
+                                    {{ getTimeByFormat(scope.row.afterStartTime, 'hh:mm:ss(DD)') }}
                                 </template>
                             </el-table-column>
                             <el-table-column prop="afterEndTime" label="航后结束时间">
                                 <template slot-scope="scope">
-                                    {{getTimeByFormat(scope.row.afterEndTime,'hh:mm:ss(DD)')}}
+                                    {{ getTimeByFormat(scope.row.afterEndTime, 'hh:mm:ss(DD)') }}
                                 </template>
                             </el-table-column>
                             <el-table-column prop="startTime" label="接桥时间">
                                 <template slot-scope="scope">
-                                    {{getTimeByFormat(scope.row.startTime,'hh:mm:ss(DD)')}}
+                                    {{ getTimeByFormat(scope.row.startTime, 'hh:mm:ss(DD)') }}
                                 </template>
                             </el-table-column>
                             <el-table-column prop="endTime" label="撤桥时间">
                                 <template slot-scope="scope">
-                                    {{getTimeByFormat(scope.row.endTime,'hh:mm:ss(DD)')}}
+                                    {{ getTimeByFormat(scope.row.endTime, 'hh:mm:ss(DD)') }}
                                 </template>
                             </el-table-column>
                             <el-table-column prop="startStaffName" label="接桥人员"></el-table-column>
-                            <el-table-column prop="endStaffName" label="撤桥人员"> </el-table-column>
+                            <el-table-column prop="endStaffName" label="撤桥人员"></el-table-column>
                         </template>
                         <template v-else>
                             <el-table-column prop="chargeData" label="收费数据"></el-table-column>
                             <el-table-column prop="startTime" label="开始时间">
                                 <template slot-scope="scope">
-                                    {{getTimeByFormat(scope.row.startTime,'hh:mm:ss(DD)')}}
+                                    {{ getTimeByFormat(scope.row.startTime, 'hh:mm:ss(DD)') }}
                                 </template>
                             </el-table-column>
                             <el-table-column prop="endTime" label="结束时间">
                                 <template slot-scope="scope">
-                                    {{getTimeByFormat(scope.row.endTime,'hh:mm:ss(DD)')}}
+                                    {{ getTimeByFormat(scope.row.endTime, 'hh:mm:ss(DD)') }}
                                 </template>
                             </el-table-column>
                             <el-table-column prop="deviceCode" label="设备编号"></el-table-column>
@@ -88,7 +93,9 @@
                         </el-table-column>
                     </el-table>
                     <div class="addRowBoxBox" style="margin-top:15px;">
-                        <el-button class="addRowBox" type="primary" icon="el-icon-plus" @click="addChargeRecord" style="width:100%">增加</el-button>
+                        <el-button class="addRowBox" type="primary" icon="el-icon-plus" @click="addChargeRecord"
+                                   style="width:100%">增加
+                        </el-button>
                     </div>
                 </el-form-item>
                 <el-form-item label="桥载电源" v-if="listData.chargeBillConfigCode=='QZSB'">
@@ -96,13 +103,15 @@
                         <el-row>
                             <el-col :span="12">
                                 <el-form-item label="开始时间">
-                                    <time-picker @timePickerTime="timePickerTime" :value="QZSBrecords1.startTime" :objectName="'QZSBrecords1'" :keyName="'startTime'" />
+                                    <time-picker @timePickerTime="timePickerTime" :value="QZSBrecords1.startTime"
+                                                 :objectName="'QZSBrecords1'" :keyName="'startTime'"/>
                                 </el-form-item>
                             </el-col>
                             <el-col :span="12">
 
                                 <el-form-item label="结束时间">
-                                    <time-picker @timePickerTime="timePickerTime" :value="QZSBrecords1.endTime" :objectName="'QZSBrecords1'" :keyName="'endTime'" />
+                                    <time-picker @timePickerTime="timePickerTime" :value="QZSBrecords1.endTime"
+                                                 :objectName="'QZSBrecords1'" :keyName="'endTime'"/>
                                 </el-form-item>
                             </el-col>
                         </el-row>
@@ -121,15 +130,19 @@
                         <el-row>
                             <el-col :span="12">
                                 <el-form-item label="开始人员">
-                                    <el-select v-model="QZSBrecords1.startUserId"  @keyup.enter.native.stop="()=>{ }"  filterable clearable placeholder="请选择">
-                                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                                    <el-select v-model="QZSBrecords1.startUserId" @keyup.enter.native.stop="()=>{ }"
+                                               filterable clearable placeholder="请选择">
+                                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name"
+                                                   :value="item.id"></el-option>
                                     </el-select>
                                 </el-form-item>
                             </el-col>
                             <el-col :span="12">
                                 <el-form-item label="结束人员">
-                                    <el-select v-model="QZSBrecords1.operatorId"  @keyup.enter.native.stop="()=>{ }"  filterable clearable placeholder="请选择">
-                                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                                    <el-select v-model="QZSBrecords1.operatorId" @keyup.enter.native.stop="()=>{ }"
+                                               filterable clearable placeholder="请选择">
+                                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name"
+                                                   :value="item.id"></el-option>
                                     </el-select>
                                 </el-form-item>
                             </el-col>
@@ -143,12 +156,14 @@
                         <el-row>
                             <el-col :span="12">
                                 <el-form-item label="开始时间">
-                                    <time-picker @timePickerTime="timePickerTime" :value="QZSBrecords2.startTime" :objectName="'QZSBrecords2'" :keyName="'startTime'" />
+                                    <time-picker @timePickerTime="timePickerTime" :value="QZSBrecords2.startTime"
+                                                 :objectName="'QZSBrecords2'" :keyName="'startTime'"/>
                                 </el-form-item>
                             </el-col>
                             <el-col :span="12">
                                 <el-form-item label="结束时间">
-                                    <time-picker @timePickerTime="timePickerTime" :value="QZSBrecords2.endTime" :objectName="'QZSBrecords2'" :keyName="'endTime'" />
+                                    <time-picker @timePickerTime="timePickerTime" :value="QZSBrecords2.endTime"
+                                                 :objectName="'QZSBrecords2'" :keyName="'endTime'"/>
                                 </el-form-item>
 
                             </el-col>
@@ -168,15 +183,19 @@
                         <el-row>
                             <el-col :span="12">
                                 <el-form-item label="开始人员">
-                                    <el-select v-model="QZSBrecords2.startUserId" @keyup.enter.native.stop="()=>{ }" filterable clearable placeholder="请选择">
-                                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                                    <el-select v-model="QZSBrecords2.startUserId" @keyup.enter.native.stop="()=>{ }"
+                                               filterable clearable placeholder="请选择">
+                                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name"
+                                                   :value="item.id"></el-option>
                                     </el-select>
                                 </el-form-item>
                             </el-col>
                             <el-col :span="12">
                                 <el-form-item label="结束人员">
-                                    <el-select v-model="QZSBrecords2.operatorId" @keyup.enter.native.stop="()=>{ }" filterable clearable placeholder="请选择">
-                                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                                    <el-select v-model="QZSBrecords2.operatorId" @keyup.enter.native.stop="()=>{ }"
+                                               filterable clearable placeholder="请选择">
+                                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name"
+                                                   :value="item.id"></el-option>
                                     </el-select>
                                 </el-form-item>
                             </el-col>
@@ -189,11 +208,15 @@
                 <el-form-item label="补充信息" v-if="supplementArr.length>0&&!this.rowData">
                     <el-form label-width="80px" style="width:500px">
                         <el-form-item :label="item.name+':'" v-for="(item,idx) in supplementArr" :key="idx">
-                            <el-input v-model="item.valueTitle" v-if="item.params.type===0||item.params.type===1" :type="item.params.type===0?'number':'text'" @change="saveSupplement(item)"></el-input>
+                            <el-input v-model="item.valueTitle" v-if="item.params.type===0||item.params.type===1"
+                                      :type="item.params.type===0?'number':'text'"
+                                      @change="saveSupplement(item)"></el-input>
                             <el-select v-model="item.valueCode" v-else placeholder="请选择"
                                        @keyup.enter.native.stop="()=>{ }"
-                                       filterable :multiple="item.params.type===2?false:true" @change="saveSupplement(item)">
-                                <el-option v-for="select in item.params.selects" :key="select.code" :label="select.describe" :value="select.code"></el-option>
+                                       filterable :multiple="item.params.type===2?false:true"
+                                       @change="saveSupplement(item)">
+                                <el-option v-for="select in item.params.selects" :key="select.code"
+                                           :label="select.describe" :value="select.code"></el-option>
                             </el-select>
                         </el-form-item>
                     </el-form>
@@ -211,9 +234,12 @@
                 <i class="el-icon-circle-close" @click="flightNoShow=false"></i>
             </div>
             <div class="flightNoBox">
-                <el-form @keyup.enter.native="keydownEnter1"  label-position="right" label-width="80px" ref="listData">
+                <el-form @keyup.enter.native="keydownEnter1" label-position="right" label-width="80px" ref="listData">
                     <el-form-item label="时间范围">
-                        <el-date-picker v-model="flight_time" format="yyyy-MM-dd HH:mm:ss" :default-time="['00:00:00', '23:59:59']" value-format="yyyy-MM-dd HH:mm:ss" type="datetimerange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" clearable></el-date-picker>
+                        <el-date-picker v-model="flight_time" format="yyyy-MM-dd HH:mm:ss"
+                                        :default-time="['00:00:00', '23:59:59']" value-format="yyyy-MM-dd HH:mm:ss"
+                                        type="datetimerange" range-separator="至" start-placeholder="开始日期"
+                                        end-placeholder="结束日期" clearable></el-date-picker>
                     </el-form-item>
                     <el-form-item label="航班号">
                         <el-input v-model="flight_no" placeholder="航班号" clearable></el-input>
@@ -233,26 +259,30 @@
                     <p>航班选择列表-双击确定</p>
                     <ul>
                         <li v-for="(item,idx) in flightArr" :key="idx" @dblclick="flightNoDbHandle(item)">
-                            {{item.flightNo}}&nbsp;&nbsp;
-                            {{item.movement=='A'?'进':'离'}}&nbsp;&nbsp;
-                            实际:{{getTimeByFormat(item.actualTime,'hh:mm(DD)')}}&nbsp;&nbsp;
-                            机位:{{item.seat}}&nbsp;&nbsp;
-                            机号:{{item.aircraftNo}}&nbsp;&nbsp;
+                            {{ item.flightNo }}&nbsp;&nbsp;
+                            {{ item.movement == 'A' ? '进' : '离' }}&nbsp;&nbsp;
+                            实际:{{ getTimeByFormat(item.actualTime, 'hh:mm(DD)') }}&nbsp;&nbsp;
+                            机位:{{ item.seat }}&nbsp;&nbsp;
+                            机号:{{ item.aircraftNo }}&nbsp;&nbsp;
                         </li>
                     </ul>
                 </div>
             </div>
         </el-dialog>
-        <el-dialog ref="charge" :visible.sync="chargeRecordShow" id="addTask" center :show-close="false" :width="chargeRecordPageType=='boarding-bridge'?'800px':'400px'">
+        <el-dialog ref="charge" :visible.sync="chargeRecordShow" id="addTask" center :show-close="false"
+                   :width="chargeRecordPageType=='boarding-bridge'?'800px':'400px'">
             <div slot="title" class="head">
                 <div></div>
                 <span>收费项选择</span>
                 <i class="el-icon-circle-close" @click="chargeRecordShow=false"></i>
             </div>
-            <el-form @keyup.enter.native="keydownEnter2"  label-position="right" :label-width="chargeRecordPageType=='boarding-bridge'?'110px':'80px'" ref="listData">
+            <el-form @keyup.enter.native="keydownEnter2" label-position="right"
+                     :label-width="chargeRecordPageType=='boarding-bridge'?'110px':'80px'" ref="listData">
                 <el-form-item label="收费项">
-                    <el-select v-model="activeChargeRecord.chargeCode" @keyup.enter.native.stop="()=>{ }" filterable clearable placeholder="请选择">
-                        <el-option v-for="item in chargeArr" :key="item.id" :label="item.code+'-'+item.name+'('+item.unit+')'" :value="item.code"></el-option>
+                    <el-select v-model="activeChargeRecord.chargeCode" @keyup.enter.native.stop="()=>{ }" filterable
+                               clearable placeholder="请选择">
+                        <el-option v-for="item in chargeArr" :key="item.id"
+                                   :label="item.code+'-'+item.name+'('+item.unit+')'" :value="item.code"></el-option>
                     </el-select>
                 </el-form-item>
                 <template v-if="activeChargeRecord.chargeCode">
@@ -260,14 +290,18 @@
                         <el-row>
                             <el-col :span="12">
                                 <el-form-item label="接桥时间">
-                                    <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.startTime" :objectName="'activeChargeRecord'" :keyName="'startTime'" />
+                                    <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.startTime"
+                                                 :objectName="'activeChargeRecord'" :keyName="'startTime'"/>
                                     <!-- <el-date-picker style="width:100%" v-model="activeChargeRecord.startTime" type="datetime" placeholder="选择开始时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                                 </el-form-item>
                             </el-col>
                             <el-col :span="12">
                                 <el-form-item label="接桥人">
-                                    <el-select v-model="activeChargeRecord.startStaffId" @keyup.enter.native.stop="()=>{ }" filterable clearable placeholder="请选择">
-                                        <el-option v-for="item in userDeptLists" :key="'0'+item.id" :label="item.name" :value="item.id"></el-option>
+                                    <el-select v-model="activeChargeRecord.startStaffId"
+                                               @keyup.enter.native.stop="()=>{ }" filterable clearable
+                                               placeholder="请选择">
+                                        <el-option v-for="item in userDeptLists" :key="'0'+item.id" :label="item.name"
+                                                   :value="item.id"></el-option>
                                     </el-select>
                                 </el-form-item>
                             </el-col>
@@ -275,14 +309,18 @@
                         <el-row>
                             <el-col :span="12">
                                 <el-form-item label="撤桥时间">
-                                    <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.endTime" :objectName="'activeChargeRecord'" :keyName="'endTime'" />
+                                    <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.endTime"
+                                                 :objectName="'activeChargeRecord'" :keyName="'endTime'"/>
                                     <!-- <el-date-picker style="width:100%" v-model="activeChargeRecord.endTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                                 </el-form-item>
                             </el-col>
                             <el-col :span="12">
                                 <el-form-item label="撤侨人">
-                                    <el-select v-model="activeChargeRecord.endStaffId" @keyup.enter.native.stop="()=>{ }" filterable clearable placeholder="请选择">
-                                        <el-option v-for="item in userDeptLists" :key="'1'+item.id" :label="item.name" :value="item.id"></el-option>
+                                    <el-select v-model="activeChargeRecord.endStaffId"
+                                               @keyup.enter.native.stop="()=>{ }" filterable clearable
+                                               placeholder="请选择">
+                                        <el-option v-for="item in userDeptLists" :key="'1'+item.id" :label="item.name"
+                                                   :value="item.id"></el-option>
                                     </el-select>
                                 </el-form-item>
                             </el-col>
@@ -290,13 +328,17 @@
                         <el-row>
                             <el-col :span="12">
                                 <el-form-item label="航后开始时间">
-                                    <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.afterStartTime" :objectName="'activeChargeRecord'" :keyName="'afterStartTime'" />
+                                    <time-picker @timePickerTime="timePickerTime"
+                                                 :value="activeChargeRecord.afterStartTime"
+                                                 :objectName="'activeChargeRecord'" :keyName="'afterStartTime'"/>
                                     <!-- <el-date-picker style="width:100%" v-model="activeChargeRecord.afterStartTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                                 </el-form-item>
                             </el-col>
                             <el-col :span="12">
                                 <el-form-item label="航后结束时间">
-                                    <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.afterEndTime" :objectName="'activeChargeRecord'" :keyName="'afterEndTime'" />
+                                    <time-picker @timePickerTime="timePickerTime"
+                                                 :value="activeChargeRecord.afterEndTime"
+                                                 :objectName="'activeChargeRecord'" :keyName="'afterEndTime'"/>
                                     <!-- <el-date-picker style="width:100%" v-model="activeChargeRecord.afterEndTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                                 </el-form-item>
                             </el-col>
@@ -311,22 +353,27 @@
                     </template>
                     <template v-else>
                         <el-form-item label="收费数据" v-if="!getActiveChargeRecordTimeShow">
-                            <el-input type="number" v-model="activeChargeRecord.chargeData" placeholder="收费数据"></el-input>
+                            <el-input type="number" v-model="activeChargeRecord.chargeData"
+                                      placeholder="收费数据"></el-input>
                         </el-form-item>
                         <el-form-item label="开始时间" v-if="getActiveChargeRecordTimeShow">
-                            <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.startTime" :objectName="'activeChargeRecord'" :keyName="'startTime'" />
+                            <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.startTime"
+                                         :objectName="'activeChargeRecord'" :keyName="'startTime'"/>
                             <!-- <el-date-picker style="width:100%" v-model="activeChargeRecord.startTime" type="datetime" placeholder="选择开始时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                         </el-form-item>
                         <el-form-item label="结束时间" v-if="getActiveChargeRecordTimeShow">
-                            <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.endTime" :objectName="'activeChargeRecord'" :keyName="'endTime'" />
+                            <time-picker @timePickerTime="timePickerTime" :value="activeChargeRecord.endTime"
+                                         :objectName="'activeChargeRecord'" :keyName="'endTime'"/>
                             <!-- <el-date-picker style="width:100%" v-model="activeChargeRecord.endTime" type="datetime" placeholder="选择结束时间" value-format="yyyy-MM-dd HH:mm:ss"></el-date-picker> -->
                         </el-form-item>
                         <el-form-item label="设备编号" v-if="getActiveChargeRecordTimeShow">
                             <el-input v-model="activeChargeRecord.deviceCode" placeholder="设备编号"></el-input>
                         </el-form-item>
                         <el-form-item label="操作人">
-                            <el-select v-model="activeChargeRecord.operatorId" @keyup.enter.native.stop="()=>{ }" filterable clearable placeholder="请选择">
-                                <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                            <el-select v-model="activeChargeRecord.operatorId" @keyup.enter.native.stop="()=>{ }"
+                                       filterable clearable placeholder="请选择">
+                                <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name"
+                                           :value="item.id"></el-option>
                             </el-select>
                         </el-form-item>
                     </template>
@@ -354,7 +401,7 @@ export default {
         'time-picker': TimePicker,
     },
     props: ['userDeptLists'],
-    mixins:[VerifyMix],
+    mixins: [VerifyMix],
     data() {
         return {
             listShow: false,
@@ -387,19 +434,20 @@ export default {
             QZSBrecords2Time: '',
         }
     },
-    computed:{
-      getTimett(){
-          let time=''
-          if(this.activeFlight){
-              let time1=this.activeFlight.actualTime||''
-              let time2=(this.activeFlight.successionFlight&&this.activeFlight.successionFlight.actualTime||'')
-              console.log(22,time2,time1);
-              time=time1&&(time1+'-'+time2)
-          }
-          return time
-      }
+    computed: {
+        getTimett() {
+            let time = ''
+            if (this.activeFlight) {
+                let time1 = this.activeFlight.actualTime || ''
+                let time2 = (this.activeFlight.successionFlight && this.activeFlight.successionFlight.actualTime || '')
+                console.log(22, time2, time1);
+                time = time1 && (time1 + '-' + time2)
+            }
+            return time
+        }
     },
-    mounted() {},
+    mounted() {
+    },
     watch: {
         'listData.chargeBillConfigCode': function (val) {
             this.chargeRecords = []
@@ -423,7 +471,7 @@ export default {
             this.activeChargeRecord = {
                 chargeCode: val,
             }
-            let charge = _.find(this.chargeArr, { code: val })
+            let charge = _.find(this.chargeArr, {code: val})
             this.getActiveChargeRecordTimeShow = charge.unit == '秒' ? true : false
             if (val == 'LANQ') {
                 this.chargeRecordPageType = 'boarding-bridge'
@@ -443,19 +491,19 @@ export default {
         },
     },
     methods: {
-        keydownEnter(e){
+        keydownEnter(e) {
             // console.log(0);
-            e.target&&e.target.blur()
+            e.target && e.target.blur()
             this.save()
         },
-        keydownEnter1(e){
+        keydownEnter1(e) {
             // console.log(1);
-            e.target&&e.target.blur()
+            e.target && e.target.blur()
             this.flighNoSearch()
         },
-        keydownEnter2(e){
+        keydownEnter2(e) {
             // console.log(2);
-            e.target&&e.target.blur()
+            e.target && e.target.blur()
             this.chargeRecordSave(this.activeChargeRecord)
         },
         getUseTime(obj) {
@@ -471,7 +519,7 @@ export default {
             return time
         },
         timePickerTime(objectName, keyName, time) {
-             this[objectName][keyName] = time
+            this[objectName][keyName] = time
             if (objectName == 'QZSBrecords1') {
                 this.QZSBrecords1Time = this.getUseTime(objectName)
             }
@@ -483,9 +531,9 @@ export default {
             let userData = JSON.parse(sessionStorage.userData)
             let arrs = []
             userData.roles.map((role) => {
-                let charge = _.find(val, { code: role.code })
+                let charge = _.find(val, {code: role.code})
                 if (charge && role.menus && role.menus.length > 0) {
-                    let menuadd = _.find(role.menus, { code: 'charge_add' })
+                    let menuadd = _.find(role.menus, {code: 'charge_add'})
                     if (menuadd) {
                         arrs.push(charge)
                     }
@@ -495,7 +543,7 @@ export default {
         },
 
         initData(row, chargeBillArrs) {
-            let dom =this.$refs.add.$el.querySelector('.el-dialog')
+            let dom = this.$refs.add.$el.querySelector('.el-dialog')
             this.resetDom(dom)
             this.getChargeBillArr(chargeBillArrs)
             this.chargeRecords = []
@@ -601,7 +649,7 @@ export default {
                 activeChargeRecord.afterStartTime &&
                 activeChargeRecord.afterEndTime &&
                 new Date(activeChargeRecord.afterStartTime).getTime() >
-                    new Date(activeChargeRecord.afterEndTime).getTime()
+                new Date(activeChargeRecord.afterEndTime).getTime()
             ) {
                 this.$alert('航后开始时间不能超过航后结束时间！', '提示', {
                     type: 'error',
@@ -617,7 +665,7 @@ export default {
             }
 
             if (activeChargeRecord.chargeCode) {
-                let charge = _.find(this.chargeArr, { code: activeChargeRecord.chargeCode })
+                let charge = _.find(this.chargeArr, {code: activeChargeRecord.chargeCode})
                 this.chargeRecordShow = false
 
                 activeChargeRecord.chargeCode = charge.code
@@ -625,7 +673,7 @@ export default {
                 activeChargeRecord.unit = charge.unit
 
                 let startStaffObj =
-                    _.find(this.userDeptLists, { id: activeChargeRecord.startStaffId }) || {}
+                    _.find(this.userDeptLists, {id: activeChargeRecord.startStaffId}) || {}
                 let endStaffObj =
                     _.find(this.userDeptLists, {
                         id: activeChargeRecord.endStaffId,
@@ -659,13 +707,13 @@ export default {
                 return false
             }
         },
-        editChargeRecord({ row, $index }) {
+        editChargeRecord({row, $index}) {
             this.activeChargeRecordType = 'edit'
             this.activeChargeRecordIndex = $index
             this.chargeRecordShow = true
             this.activeChargeRecord = _.cloneDeep(row)
         },
-        delChargeRecord({ row, $index }) {
+        delChargeRecord({row, $index}) {
             this.chargeRecords.splice($index, 1)
         },
         save() {
@@ -756,50 +804,52 @@ export default {
             }
             return true
 
-             let scope={row: {fligt:this.activeFlight.successionFlight}}
-            let rowKT={...this.activeFlight,
-                startTime:this.QZSBrecords2.startTime,
-                endTime:this.QZSBrecords2.endTime,
+            let scope = {row: {fligt: this.activeFlight.successionFlight}}
+            let rowKT = {
+                ...this.activeFlight,
+                startTime: this.QZSBrecords2.startTime,
+                endTime: this.QZSBrecords2.endTime,
             }
-            let rowDY={...this.activeFlight,
-                startTime:this.QZSBrecords1.startTime,
-                endTime:this.QZSBrecords1.endTime,
+            let rowDY = {
+                ...this.activeFlight,
+                startTime: this.QZSBrecords1.startTime,
+                endTime: this.QZSBrecords1.endTime,
             }
-            let statusFRowObjDY =(this.QZSBrecords1.startTime&&this.dealStatus(rowDY,scope, {},'successionFlight'))
-            let statusFRowObjKT_all = (this.QZSBrecords2.startTime&&this.dealStatus(rowKT,scope, statusFRowObjDY||{},'successionFlight'))
+            let statusFRowObjDY = (this.QZSBrecords1.startTime && this.dealStatus(rowDY, scope, {}, 'successionFlight'))
+            let statusFRowObjKT_all = (this.QZSBrecords2.startTime && this.dealStatus(rowKT, scope, statusFRowObjDY || {}, 'successionFlight'))
             console.log(statusFRowObjKT_all);
-            if(statusFRowObjKT_all){
-                let arr=[]
+            if (statusFRowObjKT_all) {
+                let arr = []
                 let textObj = {
                     conditionerBlo: '桥载空调保障时间范围 大于 桥载电源 时间范围',
                     QZDY: '桥载电源保障时间 超出 飞机起降时间范围',
                     QZKT: '桥载空调保障时间 超出 飞机起降时间范围',
                     QZDYC: '桥载电源超长保障',
-                    QZKTC:'桥载空调超长保障',
+                    QZKTC: '桥载空调超长保障',
                     QZDYD: '桥载电源过短保障',
-                    QZKTD:'桥载空调过短保障',
+                    QZKTD: '桥载空调过短保障',
                 }
 
-                map(statusFRowObjKT_all,(val,key)=>{
-                    if(val){
+                map(statusFRowObjKT_all, (val, key) => {
+                    if (val) {
                         arr.push(textObj[key])
                     }
                 })
-                if(arr.length){
-                    this.$alert(arr[0]+'！', '提示', {
+                if (arr.length) {
+                    this.$alert(arr[0] + '！', '提示', {
                         type: 'error',
                         center: true,
                     })
                     return false
                 }
-             }
+            }
 
 
             return true
         },
         chargeBillChange(type) {
             let charge = _.cloneDeep(
-                _.find(this.chargeBillArr, { code: this.listData.chargeBillConfigCode })
+                _.find(this.chargeBillArr, {code: this.listData.chargeBillConfigCode})
             )
             if (!charge) {
                 if (type == 'new') {
@@ -821,7 +871,7 @@ export default {
 
             this.supplementArr = _.cloneDeep(_.sortBy(charge.supplementInfoConfigs || [], 'sort'))
 
-         },
+        },
         flightNoHandle(e) {
             this.$refs.ref_flightNo.blur()
             let time = this.getTimeByFormat(new Date(), 'YY-MM-DD')
@@ -857,35 +907,35 @@ export default {
         flightNoDbHandle(item) {
             this.activeFlight = item
             this.flightNoShow = false
-             let {successionFlight,estimateTime,scheduleTime}=item
-            let {estimateTime: estimateTime1,scheduleTime:scheduleTime1}=successionFlight||{}
-           let transTime=(time)=> moment(time).format('yyyy-MM-DD')
-            let obj={}
-            obj[item.movement]=transTime(estimateTime||scheduleTime)
-            if(item.successionFlight){
-                obj[item.successionFlight.movement]=transTime(estimateTime1||scheduleTime1)
-                this.$set(this.QZSBrecords1,'endTime', obj.D)
-                this.$set(this.QZSBrecords2,'endTime',obj.D )
-            }else{
-                this.$set(this.QZSBrecords1,'endTime', '')
-                this.$set(this.QZSBrecords2,'endTime','')
-            }
-             this.$set(this.QZSBrecords1,'startTime',obj.A )
-            this.$set(this.QZSBrecords2,'startTime',obj.A )
-
-
-
+            let {successionFlight, estimateTime, scheduleTime} = item
+            // let {estimateTime: estimateTime1,scheduleTime:scheduleTime1}=successionFlight||{}
+            let transTime = (time) => moment(time).format('yyyy-MM-DD')
+            // let obj={}
+            // obj[item.movement]=transTime(estimateTime||scheduleTime)
+            let time = transTime(estimateTime || scheduleTime)
+            // if(item.successionFlight){
+            // obj[item.successionFlight.movement]=transTime(estimateTime1||scheduleTime1)
+            //     this.$set(this.QZSBrecords1,'endTime', obj.D)
+            //     this.$set(this.QZSBrecords2,'endTime',obj.D )
+            // }else{
+            //     this.$set(this.QZSBrecords1,'endTime', '')
+            //     this.$set(this.QZSBrecords2,'endTime','')
+            // }
+            this.$set(this.QZSBrecords1, 'startTime', time)
+            this.$set(this.QZSBrecords2, 'startTime', time)
+            this.$set(this.QZSBrecords1, 'endTime', time)
+            this.$set(this.QZSBrecords2, 'endTime', time)
         },
         saveSupplement(item) {
             if (item.params.type == 2) {
-                let option = _.find(item.params.selects, { code: item.valueCode })
+                let option = _.find(item.params.selects, {code: item.valueCode})
                 item.valueTitle = option.describe
             }
             if (item.params.type == 3) {
                 let title = []
                 let code = []
                 item.valueCode.map((list) => {
-                    let option = _.find(item.params.selects, { code: list })
+                    let option = _.find(item.params.selects, {code: list})
                     title.push(option.describe)
                     code.push(option.code)
                 })
@@ -897,8 +947,8 @@ export default {
 }
 </script>
 <style scoped lang="scss">
-/deep/ .head{
-     span{
+/deep/ .head {
+    span {
         user-select: none;
     }
 
