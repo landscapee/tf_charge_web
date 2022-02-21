@@ -12,7 +12,7 @@
         </div>
 
         <div>
-            <button @click="saveSign">提交签名</button>
+<!--            <button @click="saveSign">提交签名</button>-->
         </div>
 
         <remote-script src="/static/kinggrid/core/kinggrid.min.js" type="1" @load="loadJS"></remote-script>
@@ -54,7 +54,6 @@ export default {
             src7: '',
             src8: '',
             jsType: [],
-
             signObj: {
                 content: '',
                 data: '',
@@ -148,6 +147,9 @@ export default {
                 imgtag: 0, //签章类型：0：无; 1:公章; 2:私章; 3:法人章; 4:法人签名; 5:手写签名
                 certType: 'server', //设置证书在签章服务器
                 sealType: 'server', //设置印章从签章服务器取
+                showSealsDlg:false,
+                // serverUrl:'http://173.101.1.134:8089/iSignatureHTML5',
+
                 serverUrl:
                     this.sysEdition == 'shuangliu'
                         ? 'http://173.101.1.134:8089/iSignatureHTML5'
@@ -182,6 +184,7 @@ export default {
                             that.signObj.signId = this.getSignatureid()
                             that.signObj.data = this.getSignatureData()
                             fn(true)
+                            that.saveSign()
                         },
                         cancelCall: function () {
                             // 点击取消后的回调方法
@@ -215,11 +218,13 @@ export default {
                     token: this.queryData.token,
                 },
             }).then((res) => {
+                // this.$message.success(res.msg)
                 this.$alert(res.msg, '提示', {
                     type: 'success',
                     center: true,
                     customClass: 'h5Alert',
                     callback: () => {
+                        return
                         window.WebViewJavascriptBridge.callHandler(
                             'androidBack',
                             '1',

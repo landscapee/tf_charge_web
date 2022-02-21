@@ -845,7 +845,7 @@ export default {
             }
 
 
-            return true
+            return 'true'
         },
         chargeBillChange(type) {
             let charge = _.cloneDeep(

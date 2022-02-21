@@ -96,7 +96,7 @@
         </div>
         <div>
             <!-- <button @click="saveSign">提交签名</button> -->
-            <el-button type="primary" :loading="subLoading" @click="saveSign">提交签名</el-button>
+<!--            <el-button type="primary" :loading="subLoading" @click="saveSign">提交签名</el-button>-->
         </div>
 
         <remote-script src="/static/kinggrid/core/kinggrid.min.js" type="1" @load="loadJS"></remote-script>
@@ -112,7 +112,7 @@
 </template>
 <script>
 import '../../components//importJs.js'
-export default {
+ export default {
     data() {
         return {
             subLoading: false,
@@ -311,11 +311,13 @@ export default {
                 moveable: false,
                 showNoPW: true,
                 password: '123456',
+                showSealsDlg:false,
                 //icon_remove : false,//撤销签章按钮隐藏显示，缺省显示 false不显示。
                 //icon_sign : false, //证书信息按钮隐藏显示，缺省显示 false不显示。
                 imgtag: 0, //签章类型：0：无; 1:公章; 2:私章; 3:法人章; 4:法人签名; 5:手写签名
                 certType: 'server', //设置证书在签章服务器
                 sealType: 'server', //设置印章从签章服务器取
+                serverUrl1:'http://173.101.1.134:8089/iSignatureHTML5',
                 serverUrl:
                     this.sysEdition == 'shuangliu'
                         ? 'http://173.101.1.134:8089/iSignatureHTML5'
@@ -356,9 +358,8 @@ export default {
                         position: ele, // 设置盖章定位dom的ID，必须设置
                         okCall: function (fn) {
                             // 点击确定后的回调方法，this为签章对象 ,签章数据撤销时，将回调此方法，需要实现签章数据持久化（保存数据到后台数据库）,保存成功后必须回调fn(true/false)渲染签章到页面上
-
-                            fn(true)
-
+                             fn(true)
+                            console.log(2222,param);
                             that.$set(
                                 that.chargeBillSigns[idx][index].lists[number],
                                 'signId',
@@ -375,6 +376,7 @@ export default {
                                 dataDictionary.dataCode
                             )
                             that.showSign()
+                            that.saveSign()
                         },
                         cancelCall: function () {
                             // 点击取消后的回调方法
@@ -429,6 +431,7 @@ export default {
                         callback: () => {
                             this.subLoading = false
                             this.getData(this.$route.query)
+                            return
                             window.WebViewJavascriptBridge.callHandler(
                                 'androidBack',
                                 '1',

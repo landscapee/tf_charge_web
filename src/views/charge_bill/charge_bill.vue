@@ -1963,6 +1963,7 @@ export default {
         },
         getPower(row, power) {
             let role = _.find(this.userData.roles, {code: row.chargeBillConfigCode})
+
             let obj = role ? _.find(role.menus, {code: power}) : ''
             return obj ? true : false
         },
