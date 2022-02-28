@@ -629,6 +629,11 @@ export default {
             }
 
             if (activeChargeRecord.startTime && activeChargeRecord.endTime) {
+                console.log(activeChargeRecord.startTime,activeChargeRecord.startTime.length,activeChargeRecord.endTime,activeChargeRecord.endTime.length);
+                if(activeChargeRecord.startTime.length<=10&&activeChargeRecord.endTime.length<=10){
+                    //当时间未填写 允许通过校验，但不提交该项参数
+                    return 'unmodified'
+                }
                 let msg = '开始时间不能大于或者等于结束时间！'
                 if (activeChargeRecord.chargeCode == 'LANQ') {
                     msg = '接桥时间不能大于或者等于撤桥时间！'
@@ -660,8 +665,11 @@ export default {
             return true
         },
         chargeRecordSave(activeChargeRecord) {
-            if (!this.recordVerify(activeChargeRecord)) {
+            let result =this.recordVerify(activeChargeRecord)
+            if (!result) {
                 return false
+            }else if(result==='unmodified'){
+                return 'unmodified'
             }
 
             if (activeChargeRecord.chargeCode) {
@@ -717,6 +725,7 @@ export default {
             this.chargeRecords.splice($index, 1)
         },
         save() {
+            console.log(2,this.QZSBrecords1,this.QZSBrecords2);
             if (!this.dataVerify()) {
                 return
             }
@@ -742,6 +751,15 @@ export default {
                     if (!this.chargeRecordSave(this.QZSBrecords2)) {
                         return
                     }
+                }
+                // 目前只有时间未修改过才会触发该选项
+                if(!this.chargeRecords.length){
+
+                    this.$alert('请完善 空调或电源 的时间选项', '提示', {
+                        type: 'waring',
+                        center: true,
+                    })
+                    return
                 }
             }
 
