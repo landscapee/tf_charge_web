@@ -1,5 +1,6 @@
 <template>
     <div id="project" class="rightBoxContent" v-loading="loading" element-loading-text="加载中...">
+
         <div class="topBox">
             <ul class="navBox">
                 <li>
@@ -14,6 +15,7 @@
             </el-button>
         </div>
         <div class="searchBox">
+
             <div class="leftBox">
                 <div>
                     <el-date-picker v-model="searchTime" type="datetimerange" range-separator="至"
@@ -68,7 +70,8 @@
                 </div>
                 <div v-show="unsendCount>0">
 
-                    <el-button :class="getSendS?'':'sendClassSelect'" :type="getSendS?'danger':''"  @click="getUnSendHandle">
+                    <el-button :class="getSendS?'':'sendClassSelect'" :type="getSendS?'danger':''"
+                               @click="getUnSendHandle">
                         {{ sendShow ? '昨日未发送' + unsendCount + '个' : '昨日未审批' + unsendCount + '个' }}
                     </el-button>
                 </div>
@@ -428,17 +431,17 @@
                                                     <el-button type="text" title="更多" class="el-dropdown-link">更多
                                                     </el-button>
                                                     <el-dropdown-menu slot="dropdown">
-                                                        <el-dropdown-item>
-                                                            <el-button type="text"
-                                                                       :title="scope1.row.approvalStatus=='PASS'?'取消审批':'审批'"
-                                                                       @click="approval(scope1.row,'sign',scope1.row.approvalStatus=='PASS')"
-                                                                       :disabled="!!scope1.row.send"
-                                                                       v-show="getPower(scope.row,'charge_approval')">
-                                                                {{
-                                                                    scope1.row.approvalStatus == 'PASS' ? '取消审批' : '审批'
-                                                                }}
-                                                            </el-button>
-                                                        </el-dropdown-item>
+                                                        <!--                                                        <el-dropdown-item>-->
+                                                        <!--                                                            <el-button type="text"-->
+                                                        <!--                                                                       :title="scope1.row.approvalStatus=='PASS'?'取消审批':'审批'"-->
+                                                        <!--                                                                       @click="approval(scope1.row,'sign',scope1.row.approvalStatus=='PASS')"-->
+                                                        <!--                                                                       :disabled="!!scope1.row.send"-->
+                                                        <!--                                                                       v-show="getPower(scope.row,'charge_approval')">-->
+                                                        <!--                                                                {{-->
+                                                        <!--                                                                    scope1.row.approvalStatus == 'PASS' ? '取消审批' : '审批'-->
+                                                        <!--                                                                }}-->
+                                                        <!--                                                            </el-button>-->
+                                                        <!--                                                        </el-dropdown-item>-->
                                                         <el-dropdown-item>
                                                             <el-button type="text" title="删除" @click="del(scope1.row)"
                                                                        :disabled="!!(scope1.row.approvalStatus=='PASS')"
@@ -473,11 +476,15 @@
                                     <el-form :inline="true" class="demo-form-inline">
                                         <el-form-item :class="getitemClass(item)" :label="item.supplementTitle+':'"
                                                       v-for="(item,idx) in getChargeBill(scope.row) " :key="idx+'qwe'">
-                                             <input class="myChargeInput__" v-model="item.valueTitle" :disabled="!!scope.row.approvalStatus"
+
+                                            <input class="myChargeInput__" v-model="item.valueTitle"
+                                                   :disabled="!!scope.row.approvalStatus"
                                                    v-if="item.type===0||item.type===1"
                                                    :type="item.type===0?'number':'text'"
-                                                   @keyup.enter="saveSupplement(item)"
+                                                   @keyup.enter="saveSupplement(item,$event)"
                                             >
+
+
                                             <el-select v-model="item.valueCode" :disabled="!!scope.row.approvalStatus"
                                                        v-else placeholder="请选择" filterable
                                                        :multiple="item.type===2?false:true"
@@ -487,6 +494,7 @@
                                                     :key="select.code" :label="select.describe"
                                                     :value="select.code"></el-option>
                                             </el-select>
+                                            <input style="display: none">
                                         </el-form-item>
                                     </el-form>
                                 </div>
@@ -501,8 +509,9 @@
                             <div v-show="scope.row.flightSupplementInfos&&scope.row.flightSupplementInfos.length>0">补
 
                             </div>
-                            <div   >
-                                <el-tooltip class="item" effect="dark" :content="getBuildModeMark(scope.row).c" placement="top-start">
+                            <div>
+                                <el-tooltip class="item" effect="dark" :content="getBuildModeMark(scope.row).c"
+                                            placement="top-start">
                                     <span>{{ getBuildModeMark(scope.row).d }}</span>
                                 </el-tooltip>
                             </div>
@@ -741,7 +750,7 @@ import AddList from './components/addList'
 import editList from './components/editList'
 import SupplementEdit from './components/supplement_edit'
 import History from './components/history'
-import {map, filter,sortBy} from 'lodash'
+import {map, filter, sortBy} from 'lodash'
 import VerifyMix from './components/verifyMix'
 
 export default {
@@ -755,6 +764,7 @@ export default {
     },
     data() {
         return {
+            aaa: '',
             flightHistoriesShow: false,
             flightHistories: [],
             logShow: false,
@@ -814,24 +824,24 @@ export default {
     created() {
     },
     computed: {
-        getBuildModeMark(){
-          return (row)=>{
-               let textObj= {
-                  null: {
-                      d: '无',
-                      c: '无任务',
-                  },
-                  auto: {
-                      d: '例',
-                      c: '例行保障任务',
-                  },
-                  manual: {
-                      d: '临',
-                      c: '临时任务',
-                  },
-              }
-              return textObj[String((row.taskInfo&&row.taskInfo.buildMode)||'null')]
-          }
+        getBuildModeMark() {
+            return (row) => {
+                let textObj = {
+                    null: {
+                        d: '无',
+                        c: '无任务',
+                    },
+                    auto: {
+                        d: '例',
+                        c: '例行保障任务',
+                    },
+                    manual: {
+                        d: '临',
+                        c: '临时任务',
+                    },
+                }
+                return textObj[String((row.taskInfo && row.taskInfo.buildMode) || 'null')]
+            }
         },
         getStatusMark__() {
             return (row) => {
@@ -874,7 +884,7 @@ export default {
                 let recordsObj = {}
                 map(obj, (val, key) => {
                     let textObj = textObj1[key]
-                    if (val && textObj&&!recordsObj[textObj.d]) {
+                    if (val && textObj && !recordsObj[textObj.d]) {
                         arr.push(textObj)
                         recordsObj[textObj.d] = 1
                     }
@@ -922,7 +932,7 @@ export default {
                 let arr = []
                 map(obj, (val, key) => {
                     let textObj = textObj1[key]
-                    if (val&&textObj) {
+                    if (val && textObj) {
                         arr.push(textObj)
                     }
                 })
@@ -930,13 +940,13 @@ export default {
             }
         },
         getChargeBillArrCom() {
-            return (val)=>{
+            return (val) => {
                 let userData = JSON.parse(sessionStorage.userData)
                 let arrs = []
                 userData.roles.map((role) => {
-                    let charge = _.find(val, { code: role.code })
+                    let charge = _.find(val, {code: role.code})
                     if (charge && role.menus && role.menus.length > 0) {
-                        let menuadd = _.find(role.menus, { code: 'charge_add' })
+                        let menuadd = _.find(role.menus, {code: 'charge_add'})
                         if (menuadd) {
                             arrs.push(charge)
                         }
@@ -953,77 +963,78 @@ export default {
                 map(row.flightSupplementInfos, item => {
                     codeObj[item.supplementCode] = _.cloneDeep(item)
                 })
-                let arr=this.getChargeBillArrCom(this.chargeBillArrs)
-                let charge= null;
+                let arr = this.getChargeBillArrCom(this.chargeBillArrs)
+                let charge = null;
                 filter(arr, k => {
                     if (row.chargeBillConfigCode == k.code) {
-                        charge=_.cloneDeep(k)
+                        charge = _.cloneDeep(k)
                         return true;
                     }
                 })
-                let formData=sortBy(charge&&charge.supplementInfoConfigs||[],'sort')
-                let supplementInfoConfigs=    map(formData,(list) => {
+                let formData = sortBy(charge && charge.supplementInfoConfigs || [], 'sort')
+                let supplementInfoConfigs = map(formData, (list) => {
 
-                    let obj=codeObj[list.code]
-                    let params1=list.params
-                    if(typeof list.params=='string'){
-                        params1=JSON.parse(list.params)
+                    let obj = codeObj[list.code]
+                    let params1 = list.params
+                    if (typeof list.params == 'string') {
+                        params1 = JSON.parse(list.params)
                     }
-                    if(obj){
-                        if(typeof obj.supplementInfoConfig.params=='string'){
-                            params1=JSON.parse(list.params)
+                    if (obj) {
+                        if (typeof obj.supplementInfoConfig.params == 'string') {
+                            params1 = JSON.parse(list.params)
                         }
-                         return {...obj,
-                            type:params1.type||obj.type,
-                            valueCode:obj.valueCode|| null,
-                            valueTitle: obj.valueTitle||(params1.type==1?'': null),
-                        }
-                    }else{
                         return {
-                            supplementInfoConfig:{
+                            ...obj,
+                            type: params1.type || obj.type,
+                            valueCode: obj.valueCode || null,
+                            valueTitle: obj.valueTitle || (params1.type == 1 ? '' : null),
+                        }
+                    } else {
+                        return {
+                            supplementInfoConfig: {
                                 ...list,
-                                "flightId":row.flightId,
-                                "taskId":row.taskId,
-                                "chargeBillId":row.id,
-                                type:list.type,
+                                "flightId": row.flightId,
+                                "taskId": row.taskId,
+                                "chargeBillId": row.id,
+                                type: list.type,
                                 valueCode: null,
                                 valueTitle: null,
-                                "createrId":list.createrId,
-                                "createrName":list.createrName,
-                                "supplementCode":list.code,
-                                "supplementTitle":list.name,
+                                "createrId": list.createrId,
+                                "createrName": list.createrName,
+                                "supplementCode": list.code,
+                                "supplementTitle": list.name,
                             },
-                            "flightId":row.flightId,
-                            "taskId":row.taskId,
-                            "chargeBillId":row.id,
-                            type:params1.type,
+                            "flightId": row.flightId,
+                            "taskId": row.taskId,
+                            "chargeBillId": row.id,
+                            type: params1.type,
                             valueCode: null,
                             valueTitle: null,
-                            "createrId":list.createrId,
-                            "createrName":list.createrName,
-                            "supplementCode":list.code,
-                            "supplementTitle":list.name,
+                            "createrId": list.createrId,
+                            "createrName": list.createrName,
+                            "supplementCode": list.code,
+                            "supplementTitle": list.name,
 
                         }
                     }
                 })
                 let supplementArr = _.cloneDeep(_.sortBy(supplementInfoConfigs || [], 'sort'))
-                 return supplementArr
+                return supplementArr
             }
         },
-        getSendS(){
-            let s=false
-            if((this.sendShow&&this.searchYesterdaySend)||(!this.sendShow&&this.searchYesterdayTime)){
-                s=true
+        getSendS() {
+            let s = false
+            if ((this.sendShow && this.searchYesterdaySend) || (!this.sendShow && this.searchYesterdayTime)) {
+                s = true
             }
             return s
-        } ,
+        },
 
 
     },
     mounted() {
-        let size=localStorage.getItem('chargePageSize__')
-         this.submitData.size=size&&Number(size)||this.submitData.size
+        let size = localStorage.getItem('chargePageSize__')
+        this.submitData.size = size && Number(size) || this.submitData.size
         this.searchTime = [
             this.getTimeByFormat(new Date() - 1 * 24 * 60 * 60 * 1000, 'YY-MM-DD') + ' 00:00:00',
             this.$moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'),
@@ -1046,6 +1057,7 @@ export default {
         if (this.power) {
             this.powerData = _.cloneDeep(this.power)
         }
+        console.log('mounted');
     },
     watch: {
         searchApproval: function () {
@@ -1059,8 +1071,8 @@ export default {
         clearInterval(this.dataTimer)
     },
     methods: {
-        dealSend(){
-            this.searchSend=this.searchSend?'':true
+        dealSend() {
+            this.searchSend = this.searchSend ? '' : true
             this.searchYesterdaySend = false
             this.searchYesterdayTime = false
             this.handleLists()
@@ -1110,7 +1122,7 @@ export default {
             let startUserName = row.startUserName
 
             if (operatorName && startUserName && operatorName != startUserName) {
-                return startUserName   + ',' + operatorName
+                return startUserName + ',' + operatorName
             }
             return operatorName ? operatorName : startUserName
         },
@@ -1280,7 +1292,7 @@ export default {
                 deleted: false,
                 linkedData: true,
             }
-            if(!this.searchYesterdaySend&&!this.searchYesterdayTime){
+            if (!this.searchYesterdaySend && !this.searchYesterdayTime) {
                 if (this.searchTime && this.searchTime.length > 0) {
                     data.startTime = this.searchTime[0]
                     data.endTime = this.searchTime[1]
@@ -1288,7 +1300,7 @@ export default {
                 data.send = this.searchSend
                 data.approvalStatus = this.searchApproval
 
-            }else{
+            } else {
                 data.send = ''
                 data.approvalStatus = ''
             }
@@ -1568,37 +1580,37 @@ export default {
             // }
             this.approval(this.selections, 'arrs', false)
         },
-        chargeDataHasValue(row){
-             let itemArr =row.chargeRecords||[]
-            let blo=!itemArr.length||itemArr.some(k=>{
-                return !k.chargeData||k.chargeData==='0'
+        chargeDataHasValue(row) {
+            let itemArr = row.chargeRecords || []
+            let blo = !itemArr.length || itemArr.some(k => {
+                return !k.chargeData || k.chargeData === '0'
             })
             return blo
         },
-        approval(row, type, send,isRow) {
+        approval(row, type, send, isRow) {
 
             let data = []
             let approvalStatus = 'PASS'
             let msg = '确定审批?'
             let endHttp = false
             if (type == 'arrs') {
-                let {current,size}=this.submitData
-                let dataNum=(current-1)*size
+                let {current, size} = this.submitData
+                let dataNum = (current - 1) * size
                 if (send) {
                     approvalStatus = 'PENDING'
                     msg = '确定取消审批?'
                 } else {
-                    let arr=[]
-                    map(row,(k,i)=>{
-                        let blo =this.chargeDataHasValue(k)
-                        blo &&arr.push(k.flightNo)
+                    let arr = []
+                    map(row, (k, i) => {
+                        let blo = this.chargeDataHasValue(k)
+                        blo && arr.push(k.flightNo)
                     })
                     // console.log(2211,dataNum,arr,current,size);
-                    let s=`航班号为${arr.join('、')} 的收费单，有收费数据为空或无收费项，不能审批！`
-                    if(isRow=='row'){
-                         s='该收费单有收费数据为空或无收费项，不能审批！'
+                    let s = `航班号为${arr.join('、')} 的收费单，有收费数据为空或无收费项，不能审批！`
+                    if (isRow == 'row') {
+                        s = '该收费单有收费数据为空或无收费项，不能审批！'
                     }
-                    if(arr.length){
+                    if (arr.length) {
                         this.$alert(s, '提示', {
                             type: 'error',
                             center: true,
@@ -1880,7 +1892,7 @@ export default {
         handleSizeChange(pageSize) {
             this.submitData.current = 1
             this.submitData.size = pageSize
-            localStorage.setItem('chargePageSize__',pageSize)
+            localStorage.setItem('chargePageSize__', pageSize)
             this.findChargeBillWhitPageAndPc(this.submitData)
         },
         pageBC(pageNo) {
@@ -2034,31 +2046,37 @@ export default {
             }
         },
 
-        saveSupplement(data,row) {
-
-             if(data.supplementCode=="QZSB-FJLX"){
-                let objType={
-                    KTJ:'2',
-                    ZTJ:'1'
+        saveSupplement(data, row) {
+            console.log('www');
+            if (row) {
+                row.preventDefault()
+            }
+            if (!data) {
+                return
+            }
+            if (data.supplementCode == "QZSB-FJLX") {
+                let objType = {
+                    KTJ: '2',
+                    ZTJ: '1'
                 }
-                map(this.getChargeBill(  row),k=>{
-                    if(k.supplementCode=="QZSB-DYLX"||k.supplementCode=="QZSB-KTLX"){
-                        let obj={...k,valueCode:objType[data.valueCode]}
-                        this.saveSupplementC(obj,true)
+                map(this.getChargeBill(row), k => {
+                    if (k.supplementCode == "QZSB-DYLX" || k.supplementCode == "QZSB-KTLX") {
+                        let obj = {...k, valueCode: objType[data.valueCode]}
+                        this.saveSupplementC(obj, true)
                     }
                 })
-
+                console.log("qqq");
             }
             this.saveSupplementC(data)
 
         },
-        saveSupplementC(item,isUpdate) {
+        saveSupplementC(item, isUpdate) {
 
             let data = _.cloneDeep(item)
 
-             if (item.type == 2) {
+            if (item.type == 2) {
                 let options = this.getSupplementOption(data.supplementInfoConfig)
-                 let option = _.find(options, {code: data.valueCode})
+                let option = _.find(options, {code: data.valueCode})
                 data.valueTitle = option.describe
             } else if (item.type == 3) {
                 let title = []
@@ -2074,14 +2092,14 @@ export default {
             } else {
                 data.valueCode = data.valueTitle
             }
-             this.$axios.post('/flight-supplement-info/save', data).then((res) => {
-               if(!isUpdate){
-                   this.$message({
-                       message: res.msg,
-                       type: 'success',
-                   })
-                   this.update()
-               }
+            this.$axios.post('/flight-supplement-info/save', data).then((res) => {
+                if (!isUpdate) {
+                    this.$message({
+                        message: res.msg,
+                        type: 'success',
+                    })
+                    this.update()
+                }
             })
         },
     },
@@ -2099,25 +2117,30 @@ export default {
         background: blue !important;
     }
 }
-.myChargeInput__{
+
+.myChargeInput__ {
     outline: none;
     height: 40px;
     width: 100%;
-    padding-left:3px;
+    padding-left: 3px;
     border-radius: 5px;
     border: 1px solid #DCDFE6;
 }
+
 //:not(.myChargeInput__[disabled='disabled'])
-.myChargeInput__:hover{
+.myChargeInput__:hover {
     border-color: #b6b9c0;
 }
-.myChargeInput__:focus{
+
+.myChargeInput__:focus {
     border-color: #409EFF;
 }
-/deep/ .sendClassSelect{
+
+/deep/ .sendClassSelect {
     background: #e5dada !important;
     border-color: #e5dada;
-    span{
+
+    span {
         color: #222;
     }
 }
