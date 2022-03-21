@@ -81,23 +81,26 @@
                 <el-form-item   label="结束时间" v-if="timeShow&&type=='edit'">
                     <time-picker @timePickerTime="timePickerTime" :value="listData.endTime" :objectName="'listData'" :keyName="'endTime'" />
                 </el-form-item>
-                <el-form-item  @keyup.enter.native.stop="()=>{ }" label="操作人" v-if="type=='edit'&&rowData.chargeBillConfigCode != 'QZSB'">
+                <el-form-item  @keyup.enter.native.stop="()=>{ }" label="操作人" v-if="type=='edit'&&rowData.chargeBillConfigCode != 'QZSB'&&rowData.chargeBillConfigCode != 'KTCZ'">
                     <el-select v-model="listData.operatorId" filterable clearable placeholder="请选择">
                         <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
                     </el-select>
                 </el-form-item>
-                <!--                开始人-->
-                <el-form-item  @keyup.enter.native.stop="()=>{ }" label="开始人员" v-if="type=='edit'&&rowData.chargeBillConfigCode == 'QZSB'">
-                    <el-select v-model="listData.startUserId" filterable clearable placeholder="请选择">
-                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
-                    </el-select>
-                </el-form-item>
-                <!--                结束人员-->
-                <el-form-item label="结束人员" v-if="type=='edit'&&rowData.chargeBillConfigCode == 'QZSB'">
-                    <el-select @keyup.enter.native.stop="()=>{ }" v-model="listData.operatorId" filterable clearable placeholder="请选择">
-                        <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
-                    </el-select>
-                </el-form-item>
+                 <template v-if="type=='edit'&&(rowData.chargeBillConfigCode == 'QZSB'||rowData.chargeBillConfigCode == 'KTCZ')">
+                    <!--                开始人-->
+                    <el-form-item  @keyup.enter.native.stop="()=>{ }" label="开始人员" >
+                        <el-select v-model="listData.startUserId" filterable clearable placeholder="请选择">
+                            <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <!--                结束人员-->
+                    <el-form-item label="结束人员" >
+                        <el-select @keyup.enter.native.stop="()=>{ }" v-model="listData.operatorId" filterable clearable placeholder="请选择">
+                            <el-option v-for="item in userDeptLists" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </template>
+
 
             </template>
             <el-form-item label="备注">
