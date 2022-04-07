@@ -481,7 +481,7 @@
                                                    :disabled="!!scope.row.approvalStatus"
                                                    v-if="item.type===0||item.type===1"
                                                    :type="item.type===0?'number':'text'"
-                                                   @keyup.enter="saveSupplement(item,$event)"
+                                                   @keyup.enter="saveSupplement(item)"
                                             >
 
 
@@ -2048,9 +2048,9 @@ export default {
 
         saveSupplement(data, row) {
             console.log('www');
-            if (row) {
-                row.preventDefault()
-            }
+            // if (row&&row.preventDefault()) {
+            //     row.preventDefault()
+            // }
             if (!data) {
                 return
             }
